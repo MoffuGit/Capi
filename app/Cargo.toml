@@ -17,6 +17,7 @@ thiserror.workspace = true
 wasm-bindgen.workspace = true
 axum-extra = { workspace = true, optional = true }
 axum = { workspace = true, optional = true }
+web-sys = { workspace = true }
 
 [features]
 default = []

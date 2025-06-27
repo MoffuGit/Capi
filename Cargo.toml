@@ -27,6 +27,7 @@ tokio = { version = "1.45.0", features = ["full"] }
 tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["full"] }
 wasm-bindgen = "=0.2.100"
+web-sys = { version = "0.3", features = ["HtmlDocument"] }
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 

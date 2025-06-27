@@ -73,6 +73,7 @@ dependencies = [
  "leptos_router",
  "thiserror 2.0.12",
  "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
