@@ -1,9 +1,14 @@
+mod api;
+mod components;
+
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
     components::{Route, Router, Routes},
     StaticSegment,
 };
+
+use self::components::ui::ThemeProvider;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -31,17 +36,17 @@ pub fn App() -> impl IntoView {
     view! {
         <Stylesheet id="leptos" href="/pkg/capi.css"/>
 
-        // sets the document title
         <Title text="Welcome to Leptos"/>
 
-        // content for this welcome page
-        <Router>
-            <main>
-                <Routes fallback=|| "Page not found.".into_view()>
-                    <Route path=StaticSegment("") view=HomePage/>
-                </Routes>
-            </main>
-        </Router>
+        <ThemeProvider>
+            <Router>
+                <main>
+                    <Routes fallback=|| "Page not found.".into_view()>
+                        <Route path=StaticSegment("") view=HomePage/>
+                    </Routes>
+                </main>
+            </Router>
+        </ThemeProvider>
     }
 }
 
