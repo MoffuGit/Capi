@@ -1,0 +1,18 @@
+use crate::components::primitives::separator::Orientation;
+use crate::components::primitives::separator::Separator as SeparatorPrimitive;
+use leptos::prelude::*;
+
+const BASE: &str =  "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px";
+
+#[component]
+pub fn Separator(
+    #[prop(into, optional)] class: Signal<String>,
+    #[prop(into, default = Signal::from(Orientation::Horizontal))] orientation: Signal<
+        crate::components::primitives::separator::Orientation,
+    >,
+) -> impl IntoView {
+    let class = Signal::derive(move || format!("{} {}", BASE, class.get()));
+    view! {
+        <SeparatorPrimitive class=class orientation=orientation/>
+    }
+}

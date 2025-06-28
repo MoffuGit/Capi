@@ -1,14 +1,17 @@
 mod api;
 mod components;
+mod hooks;
+mod routes;
 
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
-    components::{Route, Router, Routes},
+    components::{ParentRoute, Route, Router, Routes},
     StaticSegment,
 };
+use routes::Home;
 
-use self::components::ui::ThemeProvider;
+use self::{components::ui::theme::ThemeProvider, routes::Servers};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -20,6 +23,12 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <AutoReload options=options.clone()/>
                 <HydrationScripts options/>
                 <MetaTags/>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
+                    rel="stylesheet"
+                />
             </head>
             <body>
                 <App/>
@@ -42,23 +51,19 @@ pub fn App() -> impl IntoView {
             <Router>
                 <main>
                     <Routes fallback=|| "Page not found.".into_view()>
-                        <Route path=StaticSegment("") view=HomePage/>
+                        <Route path=StaticSegment("") view=Home/>
+                        <ParentRoute
+                            path=StaticSegment("servers")
+                            view=Servers
+                        >
+                            <Route
+                                path=StaticSegment("")
+                                view=move || view! { <div>"list of servers"</div> }
+                            />
+                        </ParentRoute>
                     </Routes>
                 </main>
             </Router>
         </ThemeProvider>
-    }
-}
-
-/// Renders the home page of your application.
-#[component]
-fn HomePage() -> impl IntoView {
-    // Creates a reactive value to update the button
-    let count = RwSignal::new(0);
-    let on_click = move |_| *count.write() += 1;
-
-    view! {
-        <h1>"Welcome to Leptos!"</h1>
-        <button on:click=on_click>"Click Me: " {count}</button>
     }
 }

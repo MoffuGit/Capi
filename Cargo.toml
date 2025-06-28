@@ -27,7 +27,15 @@ tokio = { version = "1.45.0", features = ["full"] }
 tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["full"] }
 wasm-bindgen = "=0.2.100"
-web-sys = { version = "0.3", features = ["HtmlDocument"] }
+web-sys = { version = "0.3", features = ["HtmlDocument","MediaQueryList"] }
+strum = "0.27.1"
+strum_macros = "0.27.1"
+reactive_stores = "0.2.2"
+floating-ui-leptos = "0.5.0"
+leptos-node-ref = "0.2.0"
+leptos_dom = "0.8.2"
+leptos-typed-fallback-show = "0.2.0"
+send_wrapper = "0.6.0"
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 
