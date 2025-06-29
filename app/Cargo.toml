@@ -26,7 +26,6 @@ leptos-node-ref.workspace = true
 leptos_dom.workspace = true
 send_wrapper.workspace = true
 leptos-typed-fallback-show.workspace = true
-rand.workspace = true
 
 [features]
 default = []

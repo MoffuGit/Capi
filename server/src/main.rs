@@ -1,15 +1,39 @@
+mod state;
+
+use std::env::var;
+
 use app::*;
 use axum::Router;
+use axum_session::{SessionConfig, SessionStore};
+use axum_session_auth::AuthConfig;
+use axum_session_sqlx::SessionPgPool;
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
+use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
 async fn main() {
+    let neon_url = var("NEON_URL").expect("should acces to the NEON_URL var");
+    let pool = PgPoolOptions::new()
+        .connect(&neon_url)
+        .await
+        .expect("should make a PG pool.");
+    // Auth section
+    let session_config = SessionConfig::default().with_table_name("axum_sessions");
+    let auth_config = AuthConfig::<i64>::default();
+    let session_store =
+        SessionStore::<SessionPgPool>::new(Some(SessionPgPool::from(pool.clone())), session_config)
+            .await
+            .unwrap();
+
+    // if let Err(e) = sqlx::migrate!().run(&pool).await {
+    //     eprintln!("{e:?}");
+    // }
+
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
     let leptos_options = conf.leptos_options;
-    // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
 
     let app = Router::new()

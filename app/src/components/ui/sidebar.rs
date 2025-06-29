@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-use rand::Rng;
 use send_wrapper::SendWrapper;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
@@ -721,9 +720,10 @@ pub fn SidebarMenuSkeleton(
     #[prop(optional)] show_icon: bool,
 ) -> impl IntoView {
     let width = Memo::new(move |_| {
-        let mut rng = rand::rng();
-        let random_width = rng.random_range(50..=90);
-        format!("{random_width}%")
+        // randomRange
+        // let mut rng = rand::rng();
+        // let random_width = rng.random_range(50..=90);
+        format!("{}%", 20)
     });
 
     view! {

@@ -14,7 +14,9 @@ leptos_meta = { version = "0.8.2" }
 leptos_router = { version = "0.8.2", features = ["nightly"] }
 leptos_axum = { version = "0.8.2" }
 
-axum = "0.8.4"
+axum = { version =  "0.8.4", features = ["macros"] }
+oauth2 = "5.0.0"
+anyhow = "1"
 axum-extra = { version =  "0.10.1", features = ["cookie"] }
 cfg-if = "1.0.0"
 console_error_panic_hook = "0.1.7"
@@ -28,7 +30,6 @@ tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["full"] }
 wasm-bindgen = "=0.2.100"
 web-sys = { version = "0.3", features = ["HtmlDocument","MediaQueryList"] }
-rand = "0.9.1"
 strum = "0.27.1"
 strum_macros = "0.27.1"
 reactive_stores = "0.2.2"
@@ -37,6 +38,10 @@ leptos-node-ref = "0.2.0"
 leptos_dom = "0.8.2"
 leptos-typed-fallback-show = "0.2.0"
 send_wrapper = "0.6.0"
+axum_session_auth = { version = "0.16.0" }
+axum_session_sqlx = { version = "0.5.0" }
+sqlx = { version = "0.8", features = [ "runtime-tokio", "postgres", "tls-rustls"] }
+axum_session = "0.16.0"
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 
