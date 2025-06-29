@@ -2,7 +2,7 @@ use leptos::prelude::*;
 
 #[server(ToggleTheme)]
 pub async fn toggle_theme(theme: bool) -> Result<bool, ServerFnError> {
-    use axum::http::{header::SET_COOKIE, HeaderMap, HeaderValue};
+    use axum::http::{HeaderMap, HeaderValue, header::SET_COOKIE};
     use leptos_axum::{ResponseOptions, ResponseParts};
 
     let response =

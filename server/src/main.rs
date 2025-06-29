@@ -1,22 +1,27 @@
 mod state;
 
-use std::env::var;
-
 use app::*;
+use auth::AuthUser;
 use axum::Router;
-use axum_session::{SessionConfig, SessionStore};
-use axum_session_auth::AuthConfig;
+use axum_session::{SessionConfig, SessionLayer, SessionStore};
+use axum_session_auth::{AuthConfig, AuthSessionLayer};
 use axum_session_sqlx::SessionPgPool;
+use dotenv::dotenv;
+use dotenv_codegen::dotenv;
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
+
+use self::state::AppState;
 
 #[tokio::main]
 async fn main() {
-    let neon_url = var("NEON_URL").expect("should acces to the NEON_URL var");
+    dotenv().ok();
+    let neon_url = dotenv!("NEON_URL");
     let pool = PgPoolOptions::new()
-        .connect(&neon_url)
+        .connect(neon_url)
         .await
         .expect("should make a PG pool.");
     // Auth section
@@ -36,13 +41,24 @@ async fn main() {
     let leptos_options = conf.leptos_options;
     let routes = generate_route_list(App);
 
+    let app_state = AppState {
+        leptos_options,
+        pool: pool.clone(),
+        routes: routes.clone(),
+    };
+
     let app = Router::new()
-        .leptos_routes(&leptos_options, routes, {
-            let leptos_options = leptos_options.clone();
-            move || shell(leptos_options.clone())
+        .leptos_routes(&app_state, routes, {
+            let options = app_state.leptos_options.clone();
+            move || shell(options.clone())
         })
-        .fallback(leptos_axum::file_and_error_handler(shell))
-        .with_state(leptos_options);
+        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
+        .layer(
+            AuthSessionLayer::<AuthUser, i64, SessionPgPool, PgPool>::new(Some(pool.clone()))
+                .with_config(auth_config),
+        )
+        .layer(SessionLayer::new(session_store))
+        .with_state(app_state);
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`

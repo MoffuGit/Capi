@@ -1,0 +1,16 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+leptos.workspace = true
+leptos_axum = { workspace = true, optional = true }
+axum-extra = { workspace = true, optional = true }
+axum = { workspace = true, optional = true }
+common = { path = "../common" }
+auth = { path = "../auth", optional = true }
+
+[features]
+hydrate = ["leptos/hydrate"]
+ssr = ["leptos/ssr", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:auth"]

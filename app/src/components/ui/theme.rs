@@ -1,7 +1,6 @@
+use api::theme::ToggleTheme;
 use leptos::prelude::*;
 use leptos_meta::{Body, Html};
-
-use crate::api::ToggleTheme;
 
 #[derive(Clone)]
 pub struct ThemeContext {
@@ -36,7 +35,6 @@ fn initial_prefers_dark() -> bool {
         })
         .unwrap_or(false)
 }
-
 #[component]
 pub fn ThemeProvider(children: ChildrenFn) -> impl IntoView {
     let initial = initial_prefers_dark();

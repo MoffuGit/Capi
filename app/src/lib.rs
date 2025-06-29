@@ -1,4 +1,3 @@
-mod api;
 mod components;
 mod hooks;
 mod routes;

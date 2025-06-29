@@ -1,0 +1,14 @@
+[package]
+name = "auth"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sqlx.workspace = true
+axum_session_sqlx.workspace = true
+axum_session_auth.workspace = true
+common = { path = "../common" }
+leptos.workspace = true
+async-trait.workspace = true
+leptos_axum.workspace = true
+anyhow.workspace = true

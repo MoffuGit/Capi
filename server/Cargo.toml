@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app", default-features = false, features = ["ssr"] }
+common = { path = "../common",  default-features = false, features = ["ssr"]}
+auth = { path = "../auth" }
 leptos = { workspace = true, features = [ "ssr" ]}
 leptos_axum.workspace = true
 
@@ -22,3 +24,6 @@ sqlx.workspace = true
 oauth2.workspace = true
 anyhow.workspace = true
 axum_session.workspace = true
+async-trait.workspace = true
+dotenv.workspace = true
+dotenv_codegen.workspace = true
