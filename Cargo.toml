@@ -28,6 +28,7 @@ tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["full"] }
 wasm-bindgen = "=0.2.100"
 web-sys = { version = "0.3", features = ["HtmlDocument","MediaQueryList"] }
+rand = "0.9.1"
 strum = "0.27.1"
 strum_macros = "0.27.1"
 reactive_stores = "0.2.2"

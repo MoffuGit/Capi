@@ -1,4 +1,3 @@
-use floating_ui_leptos::{use_floating, UseFloatingOptions};
 use leptos::html::Div;
 use leptos::prelude::{on_cleanup, Effect, Get, NodeRef, ReadSignal, RwSignal, Set, WriteSignal};
 use leptos_dom::log;
@@ -17,6 +16,7 @@ pub struct DialogRootContext {
     pub trigger_ref: NodeRef<Div>,
     pub backdrop_ref: NodeRef<Div>,
     pub internal_backdrop_ref: NodeRef<Div>,
+    pub dismissible: bool,
     // floatingRootContext: FloatingRootContext;
 }
 
@@ -57,10 +57,6 @@ pub fn use_dialog_route(params: DialogRouteParams) -> DialogRootContext {
     on_cleanup(move || {
         mounted.set(false);
     });
-    Effect::new(move |_| log!("{}", open.get()));
-    // Effect::new(move |_| {
-    //     on_open_change(open.get());
-    // });
 
     DialogRootContext {
         description_element_id,
@@ -73,5 +69,6 @@ pub fn use_dialog_route(params: DialogRouteParams) -> DialogRootContext {
         backdrop_ref,
         internal_backdrop_ref,
         trigger_ref,
+        dismissible,
     }
 }

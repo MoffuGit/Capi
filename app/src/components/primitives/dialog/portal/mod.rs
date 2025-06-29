@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use leptos::context::Provider;
 use leptos::prelude::*;
 use leptos_node_ref::AnyNodeRef;
@@ -14,11 +16,13 @@ pub fn DialogPortal(
     #[prop(optional)] container_ref: AnyNodeRef,
     #[prop(into, optional)] as_child: MaybeProp<bool>,
     #[prop(optional)] node_ref: AnyNodeRef,
-    children: ChildrenFn,
+    #[prop(default = 200)] open_duration: u64,
+    #[prop(default = 200)] close_duration: u64,
+    children: StoredValue<Arc<dyn Fn() -> AnyView + Send + Sync + 'static>>,
 ) -> impl IntoView {
     let context = use_dialog_root_context();
-    let children = StoredValue::new(children);
-    let transition_state = use_transition_status(context.open, true, true);
+    let transition_state =
+        use_transition_status(context.open, true, true, open_duration, close_duration);
     let mounted = transition_state.mounted;
     let transition_status = transition_state.transition_status;
     view! {

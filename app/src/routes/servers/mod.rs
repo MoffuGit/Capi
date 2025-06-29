@@ -1,23 +1,25 @@
 use leptos::prelude::*;
-use leptos_router::components::Outlet;
+use leptos_dom::log;
 
-use crate::components::primitives::dialog::{DialogPopup, DialogPortal, DialogRoot, DialogTrigger};
-use crate::components::ui::button::Button;
+use crate::components::primitives::common::is_mobile;
+use crate::components::ui::button::{Button, ButtonSizes};
+// use crate::components::ui::dialog::{Dialog, DialogPopup, DialogTrigger};
+use crate::components::ui::sheet::*;
+use crate::components::ui::sidebar::{
+    SideBarCollapsible, Sidebar, SidebarProvider, SidebarRail, SidebarTrigger,
+};
 
 #[component]
 pub fn Servers() -> impl IntoView {
-    let open = RwSignal::new(false);
+    let is_mobile = is_mobile();
+    Effect::new(move |_| log!("{}", is_mobile()));
     view! {
-        <DialogRoot open=open>
-            <DialogTrigger as_child=true>
-                <Button >
-                    "Open Dialog"
-                </Button >
-            </DialogTrigger>
-            <DialogPortal>
-                <DialogPopup/>
-            </DialogPortal>
-        </DialogRoot>
-        <Outlet/>
+        <SidebarProvider>
+        <Sidebar collapsible=SideBarCollapsible::Icon>
+            <div/>
+            <SidebarRail/>
+        </Sidebar>
+        <SidebarTrigger/>
+        </SidebarProvider>
     }
 }

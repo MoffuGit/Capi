@@ -16,13 +16,13 @@ pub fn DialogRoot(
     #[prop(default = true)] dismissible: bool,
     children: Children,
 ) -> impl IntoView {
-    let dialog_route = use_dialog_route(DialogRouteParams {
+    let dialog_root = use_dialog_route(DialogRouteParams {
         open,
         modal,
         dismissible,
     });
     view! {
-        <Provider value=dialog_route>
+        <Provider value=dialog_root>
             {children()}
         </Provider>
     }

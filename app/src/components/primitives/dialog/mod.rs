@@ -1,3 +1,5 @@
+#![allow(unused)]
+mod overlay;
 mod popup;
 mod portal;
 mod root;
@@ -6,6 +8,7 @@ mod trigger;
 use std::rc::Rc;
 
 use leptos::prelude::*;
+pub use overlay::DialogOverlay;
 pub use popup::DialogPopup;
 pub use portal::DialogPortal;
 pub use root::DialogRoot;
@@ -49,9 +52,9 @@ pub fn use_transition_status(
     open: ReadSignal<bool>,
     enable_idle_state: bool,
     defer_ending_state: bool,
+    open_duration: u64,
+    close_duration: u64,
 ) -> TransitionStatusState {
-    const ANIMATION_DURATION_MS: u64 = 200; // Matches data-[state] CSS duration
-
     // Always start in Undefined, allow effects to transition to Idle.
     let transition_status: RwSignal<TransitionStatus> = RwSignal::new(TransitionStatus::Undefined);
     // `mounted` controls whether the dialog content (Portal) is in the DOM.
@@ -122,7 +125,7 @@ pub fn use_transition_status(
                     move || {
                         transition_status_setter.set(TransitionStatus::Idle);
                     },
-                    std::time::Duration::from_millis(ANIMATION_DURATION_MS),
+                    std::time::Duration::from_millis(open_duration),
                 )
                 .expect("Failed to set timeout for Idle transition");
                 on_cleanup(move || {
@@ -182,7 +185,7 @@ pub fn use_transition_status(
                 move || {
                     transition_status_setter.set(TransitionStatus::Undefined);
                 },
-                std::time::Duration::from_millis(ANIMATION_DURATION_MS - 10),
+                std::time::Duration::from_millis(close_duration - 10),
             )
             .expect("Failed to set timeout for Undefined transition");
             on_cleanup(move || {
