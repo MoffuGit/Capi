@@ -9,6 +9,7 @@ edition = "2021"
 app = { path = "../app", default-features = false, features = ["ssr"] }
 common = { path = "../common",  default-features = false, features = ["ssr"]}
 auth = { path = "../auth" }
+# convex_struct = { path = "../convex", default-features = false, features = ["ssr"] }
 leptos = { workspace = true, features = [ "ssr" ]}
 leptos_axum.workspace = true
 
@@ -27,3 +28,4 @@ axum_session.workspace = true
 async-trait.workspace = true
 dotenv.workspace = true
 dotenv_codegen.workspace = true
+convex.workspace = true

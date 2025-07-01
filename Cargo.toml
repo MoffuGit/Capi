@@ -14,6 +14,7 @@ leptos_meta = { version = "0.8.2" }
 leptos_router = { version = "0.8.2", features = ["nightly"] }
 leptos_axum = { version = "0.8.2" }
 
+tailwind_fuse = { version =  "0.3.2", features = ["variant"] }
 axum = { version =  "0.8.4", features = ["macros"] }
 oauth2 = "5.0.0"
 anyhow = "1"
@@ -39,7 +40,11 @@ leptos_dom = "0.8.2"
 leptos-typed-fallback-show = "0.2.0"
 send_wrapper = "0.6.0"
 axum_session_auth = { version = "0.16.0" }
-axum_session_sqlx = { version = "0.5.0" }
+axum_session_sqlx = { version = "0.5.0", features = [
+    "postgres",
+    "tls-rustls",
+] }
+convex = "0.9.0"
 sqlx = { version = "0.8", features = [ "runtime-tokio", "postgres", "tls-rustls"] }
 axum_session = "0.16.0"
 serde = { version = "1", features = ["derive"] }
@@ -47,6 +52,8 @@ serde_json = "1"
 async-trait = "0.1"
 dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
+reqwest = { version = "0.12", features = ["json"] }
+futures = "0.3.31"
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 

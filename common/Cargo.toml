@@ -6,8 +6,12 @@ edition = "2024"
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true
+leptos.workspace = true
+
+axum = { workspace = true, optional = true }
+leptos_axum = { workspace = true, optional = true }
 sqlx = { workspace = true, optional = true } 
 
 [features]
 default = []
-ssr = ["dep:sqlx"]
+ssr = ["dep:sqlx", "dep:axum", "dep:leptos_axum"]

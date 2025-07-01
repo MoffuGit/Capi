@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 pub struct User {
     pub id: i64,
     pub email: String,
-    pub username: String,
     pub permissions: HashSet<String>,
 }
 
@@ -17,7 +16,6 @@ impl Default for User {
         Self {
             id: -1,
             email: "example@example.com".into(),
-            username: "Guest".into(),
             permissions,
         }
     }
@@ -31,7 +29,7 @@ pub mod ssr {
 
     use super::User;
 
-    #[derive(sqlx::FromRow, Clone)]
+    #[derive(sqlx::FromRow, Clone, Debug)]
     pub struct SqlPermissionTokens {
         pub token: String,
     }
@@ -39,12 +37,12 @@ pub mod ssr {
     #[derive(sqlx::FromRow, Clone)]
     pub struct SqlCsrfToken {
         pub csrf_token: String,
+        pub pkce_token: String,
     }
 
-    #[derive(sqlx::FromRow, Clone)]
+    #[derive(sqlx::FromRow, Clone, Debug)]
     pub struct SqlUser {
         pub id: i64,
-        pub username: String,
         pub email: String,
     }
 
@@ -58,7 +56,6 @@ pub mod ssr {
             User {
                 id: self.id,
                 email: self.email,
-                username: self.username,
                 permissions: if let Some(user_perms) = sql_user_perms {
                     user_perms
                         .into_iter()
@@ -72,26 +69,26 @@ pub mod ssr {
     }
     impl User {
         pub async fn get(id: i64, pool: &PgPool) -> Option<Self> {
-            let sqluser = sqlx::query_as::<_, SqlUser>("SELECT * FROM users WHERE id = ?")
+            let sqluser = sqlx::query_as::<_, SqlUser>("SELECT * FROM users WHERE id = $1")
                 .bind(id)
                 .fetch_one(pool)
                 .await
                 .ok()?;
 
             //lets just get all the tokens the user can use, we will only use the full permissions if modifying them.
-            let sql_user_perms = sqlx::query_as::<_, SqlPermissionTokens>(
-                "SELECT token FROM user_permissions WHERE user_id = ?;",
-            )
-            .bind(id)
-            .fetch_all(pool)
-            .await
-            .ok()?;
+            // let sql_user_perms = sqlx::query_as::<_, SqlPermissionTokens>(
+            //     "SELECT token FROM user_permissions WHERE user_id = $1;",
+            // )
+            // .bind(id)
+            // .fetch_all(pool)
+            // .await
+            // .ok()?;
 
-            Some(sqluser.into_user(Some(sql_user_perms)))
+            Some(sqluser.into_user(Some(vec![])))
         }
 
         pub async fn get_from_email(email: &str, pool: &PgPool) -> Option<Self> {
-            let sqluser = sqlx::query_as::<_, SqlUser>("SELECT * FROM users WHERE email = ?")
+            let sqluser = sqlx::query_as::<_, SqlUser>("SELECT * FROM users WHERE email = $1")
                 .bind(email)
                 .fetch_one(pool)
                 .await
@@ -99,12 +96,13 @@ pub mod ssr {
 
             //lets just get all the tokens the user can use, we will only use the full permissions if modifying them.
             let sql_user_perms = sqlx::query_as::<_, SqlPermissionTokens>(
-                "SELECT token FROM user_permissions WHERE user_id = ?;",
+                "SELECT token FROM user_permissions WHERE user_id = $1;",
             )
             .bind(sqluser.id)
             .fetch_all(pool)
             .await
-            .ok()?;
+            .ok()
+            .unwrap_or_default();
 
             Some(sqluser.into_user(Some(sql_user_perms)))
         }

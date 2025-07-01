@@ -9,6 +9,13 @@ axum_session_sqlx.workspace = true
 axum_session_auth.workspace = true
 common = { path = "../common" }
 leptos.workspace = true
+leptos_router.workspace = true
 async-trait.workspace = true
 leptos_axum.workspace = true
 anyhow.workspace = true
+oauth2.workspace = true
+dotenv.workspace = true
+dotenv_codegen.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true

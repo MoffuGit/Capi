@@ -1,23 +1,15 @@
+use api::sidebar::{SideBarState, ToggleSideBar, SIDEBAR_COOKIE_NAME};
 use leptos::prelude::*;
 use send_wrapper::SendWrapper;
+use tailwind_fuse::tw_merge;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
 use web_sys::MouseEvent;
 
-const SIDEBAR_COOKIE_NAME: &str = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE: usize = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH: &str = "16rem";
 const SIDEBAR_WIDTH_MOBILE: &str = "18rem";
 const SIDEBAR_WIDTH_ICON: &str = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT: &str = "b";
-
-#[derive(Debug, PartialEq, Clone, strum_macros::Display)]
-enum State {
-    #[strum(to_string = "expanded")]
-    Expanded,
-    #[strum(to_string = "collapsed")]
-    Collapsed,
-}
 
 use crate::components::icons::IconPanelLeft;
 use crate::components::primitives::common::{is_mobile, Side};
@@ -32,7 +24,7 @@ struct SidebarContextValue {
     open: RwSignal<bool>,
     open_mobile: RwSignal<bool>,
     is_mobile: Memo<bool>,
-    state: Memo<State>,
+    state: Memo<SideBarState>,
     toggle_sidebar: Callback<()>,
 }
 
@@ -84,7 +76,33 @@ fn sidebar_menu_button_variants(
         SidebarMenuButtonSize::Lg => "h-12 text-sm group-data-[collapsible=icon]:p-0!",
     };
 
-    format!("{base_classes} {variant_classes} {size_classes}")
+    tw_merge!(base_classes, variant_classes, size_classes)
+}
+
+#[cfg(not(feature = "ssr"))]
+fn initial_state() -> bool {
+    use wasm_bindgen::JsCast;
+    let doc = document().unchecked_into::<web_sys::HtmlDocument>();
+    let cookie = doc.cookie().unwrap_or_default();
+    cookie.contains(&format!("{SIDEBAR_COOKIE_NAME}=expanded"))
+}
+
+// Server-side implementation for reading the sidebar state from cookies
+#[cfg(feature = "ssr")]
+fn initial_state() -> bool {
+    use axum_extra::extract::cookie::CookieJar;
+    use_context::<http::request::Parts>()
+        .and_then(|req| {
+            let cookies = CookieJar::from_headers(&req.headers);
+            cookies
+                .get(SIDEBAR_COOKIE_NAME)
+                .and_then(|v| match v.value() {
+                    "expanded" => Some(true),
+                    "collapsed" => Some(false),
+                    _ => None,
+                })
+        })
+        .unwrap_or(false) // Default to collapsed if cookie is not present or invalid
 }
 
 #[component]
@@ -95,6 +113,9 @@ pub fn SidebarProvider(
     #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
+    open.set(initial_state());
+    let toggle_sidebar_action = ServerAction::<ToggleSideBar>::new();
+
     let is_mobile = is_mobile();
     let open_mobile = RwSignal::new(false);
 
@@ -105,15 +126,6 @@ pub fn SidebarProvider(
             open.set(value.0);
         }
     });
-
-    // Effect::new(move |_| {
-    //     let doc = document().unchecked_into::<web_sys::HtmlDocument>();
-    //     let cookie_value = format!(
-    //         "{SIDEBAR_COOKIE_NAME}={}; path=/; max-age={SIDEBAR_COOKIE_MAX_AGE}",
-    //         open.get()
-    //     );
-    //     let _ = doc.set_cookie(&cookie_value);
-    // });
 
     let toggle_sidebar = Callback::new(move |_| {
         if is_mobile.get_untracked() {
@@ -162,11 +174,13 @@ pub fn SidebarProvider(
     // This makes it easier to style the sidebar with Tailwind classes.
     let state = Memo::new(move |_| {
         if open.get() {
-            State::Expanded
+            SideBarState::Expanded
         } else {
-            State::Collapsed
+            SideBarState::Collapsed
         }
     });
+
+    Effect::new(move |_| toggle_sidebar_action.dispatch(ToggleSideBar { state: state.get() }));
 
     provide_context(SidebarContextValue {
         open,
@@ -178,7 +192,7 @@ pub fn SidebarProvider(
 
     let style_str = Memo::new(move |_| {
         let mut s = format!(
-            "--sidebar-width: {SIDEBAR_WIDTH}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON};"
+            "--sidebar-width: {SIDEBAR_WIDTH}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; "
         );
         if let Some(user_style) = style.as_ref() {
             s.push_str(user_style);
@@ -259,7 +273,7 @@ pub fn Sidebar(
     });
 
     let sidebar_container_class = Memo::new(move |_| {
-        format!("{} {} {} {}","fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex", if side == Side::Left {
+        tw_merge!("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex", if side == Side::Left {
             "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
         } else {
             "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]"
@@ -269,7 +283,7 @@ pub fn Sidebar(
         } else {
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l"
         },
-            final_class
+            &final_class
         )
     });
     view! {
@@ -299,7 +313,7 @@ pub fn Sidebar(
                 class="group peer text-sidebar-foreground hidden md:block"
                 data-state=move || state().to_string()
                 data-collapsible=Memo::new(move |_| {
-                    if state.get() == State::Collapsed {
+                    if state.get() == SideBarState::Collapsed {
                         collapsible.to_string()
                     } else {
                         "".to_string()
@@ -549,14 +563,14 @@ pub fn SidebarGroupAction(
 
 #[component]
 pub fn SidebarGroupContent(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <div
             data-slot="sidebar-group-content"
             data-sidebar="group-content"
-            class=format!("w-full text-sm {}", &class.unwrap_or_default())
+            class=tw_merge!("w-full text-sm", &class.get())
         >
             {children()}
         </div>
@@ -609,27 +623,23 @@ pub fn SidebarMenuButton(
     let is_mobile = sidebar_context.is_mobile;
     let state = sidebar_context.state;
 
-    let button_class = format!(
-        "{} {}",
-        &sidebar_menu_button_variants(variant, size),
-        &class.unwrap_or_default(),
-    );
+    let button_class = Signal::derive(move || {
+        tw_merge!(
+            &sidebar_menu_button_variants(variant, size),
+            &class.clone().unwrap_or_default(),
+        )
+    });
 
-    let button_view = if as_child {
-        children().into_any()
-    } else {
-        view! {
-            <button
-                data-slot="sidebar-menu-button"
-                data-sidebar="menu-button"
-                data-size=size.to_string()
-                data-active=is_active.to_string()
-                class=button_class
-            >
-                {children()}
-            </button>
-        }
-        .into_any()
+    let button_view = view! {
+        <button
+            class={button_class}
+            data-active=is_active.to_string()
+            data-sidebar="menu-button"
+            data-slot="sidebar-menu-button"
+            data-size=size.to_string()
+        >
+            {children()}
+        </button>
     };
 
     // if tooltip.is_none() {

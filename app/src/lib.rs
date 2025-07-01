@@ -5,12 +5,15 @@ mod routes;
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
-    components::{ParentRoute, Route, Router, Routes},
-    StaticSegment,
+    components::{Outlet, ParentRoute, Route, Router, Routes},
+    ParamSegment, StaticSegment,
 };
 use routes::Home;
 
-use self::{components::ui::theme::ThemeProvider, routes::Servers};
+use self::{
+    components::{auth::AuthProvider, ui::theme::ThemeProvider},
+    routes::{Auth, GoogleAuth, Servers},
+};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -38,31 +41,48 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 
 #[component]
 pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
     view! {
         <Stylesheet id="leptos" href="/pkg/capi.css"/>
 
-        <Title text="Welcome to Leptos"/>
+        <Title text="Capi"/>
 
         <ThemeProvider>
-            <Router>
-                <main>
-                    <Routes fallback=|| "Page not found.".into_view()>
-                        <Route path=StaticSegment("") view=Home/>
-                        <ParentRoute
-                            path=StaticSegment("servers")
-                            view=Servers
-                        >
-                            <Route
-                                path=StaticSegment("")
-                                view=move || view! { <div>"list of servers"</div> }
-                            />
-                        </ParentRoute>
-                    </Routes>
-                </main>
-            </Router>
+            <AuthProvider>
+                <Router>
+                    <main>
+                        <Routes fallback=|| "Page not found.".into_view()>
+                            <Route path=StaticSegment("") view=Home/>
+                            <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
+                                <Route path=StaticSegment("") view=Auth />
+                                <Route path=StaticSegment("google")  view=GoogleAuth/>
+                            </ParentRoute>
+                            <ParentRoute
+                                path=StaticSegment("servers")
+                                view=Servers
+                            >
+                                <Route
+                                    path=StaticSegment("")
+                                    view=move || view! { <div>"servers"</div> }
+                                />
+                                <Route
+                                    path=StaticSegment("discover")
+                                    view=move || view! { <div>"discover servers"</div> }
+                                />
+                                <Route
+                                    path=StaticSegment("me")
+                                    view=move || view! { <div>"Private conversations"</div> }
+                                />
+                                <Route
+                                    path=(ParamSegment("server"), ParamSegment("channel"))
+                                    view=move || view! { <div>"server channel"</div> }
+                                />
+                            </ParentRoute>
+                        </Routes>
+                    </main>
+                </Router>
+            </AuthProvider>
         </ThemeProvider>
     }
 }

@@ -11,6 +11,6 @@ pub fn Input(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     )
     };
     view! {
-        <input class=class  />
+        <input class=class />
     }
 }

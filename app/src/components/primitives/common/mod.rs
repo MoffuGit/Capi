@@ -26,7 +26,7 @@ pub enum Side {
 }
 
 pub fn is_mobile() -> Memo<bool> {
-    let (window_size, set_window_size) = signal(0.0);
+    let (window_size, set_window_size) = signal(f64::MAX);
 
     let is_mobile = Memo::new(move |_| window_size.get() <= 768.0);
 

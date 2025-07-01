@@ -1,3 +1,5 @@
+pub mod clients;
+
 pub use axum_session_auth::{Authentication, HasPermission};
 use axum_session_sqlx::SessionPgPool;
 use common::user::User;
@@ -6,7 +8,7 @@ pub use sqlx::PgPool;
 pub type AuthSession = axum_session_auth::AuthSession<AuthUser, i64, SessionPgPool, PgPool>;
 
 pub async fn auth() -> Result<AuthSession, ServerFnError> {
-    let auth = leptos_axum::extract().await?;
+    let auth: AuthSession = leptos_axum::extract().await?;
     Ok(auth)
 }
 
@@ -28,7 +30,7 @@ impl Authentication<AuthUser, i64, PgPool> for AuthUser {
 
         let user = User::get(userid, pool)
             .await
-            .ok_or_else(|| anyhow::anyhow!("Cannot get user"))?;
+            .ok_or_else(|| anyhow::anyhow!("Cannot get user for userid: {}", userid))?;
         Ok(AuthUser(user))
     }
 

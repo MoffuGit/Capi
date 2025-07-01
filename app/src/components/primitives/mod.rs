@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+pub mod button;
 pub mod common;
 pub mod dialog;
 pub mod portal;

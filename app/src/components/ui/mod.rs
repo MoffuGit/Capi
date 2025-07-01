@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 pub mod button;
+pub mod card;
 pub mod dialog;
 pub mod divider;
 pub mod input;
+pub mod label;
 pub mod sheet;
 pub mod sidebar;
 pub mod skeleton;

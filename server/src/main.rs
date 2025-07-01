@@ -1,11 +1,11 @@
-mod state;
-
 use app::*;
 use auth::AuthUser;
 use axum::Router;
 use axum_session::{SessionConfig, SessionLayer, SessionStore};
 use axum_session_auth::{AuthConfig, AuthSessionLayer};
 use axum_session_sqlx::SessionPgPool;
+use common::state::AppState;
+use convex::ConvexClient;
 use dotenv::dotenv;
 use dotenv_codegen::dotenv;
 use leptos::logging::log;
@@ -14,17 +14,21 @@ use leptos_axum::{generate_route_list, LeptosRoutes};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
-use self::state::AppState;
-
 #[tokio::main]
 async fn main() {
     dotenv().ok();
     let neon_url = dotenv!("NEON_URL");
+    let convex_url = dotenv!("CONVEX_URL");
+
     let pool = PgPoolOptions::new()
         .connect(neon_url)
         .await
         .expect("should make a PG pool.");
-    // Auth section
+
+    let convex_client = ConvexClient::new(convex_url)
+        .await
+        .expect("should make a Convec client");
+
     let session_config = SessionConfig::default().with_table_name("axum_sessions");
     let auth_config = AuthConfig::<i64>::default();
     let session_store =
@@ -32,9 +36,9 @@ async fn main() {
             .await
             .unwrap();
 
-    // if let Err(e) = sqlx::migrate!().run(&pool).await {
-    //     eprintln!("{e:?}");
-    // }
+    if let Err(e) = sqlx::migrate!().run(&pool).await {
+        eprintln!("{e:?}");
+    }
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -45,6 +49,7 @@ async fn main() {
         leptos_options,
         pool: pool.clone(),
         routes: routes.clone(),
+        convex: convex_client,
     };
 
     let app = Router::new()

@@ -8,9 +8,16 @@ leptos.workspace = true
 leptos_axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
 axum = { workspace = true, optional = true }
-common = { path = "../common" }
+common = { path = "../common", optional = true }
 auth = { path = "../auth", optional = true }
+sqlx = { workspace = true, optional = true }
+strum.workspace = true
+futures.workspace = true
+strum_macros.workspace = true
+serde.workspace = true
+tokio = { workspace = true, optional = true }
+serde_json.workspace = true
 
 [features]
-hydrate = ["leptos/hydrate"]
-ssr = ["leptos/ssr", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:auth"]
+hydrate = ["leptos/hydrate", "dep:common"]
+ssr = ["leptos/ssr", "dep:leptos_axum", "dep:tokio", "dep:axum-extra", "dep:axum", "dep:auth", "dep:common", "dep:sqlx"]

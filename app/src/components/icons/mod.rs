@@ -23,6 +23,17 @@ pub fn Icon(children: Children, #[prop(into, optional)] class: Signal<String>) -
 }
 
 #[component]
+pub fn GlobeIcon(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+            <path d="M2 12h20"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconX(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>

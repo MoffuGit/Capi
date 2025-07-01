@@ -1,25 +1,27 @@
-use leptos::prelude::*;
-use leptos_dom::log;
+mod components;
 
-use crate::components::primitives::common::is_mobile;
-use crate::components::ui::button::{Button, ButtonSizes};
-// use crate::components::ui::dialog::{Dialog, DialogPopup, DialogTrigger};
-use crate::components::ui::sheet::*;
-use crate::components::ui::sidebar::{
-    SideBarCollapsible, Sidebar, SidebarProvider, SidebarRail, SidebarTrigger,
-};
+use leptos::prelude::*;
+
+use crate::components::primitives::common::Orientation;
+use crate::components::ui::divider::Separator;
+use crate::components::ui::sidebar::{SidebarInset, SidebarProvider, SidebarTrigger};
+
+use self::components::sidebar::SideBar;
 
 #[component]
 pub fn Servers() -> impl IntoView {
-    let is_mobile = is_mobile();
-    Effect::new(move |_| log!("{}", is_mobile()));
     view! {
-        <SidebarProvider>
-        <Sidebar collapsible=SideBarCollapsible::Icon>
-            <div/>
-            <SidebarRail/>
-        </Sidebar>
-        <SidebarTrigger/>
+        <SidebarProvider style="--sidebar-width: 350px;">
+            <SideBar/>
+            <SidebarInset>
+                <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-4">
+                    <SidebarTrigger class="-ml-1" />
+                    <Separator
+                        orientation=Orientation::Vertical
+                        class="mr-2 data-[orientation=vertical]:h-4"
+                    />
+                </header>
+            </SidebarInset>
         </SidebarProvider>
     }
 }
