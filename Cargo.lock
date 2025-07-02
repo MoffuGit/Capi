@@ -123,6 +123,8 @@ dependencies = [
  "axum",
  "axum-extra",
  "common",
+ "convex",
+ "diffus",
  "futures",
  "leptos",
  "leptos_axum",
@@ -144,6 +146,7 @@ dependencies = [
  "cfg-if",
  "common",
  "floating-ui-leptos",
+ "futures",
  "http",
  "leptos",
  "leptos-node-ref",
@@ -154,6 +157,8 @@ dependencies = [
  "leptos_router",
  "reactive_stores",
  "send_wrapper",
+ "serde",
+ "serde_json",
  "strum",
  "strum_macros",
  "tailwind_fuse",
@@ -625,6 +630,7 @@ name = "common"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "convex",
  "leptos",
  "leptos_axum",
  "serde",
@@ -972,6 +978,16 @@ dependencies = [
  "quote",
  "rustc_version",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "diffus"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c0ff24a73b51d9009c40897faf87d31b77345c90ffbf4dc3a1d2957032c5653"
+dependencies = [
+ "itertools 0.10.5",
+ "serde",
 ]
 
 [[package]]
@@ -1961,6 +1977,15 @@ dependencies = [
 
 [[package]]
 name = "itertools"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
@@ -2157,7 +2182,7 @@ dependencies = [
  "cfg-if",
  "convert_case 0.8.0",
  "html-escape",
- "itertools",
+ "itertools 0.14.0",
  "leptos_hot_reload",
  "prettyplease",
  "proc-macro-error2",
@@ -3044,7 +3069,7 @@ checksum = "23e02f30b9cc6645e330e926dd778d4bcbd0e5770bdf4ec3d422dc0fe3c52a41"
 dependencies = [
  "dashmap",
  "guardian",
- "itertools",
+ "itertools 0.14.0",
  "or_poisoned",
  "paste",
  "reactive_graph",
@@ -3956,7 +3981,7 @@ dependencies = [
  "futures",
  "html-escape",
  "indexmap",
- "itertools",
+ "itertools 0.14.0",
  "js-sys",
  "linear-map",
  "next_tuple",

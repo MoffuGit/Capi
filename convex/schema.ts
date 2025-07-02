@@ -8,6 +8,9 @@ export default defineSchema({
     image_url: v.optional(v.string()),
     owner_id: v.int64(),
   }),
+  tasks: defineTable({
+    text: v.string(),
+  }),
   invitations: defineTable({
     server: v.id("servers"),
     invitation: v.string(),

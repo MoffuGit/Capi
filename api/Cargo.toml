@@ -17,7 +17,9 @@ strum_macros.workspace = true
 serde.workspace = true
 tokio = { workspace = true, optional = true }
 serde_json.workspace = true
+convex = { workspace = true, optional = true }
+diffus = {workspace = true, optional = true}
 
 [features]
 hydrate = ["leptos/hydrate", "dep:common"]
-ssr = ["leptos/ssr", "dep:leptos_axum", "dep:tokio", "dep:axum-extra", "dep:axum", "dep:auth", "dep:common", "dep:sqlx"]
+ssr = ["leptos/ssr", "dep:leptos_axum", "dep:diffus", "dep:tokio", "dep:convex", "dep:axum-extra", "dep:axum", "dep:auth", "dep:common", "dep:sqlx"]

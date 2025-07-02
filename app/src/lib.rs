@@ -1,6 +1,7 @@
 mod components;
 mod hooks;
 mod routes;
+mod sync;
 
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};

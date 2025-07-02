@@ -16,7 +16,7 @@ export const getServers = query({
       serverIds.map((serverId) => ctx.db.get(serverId)),
     );
 
-    return servers.filter(Boolean); // Filter out any nulls if a server wasn't found
+    return servers.filter((q) => q !== null);
   },
 });
 

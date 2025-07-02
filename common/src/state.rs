@@ -19,3 +19,9 @@ pub fn pool() -> Result<PgPool, ServerFnError> {
         .ok_or_else(|| ServerFnError::new("Pool missing."))?
         .pool)
 }
+
+pub fn convex() -> Result<ConvexClient, ServerFnError> {
+    Ok(use_context::<AppState>()
+        .ok_or_else(|| ServerFnError::new("Pool missing."))?
+        .convex)
+}
