@@ -1,5 +1,12 @@
+use api::convex::{Query, SyncRequest};
+use futures::channel::mpsc;
+use futures::{SinkExt, StreamExt};
 use leptos::prelude::*;
+use leptos::reactive::spawn_local;
+use leptos_dom::log;
 use leptos_router::components::A;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 use crate::components::icons::{GlobeIcon, IconCommand, IconInbox, IconSearch};
 use crate::components::ui::label::Label;
@@ -8,9 +15,23 @@ use crate::components::ui::sidebar::{
     SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize,
     SidebarMenuItem, SidebarRail,
 };
+use crate::hooks::sycn::SyncSignal;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Task {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub text: String,
+}
 
 #[component]
 pub fn SideBar() -> impl IntoView {
+    let SyncSignal { signal } = SyncSignal::<Vec<Task>>::new(Query {
+        name: "task:get".to_string(),
+        args: json!({}),
+    });
     view! {
         <Sidebar collapsible=SideBarCollapsible::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
             <Sidebar
@@ -84,7 +105,21 @@ pub fn SideBar() -> impl IntoView {
                 <SidebarContent>
                     <SidebarGroup class="px-0">
                         <SidebarGroupContent>
-                            <div/>
+                            {
+                                move || {
+                                    signal.get().map(|task| {
+                                        task.iter().map(|task| {
+                                            view! {
+                                                <span class="line-clamp-2 w-[260px] text-xs whitespace-break-spaces">
+                                                    {
+                                                        task.text.clone()
+                                                    }
+                                                </span>
+                                            }
+                                        }).collect_view()
+                                    })
+                               }
+                            }
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </SidebarContent>

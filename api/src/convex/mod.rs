@@ -26,8 +26,8 @@ pub struct Query {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SyncResponse {
-    query: Query,
-    res: QueryResponse,
+    pub query: Query,
+    pub res: QueryResponse,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

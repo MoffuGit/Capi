@@ -144,6 +144,7 @@ dependencies = [
  "axum-extra",
  "cfg-if",
  "common",
+ "dashmap",
  "floating-ui-leptos",
  "futures",
  "http",
