@@ -30,7 +30,13 @@ tokio = { version = "1.45.0", features = ["full"] }
 tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["full"] }
 wasm-bindgen = "=0.2.100"
-web-sys = { version = "0.3", features = ["HtmlDocument","MediaQueryList"] }
+web-sys = { version = "0.3", features = ["HtmlDocument","MediaQueryList",
+ "ResizeObserver",
+    "ResizeObserverBoxOptions",
+    "ResizeObserverEntry",
+    "ResizeObserverOptions",
+    "ResizeObserverSize",
+] }
 strum = "0.27.1"
 strum_macros = "0.27.1"
 reactive_stores = "0.2.2"
@@ -54,7 +60,8 @@ dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
 reqwest = { version = "0.12", features = ["json"] }
 futures = "0.3.31"
-dashmap = "6.1.0"
+async-broadcast = "0.7.2"
+gloo-timers = { version =  "0.3.0", features = ["futures"] }
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 

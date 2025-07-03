@@ -4,7 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   servers: defineTable({
     name: v.string(),
-    invite_code: v.array(v.id("invitations")),
+    invitations: v.array(v.id("invitations")),
     image_url: v.optional(v.string()),
     owner_id: v.int64(),
   }),

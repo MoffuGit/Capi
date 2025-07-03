@@ -32,7 +32,8 @@ tailwind_fuse.workspace = true
 futures.workspace = true
 serde.workspace = true 
 serde_json.workspace = true
-dashmap.workspace = true
+async-broadcast.workspace = true
+gloo-timers.workspace = true
 
 [features]
 default = []

@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+pub mod size;
+pub mod status;
 
 use leptos::prelude::*;
 use send_wrapper::SendWrapper;

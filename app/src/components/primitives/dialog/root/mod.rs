@@ -3,7 +3,7 @@ pub mod use_dialog_root;
 use leptos::context::Provider;
 use leptos::prelude::*;
 
-use self::use_dialog_root::{use_dialog_route, DialogRootContext, DialogRouteParams};
+use self::use_dialog_root::{use_dialog_root, DialogRootContext, DialogRootParams};
 
 pub fn use_dialog_root_context() -> DialogRootContext {
     use_context().expect("should acces to the dialog route context")
@@ -16,7 +16,7 @@ pub fn DialogRoot(
     #[prop(default = true)] dismissible: bool,
     children: Children,
 ) -> impl IntoView {
-    let dialog_root = use_dialog_route(DialogRouteParams {
+    let dialog_root = use_dialog_root(DialogRootParams {
         open,
         modal,
         dismissible,

@@ -6,13 +6,16 @@ mod sync;
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
-    components::{Outlet, ParentRoute, Route, Router, Routes},
+    components::{Outlet, ParentRoute, ProtectedParentRoute, Route, Router, Routes},
     ParamSegment, StaticSegment,
 };
 use routes::Home;
 
 use self::{
-    components::{auth::AuthProvider, ui::theme::ThemeProvider},
+    components::{
+        auth::{use_auth, AuthProvider},
+        ui::theme::ThemeProvider,
+    },
     routes::{Auth, GoogleAuth, Servers},
 };
 
@@ -52,15 +55,17 @@ pub fn App() -> impl IntoView {
         <ThemeProvider>
             <AuthProvider>
                 <Router>
-                    <main>
+                    <main id="app">
                         <Routes fallback=|| "Page not found.".into_view()>
                             <Route path=StaticSegment("") view=Home/>
                             <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
                                 <Route path=StaticSegment("") view=Auth />
                                 <Route path=StaticSegment("google")  view=GoogleAuth/>
                             </ParentRoute>
-                            <ParentRoute
+                            <ProtectedParentRoute
+                                condition=move || use_auth().auth.get().map(|res| res.ok().flatten().is_some())
                                 path=StaticSegment("servers")
+                                redirect_path= || "/"
                                 view=Servers
                             >
                                 <Route
@@ -79,7 +84,7 @@ pub fn App() -> impl IntoView {
                                     path=(ParamSegment("server"), ParamSegment("channel"))
                                     view=move || view! { <div>"server channel"</div> }
                                 />
-                            </ParentRoute>
+                            </ProtectedParentRoute>
                         </Routes>
                     </main>
                 </Router>

@@ -99,6 +99,9 @@ impl SubscriptionManager {
         query: Query,
         mut tx: mpsc::Sender<Result<SyncResponse, ServerFnError>>,
     ) {
+        if self.subscriptions.contains_key(&query) {
+            return;
+        }
         let (valid_tx, mut valid_rx) = watch::channel(SubscriptionState::Valid);
         match self
             .client

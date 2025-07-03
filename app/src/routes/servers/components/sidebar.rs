@@ -1,11 +1,8 @@
-use api::convex::{Query, SyncRequest};
-use futures::channel::mpsc;
-use futures::{SinkExt, StreamExt};
+use api::convex::Query;
+use common::convex::Servers;
+use futures::StreamExt;
 use leptos::prelude::*;
-use leptos::reactive::spawn_local;
-use leptos_dom::log;
 use leptos_router::components::A;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::components::icons::{GlobeIcon, IconCommand, IconInbox, IconSearch};
@@ -15,23 +12,12 @@ use crate::components::ui::sidebar::{
     SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize,
     SidebarMenuItem, SidebarRail,
 };
+// use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::hooks::sycn::SyncSignal;
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Task {
-    #[serde(rename = "_id")]
-    pub id: String,
-    #[serde(rename = "_creationTime")]
-    pub creation_time: f64,
-    pub text: String,
-}
+use crate::routes::user_user;
 
 #[component]
 pub fn SideBar() -> impl IntoView {
-    let SyncSignal { signal } = SyncSignal::<Vec<Task>>::new(Query {
-        name: "task:get".to_string(),
-        args: json!({}),
-    });
     view! {
         <Sidebar collapsible=SideBarCollapsible::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
             <Sidebar
@@ -57,29 +43,32 @@ pub fn SideBar() -> impl IntoView {
                               <SidebarMenuButton
                                 class="px-2.5 md:px-2"
                               >
-                                <IconSearch/>
-                                // <item.icon />
-                                // <span>{item.title}</span>
+                                <div/>
+                                // <ToolTip>
+                                //     <ToolTipTrigger>
+                                //         <IconSearch/>
+                                //     </ToolTipTrigger>
+                                //     <ToolTipContent >
+                                //         "some"
+                                //     </ToolTipContent>
+                                // </ToolTip>
                               </SidebarMenuButton>
                             </SidebarMenuItem>
                               <SidebarMenuItem>
                               <SidebarMenuButton
                                 class="px-2.5 md:px-2"
                               >
-                                <IconInbox/>
-                                // <item.icon />
-                                // <span>{item.title}</span>
+                                <div/>
                               </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                            <SidebarMenuButton
-                              class="px-2.5 md:px-2"
-                            >
-                                <GlobeIcon/>
-                              // <item.icon />
-                              // <span>{item.title}</span>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                          class="px-2.5 md:px-2"
+                                        >
+                                                <div/>
+                                        </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            // <SideBarServers/>
                         </SidebarMenu>
                     </SidebarGroupContent>
                   </SidebarGroup>
@@ -105,21 +94,7 @@ pub fn SideBar() -> impl IntoView {
                 <SidebarContent>
                     <SidebarGroup class="px-0">
                         <SidebarGroupContent>
-                            {
-                                move || {
-                                    signal.get().map(|task| {
-                                        task.iter().map(|task| {
-                                            view! {
-                                                <span class="line-clamp-2 w-[260px] text-xs whitespace-break-spaces">
-                                                    {
-                                                        task.text.clone()
-                                                    }
-                                                </span>
-                                            }
-                                        }).collect_view()
-                                    })
-                               }
-                            }
+                            <div/>
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </SidebarContent>
@@ -129,3 +104,31 @@ pub fn SideBar() -> impl IntoView {
 
     }
 }
+
+// #[component]
+// pub fn SideBarServers() -> impl IntoView {
+//     let user = user_user();
+//     let servers: SyncSignal<Vec<Servers>> = SyncSignal::new(Query {
+//         name: "user:getServers".to_string(),
+//         args: json!({
+//             "userId": user.id
+//         }),
+//     });
+//     view! {
+//         <Show when=move || servers.signal.get().is_some()>
+//             <For
+//                 each=move || servers.signal.get().unwrap()
+//                 key=|server| server.id.clone()
+//                 let:server
+//             >
+//                 <SidebarMenuItem>
+//                     <SidebarMenuButton
+//                       class="px-2.5 md:px-2"
+//                     >
+//                         {server.name}
+//                     </SidebarMenuButton>
+//               </SidebarMenuItem>
+//             </For>
+//         </Show>
+//     }
+// }

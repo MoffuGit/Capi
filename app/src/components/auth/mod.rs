@@ -4,7 +4,6 @@ use api::auth::{get_user, GoogleAuth, HandleGoogleRedirect, Logout, RefreshToken
 use common::user::User;
 use leptos::context::Provider;
 use leptos::prelude::*;
-use leptos_dom::log;
 use leptos_router::hooks::{use_navigate, use_query};
 use leptos_router::params::Params;
 use leptos_router::NavigateOptions;
@@ -14,13 +13,17 @@ use crate::components::ui::button::Button;
 use super::ui::button::{ButtonSizes, ButtonVariants};
 
 #[derive(Clone)]
-struct AuthContext {
+pub struct AuthContext {
     log_out: ServerAction<Logout>,
     google_auth: ServerAction<GoogleAuth>,
     handle_google_redirect: ServerAction<HandleGoogleRedirect>,
     refresh_google_token: ServerAction<RefreshToken>,
-    auth: Resource<Result<Option<User>, ServerFnError>>,
+    pub auth: Resource<Result<Option<User>, ServerFnError>>,
     expires_in: RwSignal<u64>,
+}
+
+pub fn use_auth() -> AuthContext {
+    use_context().expect("shoud acces to the auth context")
 }
 
 #[component]

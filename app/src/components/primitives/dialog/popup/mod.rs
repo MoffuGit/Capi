@@ -3,7 +3,7 @@ use std::sync::Arc;
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
-use crate::components::primitives::dialog::TransitionStatus;
+use crate::components::primitives::common::status::TransitionStatus;
 use crate::components::primitives::primitive::Primitive;
 
 #[component]

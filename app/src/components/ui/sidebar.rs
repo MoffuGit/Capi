@@ -630,7 +630,13 @@ pub fn SidebarMenuButton(
         )
     });
 
-    let button_view = view! {
+    // let button_view = ;
+
+    // if tooltip.is_none() {
+    // return button_view;
+    // }
+
+    view! {
         <button
             class={button_class}
             data-active=is_active.to_string()
@@ -640,12 +646,7 @@ pub fn SidebarMenuButton(
         >
             {children()}
         </button>
-    };
-
-    // if tooltip.is_none() {
-    return button_view;
-    // }
-
+    }
     // view! {
     //     <Tooltip>
     //         <TooltipTrigger as_child=true>{button_view}</TooltipTrigger>

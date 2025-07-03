@@ -20,7 +20,7 @@ pub struct DialogRootContext {
     // floatingRootContext: FloatingRootContext;
 }
 
-pub struct DialogRouteParams {
+pub struct DialogRootParams {
     pub open: RwSignal<bool>,
     pub modal: bool,
     // pub on_open_change: Box<dyn Fn(bool)>,
@@ -28,8 +28,8 @@ pub struct DialogRouteParams {
     pub dismissible: bool,
 }
 
-pub fn use_dialog_route(params: DialogRouteParams) -> DialogRootContext {
-    let DialogRouteParams {
+pub fn use_dialog_root(params: DialogRootParams) -> DialogRootContext {
+    let DialogRootParams {
         open,
         modal,
         // on_open_change,
