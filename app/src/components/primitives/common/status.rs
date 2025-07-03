@@ -145,17 +145,22 @@ pub fn use_transition_status(
     // Effect 5: Deferred `Ending` transition using `AnimationFrame` for closing animations.
     // This effect determines *when* the 'Ending' status is set if deferred.
     Effect::new(move |_| {
-        let open_val = open.get();
-        let mounted_val = mounted.get();
-        let status_val = transition_status.get();
-
         #[cfg(not(feature = "ssr"))]
-        if !open_val && mounted_val && status_val != TransitionStatus::Ending && defer_ending_state
         {
-            let cancel_frame = AnimationFrame::request(ending.clone());
-            on_cleanup(move || {
-                cancel_frame();
-            });
+            let open_val = open.get();
+            let mounted_val = mounted.get();
+            let status_val = transition_status.get();
+
+            if !open_val
+                && mounted_val
+                && status_val != TransitionStatus::Ending
+                && defer_ending_state
+            {
+                let cancel_frame = AnimationFrame::request(ending.clone());
+                on_cleanup(move || {
+                    cancel_frame();
+                });
+            }
         }
     });
 

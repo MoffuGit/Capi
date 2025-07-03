@@ -1,9 +1,6 @@
 use api::sidebar::{SideBarState, ToggleSideBar, SIDEBAR_COOKIE_NAME};
 use leptos::prelude::*;
-use send_wrapper::SendWrapper;
 use tailwind_fuse::tw_merge;
-use wasm_bindgen::prelude::Closure;
-use wasm_bindgen::JsCast;
 use web_sys::MouseEvent;
 
 const SIDEBAR_WIDTH: &str = "16rem";
@@ -137,6 +134,9 @@ pub fn SidebarProvider(
 
     #[cfg(not(feature = "ssr"))]
     {
+        use send_wrapper::SendWrapper;
+        use wasm_bindgen::prelude::Closure;
+        use wasm_bindgen::JsCast;
         let handle_key_down = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
             if event.key() == SIDEBAR_KEYBOARD_SHORTCUT && (event.meta_key() || event.ctrl_key()) {
                 event.prevent_default();
@@ -611,30 +611,18 @@ pub fn SidebarMenuItem(
 
 #[component]
 pub fn SidebarMenuButton(
-    #[prop(optional)] as_child: bool,
     #[prop(optional)] is_active: bool,
     #[prop(default = SidebarMenuButtonVariant::Default)] variant: SidebarMenuButtonVariant,
     #[prop(default = SidebarMenuButtonSize::Default)] size: SidebarMenuButtonSize,
-    #[prop(optional, into)] tooltip: Option<String>, // simplified tooltip
     #[prop(optional, into)] class: Option<String>,
     children: Children,
 ) -> impl IntoView {
-    let sidebar_context = use_sidebar();
-    let is_mobile = sidebar_context.is_mobile;
-    let state = sidebar_context.state;
-
     let button_class = Signal::derive(move || {
         tw_merge!(
             &sidebar_menu_button_variants(variant, size),
             &class.clone().unwrap_or_default(),
         )
     });
-
-    // let button_view = ;
-
-    // if tooltip.is_none() {
-    // return button_view;
-    // }
 
     view! {
         <button
@@ -647,19 +635,6 @@ pub fn SidebarMenuButton(
             {children()}
         </button>
     }
-    // view! {
-    //     <Tooltip>
-    //         <TooltipTrigger as_child=true>{button_view}</TooltipTrigger>
-    //         <TooltipContent
-    //             side="right".to_string()
-    //             align="center".to_string()
-    //             hidden=create_memo(move |_| state.get() != State::Collapsed || is_mobile.get())
-    //         >
-    //             {tooltip.clone()}
-    //         </TooltipContent>
-    //     </Tooltip>
-    // }
-    // .into_any()
 }
 
 #[component]

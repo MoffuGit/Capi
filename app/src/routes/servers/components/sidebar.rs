@@ -1,6 +1,5 @@
 use api::convex::Query;
 use common::convex::Servers;
-use futures::StreamExt;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use serde_json::json;
@@ -12,7 +11,7 @@ use crate::components::ui::sidebar::{
     SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize,
     SidebarMenuItem, SidebarRail,
 };
-// use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
+use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::hooks::sycn::SyncSignal;
 use crate::routes::user_user;
 
@@ -40,35 +39,34 @@ pub fn SideBar() -> impl IntoView {
                     <SidebarGroupContent class="px-1.5 md:px-0">
                         <SidebarMenu>
                               <SidebarMenuItem>
-                              <SidebarMenuButton
-                                class="px-2.5 md:px-2"
-                              >
-                                <div/>
-                                // <ToolTip>
-                                //     <ToolTipTrigger>
-                                //         <IconSearch/>
-                                //     </ToolTipTrigger>
-                                //     <ToolTipContent >
-                                //         "some"
-                                //     </ToolTipContent>
-                                // </ToolTip>
-                              </SidebarMenuButton>
+                                <ToolTip>
+                                    <ToolTipTrigger>
+                                      <SidebarMenuButton
+                                        class="px-2.5 md:px-2"
+                                      >
+                                        <IconSearch/>
+                                      </SidebarMenuButton>
+                                    </ToolTipTrigger>
+                                    <ToolTipContent side_of_set=3.0 arrow=true>
+                                        "Search"
+                                    </ToolTipContent>
+                                </ToolTip>
                             </SidebarMenuItem>
                               <SidebarMenuItem>
                               <SidebarMenuButton
                                 class="px-2.5 md:px-2"
                               >
-                                <div/>
+                                <IconInbox/>
                               </SidebarMenuButton>
                                     </SidebarMenuItem>
                                     <SidebarMenuItem>
                                         <SidebarMenuButton
                                           class="px-2.5 md:px-2"
                                         >
-                                                <div/>
+                                            <GlobeIcon/>
                                         </SidebarMenuButton>
                               </SidebarMenuItem>
-                            // <SideBarServers/>
+                            <SideBarServers/>
                         </SidebarMenu>
                     </SidebarGroupContent>
                   </SidebarGroup>
@@ -105,30 +103,30 @@ pub fn SideBar() -> impl IntoView {
     }
 }
 
-// #[component]
-// pub fn SideBarServers() -> impl IntoView {
-//     let user = user_user();
-//     let servers: SyncSignal<Vec<Servers>> = SyncSignal::new(Query {
-//         name: "user:getServers".to_string(),
-//         args: json!({
-//             "userId": user.id
-//         }),
-//     });
-//     view! {
-//         <Show when=move || servers.signal.get().is_some()>
-//             <For
-//                 each=move || servers.signal.get().unwrap()
-//                 key=|server| server.id.clone()
-//                 let:server
-//             >
-//                 <SidebarMenuItem>
-//                     <SidebarMenuButton
-//                       class="px-2.5 md:px-2"
-//                     >
-//                         {server.name}
-//                     </SidebarMenuButton>
-//               </SidebarMenuItem>
-//             </For>
-//         </Show>
-//     }
-// }
+#[component]
+pub fn SideBarServers() -> impl IntoView {
+    let user = user_user();
+    let servers: SyncSignal<Vec<Servers>> = SyncSignal::new(Query {
+        name: "user:getServers".to_string(),
+        args: json!({
+            "userId": user.id
+        }),
+    });
+    view! {
+        <Show when=move || servers.signal.get().is_some()>
+            <For
+                each=move || servers.signal.get().unwrap()
+                key=|server| server.id.clone()
+                let:server
+            >
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                      class="px-2.5 md:px-2"
+                    >
+                        {server.name}
+                    </SidebarMenuButton>
+              </SidebarMenuItem>
+            </For>
+        </Show>
+    }
+}

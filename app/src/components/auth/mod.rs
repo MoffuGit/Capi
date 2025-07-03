@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 pub mod form;
 
 use api::auth::{get_user, GoogleAuth, HandleGoogleRedirect, Logout, RefreshToken};

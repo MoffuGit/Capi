@@ -3,9 +3,6 @@ pub mod size;
 pub mod status;
 
 use leptos::prelude::*;
-use send_wrapper::SendWrapper;
-use wasm_bindgen::prelude::Closure;
-use wasm_bindgen::JsCast;
 
 #[derive(Clone, strum_macros::Display)]
 pub enum Orientation {
@@ -34,6 +31,9 @@ pub fn is_mobile() -> Memo<bool> {
 
     #[cfg(not(feature = "ssr"))]
     {
+        use send_wrapper::SendWrapper;
+        use wasm_bindgen::prelude::Closure;
+        use wasm_bindgen::JsCast;
         let update = move || {
             set_window_size(
                 window()
