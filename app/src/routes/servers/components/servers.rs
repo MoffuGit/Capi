@@ -1,7 +1,6 @@
 use api::convex::Query;
 use common::convex::Server;
 use leptos::prelude::*;
-use leptos_dom::log;
 use leptos_router::components::A;
 use leptos_router::hooks::use_params_map;
 use serde_json::json;
