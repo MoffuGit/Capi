@@ -625,7 +625,7 @@ pub fn SidebarMenuButton(
     });
 
     view! {
-        <button
+        <div
             class={button_class}
             data-active=is_active.to_string()
             data-sidebar="menu-button"
@@ -633,7 +633,7 @@ pub fn SidebarMenuButton(
             data-size=size.to_string()
         >
             {children()}
-        </button>
+        </div>
     }
 }
 

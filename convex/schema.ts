@@ -6,8 +6,12 @@ export default defineSchema({
     name: v.string(),
     invitations: v.array(v.id("invitations")),
     image_url: v.optional(v.string()),
-    owner_id: v.int64(),
   }),
+  users: defineTable({
+    authId: v.int64(),
+    name: v.string(),
+    image_url: v.optional(v.string()),
+  }).index("by_auth", ["authId"]),
   tasks: defineTable({
     text: v.string(),
   }),
@@ -16,14 +20,14 @@ export default defineSchema({
     invitation: v.string(),
   }),
   members: defineTable({
-    user: v.int64(),
+    user: v.id("users"),
     server: v.id("servers"),
     name: v.string(),
     image_url: v.optional(v.string()),
     status: v.id("userStatus"),
   }).index("by_user", ["user"]),
   userStatus: defineTable({
-    user: v.int64(),
+    user: v.id("users"),
     status: v.union(
       v.literal("Online"),
       v.literal("Idle"),

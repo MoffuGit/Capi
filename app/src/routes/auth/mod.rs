@@ -2,14 +2,25 @@ mod redirect;
 use leptos::prelude::*;
 pub use redirect::*;
 
-use crate::components::auth::form::LoginForm;
+use crate::components::auth::form::{LoginForm, SignUpForm};
 
 #[component]
-pub fn Auth() -> impl IntoView {
+pub fn Login() -> impl IntoView {
     view! {
         <div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
            <div class="w-full max-w-sm">
                 <LoginForm />
+            </div>
+        </div>
+    }
+}
+
+#[component]
+pub fn SignUp() -> impl IntoView {
+    view! {
+        <div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+           <div class="w-full max-w-sm">
+                <SignUpForm />
             </div>
         </div>
     }

@@ -16,7 +16,8 @@ use self::{
         auth::{use_auth, AuthProvider},
         ui::theme::ThemeProvider,
     },
-    routes::{Auth, GoogleAuth, Servers},
+    routes::{GoogleAuth, Login, Servers, SignUp},
+    sync::SyncProvider,
 };
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -53,42 +54,45 @@ pub fn App() -> impl IntoView {
         <Title text="Capi"/>
 
         <ThemeProvider>
-            <AuthProvider>
-                <Router>
-                    <main id="app">
-                        <Routes fallback=|| "Page not found.".into_view()>
-                            <Route path=StaticSegment("") view=Home/>
-                            <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
-                                <Route path=StaticSegment("") view=Auth />
-                                <Route path=StaticSegment("google")  view=GoogleAuth/>
-                            </ParentRoute>
-                            <ProtectedParentRoute
-                                condition=move || use_auth().auth.get().map(|res| res.ok().flatten().is_some())
-                                path=StaticSegment("servers")
-                                redirect_path= || "/"
-                                view=Servers
-                            >
-                                <Route
-                                    path=StaticSegment("")
-                                    view=move || view! { <div>"servers"</div> }
-                                />
-                                <Route
-                                    path=StaticSegment("discover")
-                                    view=move || view! { <div>"discover servers"</div> }
-                                />
-                                <Route
-                                    path=StaticSegment("me")
-                                    view=move || view! { <div>"Private conversations"</div> }
-                                />
-                                <Route
-                                    path=(ParamSegment("server"), ParamSegment("channel"))
-                                    view=move || view! { <div>"server channel"</div> }
-                                />
-                            </ProtectedParentRoute>
-                        </Routes>
-                    </main>
-                </Router>
-            </AuthProvider>
+            <SyncProvider>
+                <AuthProvider>
+                    <Router>
+                        <main id="app">
+                            <Routes fallback=|| "Page not found.".into_view()>
+                                <Route path=StaticSegment("") view=Home/>
+                                <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
+                                    <Route path=StaticSegment("login") view=Login />
+                                    <Route path=StaticSegment("signup") view=SignUp />
+                                    <Route path=StaticSegment("google")  view=GoogleAuth/>
+                                </ParentRoute>
+                                <ProtectedParentRoute
+                                    condition=move || use_auth().auth.get().map(|res| res.ok().flatten().is_some())
+                                    path=StaticSegment("servers")
+                                    redirect_path= || "/"
+                                    view=Servers
+                                >
+                                    <Route
+                                        path=StaticSegment("")
+                                        view=move || view! { <div>"servers"</div> }
+                                    />
+                                    <Route
+                                        path=StaticSegment("discover")
+                                        view=move || view! { <div>"discover servers"</div> }
+                                    />
+                                    <Route
+                                        path=StaticSegment("me")
+                                        view=move || view! { <div>"Private conversations"</div> }
+                                    />
+                                    <Route
+                                        path=(ParamSegment("server"), ParamSegment("channel"))
+                                        view=move || view! { <div>"server channel"</div> }
+                                    />
+                                </ProtectedParentRoute>
+                            </Routes>
+                        </main>
+                    </Router>
+                </AuthProvider>
+            </SyncProvider>
         </ThemeProvider>
     }
 }

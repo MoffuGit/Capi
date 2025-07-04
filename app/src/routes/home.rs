@@ -12,15 +12,21 @@ pub fn Home() -> impl IntoView {
                 <SignedIn>
                     <A href="/servers" {..} class="w-auto h-auto ml-auto mr-4">
                     <Button size=ButtonSizes::Sm>
-                            "Log In"
+                            "Go to servers"
                     </Button>
                     </A>
                 </SignedIn>
                 <SignedOut>
-                    <A href="/auth" {..} class="w-auto h-auto ml-auto mr-4">
-                    <Button size=ButtonSizes::Sm >
-                            "Log In"
-                    </Button>
+                    <A href="/auth/login" {..} class="w-auto h-auto ml-auto mr-4">
+                        <Button size=ButtonSizes::Sm >
+                                "Log In"
+                        </Button>
+                    </A>
+
+                    <A href="/auth/signup" {..} class="w-auto h-auto ml-4 mr-4">
+                        <Button size=ButtonSizes::Sm >
+                                "Sign Up"
+                        </Button>
                     </A>
                 </SignedOut>
             </header>

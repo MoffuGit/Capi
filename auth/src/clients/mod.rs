@@ -40,6 +40,7 @@ impl GoogleAuth {
             .set_pkce_challenge(pkce_code_challenge)
             .add_scope(Scope::new("openid".to_string()))
             .add_scope(Scope::new("email".to_string()))
+            .add_scope(Scope::new("profile".to_string()))
             // required for google auth refresh token to be part of the response.
             .add_extra_param("access_type", "offline")
             .add_extra_param("prompt", "consent");
@@ -104,14 +105,18 @@ impl GoogleAuth {
             .await?)
     }
 
-    pub async fn client_info(url: String, acces_token: String) -> anyhow::Result<String> {
+    pub async fn client_info(
+        url: String,
+        acces_token: String,
+    ) -> anyhow::Result<(String, String, String)> {
         let client = reqwest::Client::new();
         let response = client.get(url).bearer_auth(acces_token).send().await?;
 
         if response.status().is_success() {
             let response_json: Value = response.json().await?;
             leptos::logging::log!("{response_json:?}");
-            response_json["email"]
+
+            let email = response_json["email"]
                 .as_str()
                 .map(|s| s.to_string())
                 .ok_or_else(|| {
@@ -119,7 +124,29 @@ impl GoogleAuth {
                         "Email not found or not a string in user info response: {:?}",
                         response_json
                     )
-                })
+                })?;
+
+            let username = response_json["name"]
+                .as_str()
+                .map(|s| s.to_string())
+                .ok_or_else(|| {
+                    anyhow!(
+                        "Name (username) not found or not a string in user info response: {:?}",
+                        response_json
+                    )
+                })?;
+
+            let user_image_url = response_json["picture"]
+                .as_str()
+                .map(|s| s.to_string())
+                .ok_or_else(|| {
+                    anyhow!(
+                        "Picture (user image url) not found or not a string in user info response: {:?}",
+                        response_json
+                    )
+                })?;
+
+            Ok((email, username, user_image_url))
         } else {
             Err(anyhow!(
                 "Failed to retrieve user info, status: {}",

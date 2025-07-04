@@ -2,6 +2,7 @@ use leptos::server;
 
 use common::user::User;
 use leptos::prelude::ServerFnError;
+use maplit::btreemap;
 
 #[server]
 pub async fn get_user() -> Result<Option<User>, ServerFnError> {
@@ -90,6 +91,7 @@ pub async fn handle_google_redirect(
     use auth::auth;
     use auth::clients::GoogleAuth;
     use auth::clients::TokenResponse;
+    use common::state::convex;
     use common::state::pool;
     use common::user::ssr::SqlCsrfToken;
 
@@ -118,11 +120,12 @@ pub async fn handle_google_redirect(
     let refresh_secret = token_response.refresh_token().map(|t| t.secret()).unwrap();
     let user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo";
 
-    let email = GoogleAuth::client_info(user_info_url.to_string(), access_token.to_string())
-        .await
-        .map_err(|e| {
-            ServerFnError::new(format!("Failed to retrieve user email from Google: {e}"))
-        })?;
+    let (email, username, image) =
+        GoogleAuth::client_info(user_info_url.to_string(), access_token.to_string())
+            .await
+            .map_err(|e| {
+                ServerFnError::new(format!("Failed to retrieve user email from Google: {e}"))
+            })?;
 
     let user = if let Some(user) = User::get_from_email(&email, &pool).await {
         user
@@ -132,7 +135,20 @@ pub async fn handle_google_redirect(
             .bind(&email)
             .execute(&pool)
             .await?;
-        User::get_from_email(&email, &pool).await.unwrap() // This unwrap is safe if insert was successful and email is unique
+        let user = User::get_from_email(&email, &pool).await.unwrap();
+        let mut client = convex()?;
+        client
+            .mutation(
+                "user:create",
+                btreemap! {
+                    "auth".into() => user.id.into(),
+                    "name".into() => username.into(),
+                    "image_url".into() => image.into()
+                },
+            )
+            .await
+            .or(Err(ServerFnError::new("The creation of the user fail")))?;
+        user
     };
 
     // Use ON CONFLICT for upserting google_tokens, removing the need for a separate DELETE
@@ -161,6 +177,5 @@ pub async fn logout() -> Result<(), ServerFnError> {
 
     let auth = auth().await?;
     auth.logout_user();
-    leptos_axum::redirect("/");
     Ok(())
 }

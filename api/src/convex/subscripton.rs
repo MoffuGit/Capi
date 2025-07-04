@@ -22,7 +22,7 @@ enum SubscriptionState {
     Invalid,
 }
 
-fn convert_json_value_to_convex_value(json_val: JsonValue) -> ConvexValue {
+pub fn convert_json_value_to_convex_value(json_val: JsonValue) -> ConvexValue {
     match json_val {
         JsonValue::Null => ConvexValue::Null,
         JsonValue::Bool(b) => ConvexValue::Boolean(b),
@@ -126,7 +126,7 @@ impl SubscriptionManager {
                 );
 
                 let query_for_spawned_task = query.clone();
-                let _ = tokio::spawn(async move {
+                tokio::spawn(async move {
                     loop {
                         tokio::select! {
                             _ = valid_rx.changed().fuse() => {
@@ -161,8 +161,7 @@ impl SubscriptionManager {
                         }
                     }
                     log!("closed spawn");
-                })
-                .await;
+                });
             }
             Err(_err) => {
                 let _ = tx
@@ -183,7 +182,7 @@ impl SubscriptionManager {
         loop {
             futures::select_biased! {
                 query = self.closed_subscription.select_next_some() => {
-                    log!("");
+                    log!("removed query {query:?}");
                     self.remove(query);
                 },
                 request = rx.next().fuse() => {

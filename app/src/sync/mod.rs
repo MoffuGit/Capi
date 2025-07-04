@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use futures::channel::mpsc::Sender;
 use futures::channel::{mpsc, oneshot};
-use futures::future::{BoxFuture, LocalBoxFuture};
+use futures::future::LocalBoxFuture;
 use futures::stream::FuturesUnordered;
 use futures::{FutureExt, SinkExt, StreamExt};
 use leptos::context::Provider;
@@ -79,6 +79,7 @@ impl SyncManager {
         loop {
             futures::select_biased! {
                 query = self.closed_queries.select_next_some() => {
+                    log!("removing query {query:?}");
                     self.remove(&query);
                     log!("query will get removed: {query:?}");
                     let _ = ws_tx.send(Ok(SyncRequest::Unsubscribe(query))).await;
@@ -92,6 +93,7 @@ impl SyncManager {
                 }
                 request = rx.next().fuse() => {
                     if let Some((query, tx)) = request {
+                        log!("sub request for query {query:?}");
                         let _ = ws_tx.send(Ok(SyncRequest::Subscribe(query.clone()))).await;
                         self.subscribe(query, tx).await;
                     }

@@ -92,16 +92,20 @@ pub fn ToolTipProvider(
     });
     let on_open = Signal::derive(handle_open);
     let on_close = Signal::derive(handle_close);
-    provide_context(TooltipProviderContext {
-        is_open,
-        on_trigger_leave,
-        on_trigger_enter,
-        on_open,
-        on_close,
-        trigger_ref,
-    });
 
-    view! { {children()} }
+    view! {
+        <Provider value=TooltipProviderContext {
+                    is_open,
+                    on_trigger_leave,
+                    on_trigger_enter,
+                    on_open,
+                    on_close,
+                    trigger_ref,
+                }
+        >
+        {children()}
+        </Provider>
+    }
 }
 
 #[component]

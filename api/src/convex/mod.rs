@@ -1,8 +1,9 @@
 #[cfg(feature = "ssr")]
+mod mutations;
+#[cfg(feature = "ssr")]
 mod subscripton;
 
 use futures::channel::mpsc;
-use leptos::logging::log;
 use leptos::prelude::ServerFnError;
 use leptos::server;
 use leptos::server_fn::codec::JsonEncoding;
@@ -46,7 +47,6 @@ pub async fn sync(
     let client = convex()?;
     let mut subscription_manager = SubscriptionManager::new(client);
 
-    log!("at least we got here");
     tokio::spawn(async move { subscription_manager.run_worker(request, tx).await });
 
     Ok(rx.into())

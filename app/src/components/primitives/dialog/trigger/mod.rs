@@ -14,7 +14,7 @@ pub fn DialogTrigger(
     let children = StoredValue::new(children);
     let DialogRootContext { open, set_open, .. } = use_dialog_root_context();
     view! {
-         <Primitive
+        <Primitive
             element=html::button
             as_child=as_child
             node_ref={node_ref}

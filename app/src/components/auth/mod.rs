@@ -2,14 +2,18 @@
 pub mod form;
 
 use api::auth::{get_user, GoogleAuth, HandleGoogleRedirect, Logout, RefreshToken};
-use common::user::User;
+use api::convex::Query;
+use common::convex::User;
+use common::user::User as Auth;
 use leptos::context::Provider;
 use leptos::prelude::*;
 use leptos_router::hooks::{use_navigate, use_query};
 use leptos_router::params::Params;
 use leptos_router::NavigateOptions;
+use serde_json::json;
 
 use crate::components::ui::button::Button;
+use crate::hooks::sycn::SyncSignal;
 
 use super::ui::button::{ButtonSizes, ButtonVariants};
 
@@ -19,7 +23,8 @@ pub struct AuthContext {
     google_auth: ServerAction<GoogleAuth>,
     handle_google_redirect: ServerAction<HandleGoogleRedirect>,
     refresh_google_token: ServerAction<RefreshToken>,
-    pub auth: Resource<Result<Option<User>, ServerFnError>>,
+    pub auth: Resource<Result<Option<Auth>, ServerFnError>>,
+    pub user: SyncSignal<Option<User>>,
     expires_in: RwSignal<u64>,
 }
 
@@ -42,6 +47,19 @@ pub fn AuthProvider(children: Children) -> impl IntoView {
         },
         move |_| get_user(),
     );
+
+    let user: SyncSignal<Option<User>> = SyncSignal::new(Memo::new(move |_| {
+        if let Some(Ok(Some(auth))) = auth.get() {
+            Some(Query {
+                name: "user:getUser".to_string(),
+                args: json!({
+                    "auth": auth.id
+                }),
+            })
+        } else {
+            None
+        }
+    }));
 
     let expires_in: RwSignal<u64> = RwSignal::new(0);
 
@@ -115,7 +133,7 @@ pub fn AuthProvider(children: Children) -> impl IntoView {
     // });
 
     view! {
-        <Provider value=AuthContext { log_out, google_auth, handle_google_redirect, refresh_google_token, auth, expires_in }>
+        <Provider value=AuthContext { log_out, user, google_auth, handle_google_redirect, refresh_google_token, auth, expires_in }>
             {children()}
         </Provider>
     }
@@ -141,7 +159,7 @@ pub fn LogOut(
 }
 
 #[component]
-pub fn GoogleSignIn(
+pub fn Google(
     #[prop(optional, into)] variant: Signal<ButtonVariants>,
     #[prop(optional, into)] size: Signal<ButtonSizes>,
     #[prop(optional, into)] class: Signal<String>,
@@ -153,29 +171,6 @@ pub fn GoogleSignIn(
     Effect::new(move |_| {
         if let Some(Ok(redirect)) = google_auth.value().get() {
             navigate(&redirect, Default::default());
-        }
-    });
-    view! {
-        <Button on:click=move|_| { google_auth.dispatch(GoogleAuth{}); } variant=variant size=size class=class disabled=Signal::derive(move || {
-            disabled.get() || google_auth.pending().get()
-        })>
-            {children.map(|children| children())}
-        </Button>
-    }
-}
-
-#[component]
-pub fn GoogleSignUp(
-    #[prop(optional, into)] variant: Signal<ButtonVariants>,
-    #[prop(optional, into)] size: Signal<ButtonSizes>,
-    #[prop(optional, into)] class: Signal<String>,
-    #[prop(optional, into, default = Signal::from(false))] disabled: Signal<bool>,
-    #[prop(optional)] children: Option<Children>,
-) -> impl IntoView {
-    let AuthContext { google_auth, .. } = use_context().expect("shouls acces the auth context");
-    Effect::new(move |_| {
-        if let Some(Ok(redirect)) = google_auth.value().get() {
-            window().location().set_href(&redirect).unwrap();
         }
     });
     view! {
