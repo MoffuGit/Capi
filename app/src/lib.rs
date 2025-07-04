@@ -84,7 +84,7 @@ pub fn App() -> impl IntoView {
                                         view=move || view! { <div>"Private conversations"</div> }
                                     />
                                     <Route
-                                        path=(ParamSegment("server"), ParamSegment("channel"))
+                                        path=(ParamSegment("server")/* , ParamSegment("channel") */)
                                         view=move || view! { <div>"server channel"</div> }
                                     />
                                 </ProtectedParentRoute>

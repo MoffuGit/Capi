@@ -11,6 +11,6 @@ pub fn Separator(
     >,
 ) -> impl IntoView {
     view! {
-        <div class=class aria_orientation=move || orientation.get().to_string()/>
+        <div class=class data-orientation=move || orientation.get().to_string()/>
     }
 }

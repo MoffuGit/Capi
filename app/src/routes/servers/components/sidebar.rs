@@ -18,7 +18,7 @@ use crate::components::ui::label::Label;
 use crate::components::ui::sidebar::{
     SideBarCollapsible, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
     SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize,
-    SidebarMenuItem, SidebarRail,
+    SidebarMenuItem, SidebarRail, SidebarSeparator,
 };
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::routes::servers::components::servers::ServersItems;

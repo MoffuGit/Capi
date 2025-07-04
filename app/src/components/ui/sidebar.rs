@@ -463,10 +463,10 @@ pub fn SidebarFooter(
 }
 
 #[component]
-pub fn SidebarSeparator(#[prop(optional, into)] class: Option<String>) -> impl IntoView {
+pub fn SidebarSeparator(#[prop(optional, into)] class: MaybeProp<String>) -> impl IntoView {
     view! {
         <Separator
-            class=format!("bg-sidebar-border mx-2 w-auto {}", &class.unwrap_or_default())
+            class=tw_merge!("bg-sidebar-border mx-2 w-auto {}", &class.get())
             {..}
             data-slot="sidebar-separator"
             data-sidebar="separator"
@@ -611,7 +611,7 @@ pub fn SidebarMenuItem(
 
 #[component]
 pub fn SidebarMenuButton(
-    #[prop(optional)] is_active: bool,
+    #[prop(optional, into)] is_active: Signal<bool>,
     #[prop(default = SidebarMenuButtonVariant::Default)] variant: SidebarMenuButtonVariant,
     #[prop(default = SidebarMenuButtonSize::Default)] size: SidebarMenuButtonSize,
     #[prop(optional, into)] class: Option<String>,
@@ -627,7 +627,7 @@ pub fn SidebarMenuButton(
     view! {
         <div
             class={button_class}
-            data-active=is_active.to_string()
+            data-active=move || is_active.get().to_string()
             data-sidebar="menu-button"
             data-slot="sidebar-menu-button"
             data-size=size.to_string()
