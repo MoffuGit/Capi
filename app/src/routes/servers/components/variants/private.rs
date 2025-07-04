@@ -5,12 +5,12 @@ use crate::components::ui::sidebar::{
 };
 
 #[component]
-pub fn ServersSideBar() -> impl IntoView {
+pub fn PrivateSideBar() -> impl IntoView {
     view! {
-        <SidebarHeader class="gap-3.5 border-b p-4">
+        <SidebarHeader /* class="gap-3.5 border-b p-4.5" */>
             <div class="flex w-full items-center justify-between">
                 <div class="text-foreground text-base font-medium">
-                    "Servers"
+                    "Private"
                 </div>
             </div>
         </SidebarHeader>

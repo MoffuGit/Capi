@@ -2,9 +2,21 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  channels: defineTable({
+    name: v.string(),
+    type: v.union(v.literal("text")),
+    server: v.id("servers"),
+    category: v.optional(v.id("categories")),
+  })
+    .index("by_server_and_category", ["server", "category"])
+    .index("by_server", ["server"])
+    .index("by_category", ["category"]),
+  categories: defineTable({
+    name: v.string(),
+    server: v.id("servers"),
+  }).index("by_server", ["server"]),
   servers: defineTable({
     name: v.string(),
-    invitations: v.array(v.id("invitations")),
     image_url: v.optional(v.string()),
   }),
   users: defineTable({

@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 
 use crate::components::primitives::menu::MenuProviderContext;
 
@@ -11,6 +12,21 @@ pub fn MenuTrigger(
     let open = context.open;
     let hidden = context.hidden;
     let trigger_ref = context.trigger_ref;
+    Effect::new(move |_| {
+        if context.open.get() {
+            let UseElementBoundingReturn {
+                width,
+                height,
+                x,
+                y,
+                ..
+            } = use_element_bounding(trigger_ref);
+            context.trigger_width.set(width.get_untracked());
+            context.trigger_height.set(height.get_untracked());
+            context.trigger_x.set(x.get_untracked());
+            context.trigger_y.set(y.get_untracked());
+        }
+    });
     view! {
         <div
             class=move || {

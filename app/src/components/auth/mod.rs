@@ -24,7 +24,7 @@ pub struct AuthContext {
     handle_google_redirect: ServerAction<HandleGoogleRedirect>,
     refresh_google_token: ServerAction<RefreshToken>,
     pub auth: Resource<Result<Option<Auth>, ServerFnError>>,
-    pub user: SyncSignal<Option<User>>,
+    pub user: RwSignal<Option<Option<User>>>,
     expires_in: RwSignal<u64>,
 }
 
@@ -133,7 +133,7 @@ pub fn AuthProvider(children: Children) -> impl IntoView {
     // });
 
     view! {
-        <Provider value=AuthContext { log_out, user, google_auth, handle_google_redirect, refresh_google_token, auth, expires_in }>
+        <Provider value=AuthContext { log_out, user: user.signal, google_auth, handle_google_redirect, refresh_google_token, auth, expires_in }>
             {children()}
         </Provider>
     }

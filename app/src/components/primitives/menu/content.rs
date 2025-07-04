@@ -1,5 +1,4 @@
 use leptos::{html, prelude::*};
-use leptos_dom::log;
 use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 use tailwind_fuse::tw_merge;
 
@@ -36,6 +35,7 @@ pub fn MenuContent(
     let children = StoredValue::new(children);
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let content_ref = context.content_ref;
+
     Effect::new(move |_| {
         if context.modal {
             if let Some(app) = document().get_element_by_id("app") {
@@ -62,16 +62,12 @@ pub fn MenuContent(
         );
     }
 
-    let context = use_context::<MenuProviderContext>().expect("acces to DropdownProviderContext");
-    let content_ref = context.content_ref;
-    let trigger_ref = context.trigger_ref;
-    let MenuPositionReturn {
-        x,
-        y,
-        update_trigger,
-    } = use_menu_position(
+    let MenuPositionReturn { x, y } = use_menu_position(
         content_ref,
-        trigger_ref,
+        context.trigger_width,
+        context.trigger_height,
+        context.trigger_x,
+        context.trigger_y,
         side,
         side_of_set,
         align,
@@ -85,14 +81,6 @@ pub fn MenuContent(
             y.get()
         }
     };
-
-    let x_position = move || format!("{}px", x.get());
-
-    Effect::new(move |_| {
-        if context.open.get() {
-            update_trigger();
-        }
-    });
 
     let transition_status =
         use_context::<TransitionStatusState>().expect("should acces the transition context");
@@ -109,9 +97,6 @@ pub fn MenuContent(
             ""
         }
     };
-    Effect::new(move |_| {
-        log!("{}", x_position());
-    });
 
     let position = Signal::derive(move || format!("translate: {}px {}px;", x.get(), y_position()));
 
@@ -171,49 +156,41 @@ pub fn MenuContent(
 }
 
 #[derive(Debug, PartialEq)]
-pub struct MenuPositionReturn<U>
-where
-    U: Fn() + Clone + Send + Sync,
-{
+pub struct MenuPositionReturn {
     x: Memo<f64>,
     y: Memo<f64>,
-    update_trigger: U,
 }
 
 fn use_menu_position(
     content_ref: NodeRef<html::Div>,
-    trigger_ref: NodeRef<html::Div>,
+    trigger_width: RwSignal<f64>,
+    trigger_height: RwSignal<f64>,
+    trigger_x: RwSignal<f64>,
+    trigger_y: RwSignal<f64>,
     side: Signal<MenuSide>,
     side_of_set: Signal<f64>,
     align: Signal<MenuAlign>,
     align_of_set: Signal<f64>,
-) -> MenuPositionReturn<impl Fn() + Clone + Send + Sync> {
+) -> MenuPositionReturn {
     let UseElementBoundingReturn {
         width: content_width,
         height: content_heigt,
         ..
     } = use_element_bounding(content_ref);
-    let UseElementBoundingReturn {
-        width: trigger_width,
-        height: trigger_height,
-        x: trigger_position_x,
-        y: trigger_position_y,
-        update: update_trigger,
-        ..
-    } = use_element_bounding(trigger_ref);
+
     let x = Memo::new(move |_| match side.get() {
         MenuSide::Bottom => {
-            trigger_position_x.get()
+            trigger_x.get()
                 + match align.get() {
                     MenuAlign::Start => align_of_set.get(),
                     MenuAlign::Center => (trigger_width.get() / 2.0) - (content_width.get() / 2.0),
                     MenuAlign::End => -(content_width.get()) + align_of_set.get(),
                 }
         }
-        MenuSide::Left => trigger_position_x.get() - content_width.get() - side_of_set.get(),
-        MenuSide::Right => trigger_position_x.get() + trigger_width.get() + side_of_set.get(),
+        MenuSide::Left => trigger_x.get() - content_width.get() - side_of_set.get(),
+        MenuSide::Right => trigger_x.get() + trigger_width.get() + side_of_set.get(),
         MenuSide::Top => {
-            trigger_position_x.get()
+            trigger_x.get()
                 + match align.get() {
                     MenuAlign::Start => align_of_set.get(),
                     MenuAlign::Center => (trigger_width.get() / 2.0) - (content_width.get() / 2.0),
@@ -222,9 +199,9 @@ fn use_menu_position(
         }
     });
     let y = Memo::new(move |_| match side.get() {
-        MenuSide::Bottom => trigger_position_y.get() + trigger_height.get() + side_of_set.get(),
+        MenuSide::Bottom => trigger_y.get() + trigger_height.get() + side_of_set.get(),
         MenuSide::Left => {
-            trigger_position_y.get()
+            trigger_y.get()
                 + match align.get() {
                     MenuAlign::Start => align_of_set.get(),
                     MenuAlign::Center => (trigger_height.get() / 2.0) - (content_heigt.get() / 2.0),
@@ -232,18 +209,14 @@ fn use_menu_position(
                 }
         }
         MenuSide::Right => {
-            trigger_position_y.get()
+            trigger_y.get()
                 + match align.get() {
                     MenuAlign::Start => align_of_set.get(),
                     MenuAlign::Center => (trigger_height.get() / 2.0) - (content_heigt.get() / 2.0),
                     MenuAlign::End => trigger_height.get(),
                 }
         }
-        MenuSide::Top => trigger_position_y.get() - content_heigt.get() + side_of_set.get(),
+        MenuSide::Top => trigger_y.get() - content_heigt.get() + side_of_set.get(),
     });
-    MenuPositionReturn {
-        x,
-        y,
-        update_trigger,
-    }
+    MenuPositionReturn { x, y }
 }

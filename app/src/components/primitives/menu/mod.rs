@@ -25,6 +25,10 @@ pub struct MenuProviderContext {
     pub hidden: RwSignal<bool>,
     pub modal: bool,
     pub trigger_ref: NodeRef<html::Div>,
+    pub trigger_width: RwSignal<f64>,
+    pub trigger_height: RwSignal<f64>,
+    pub trigger_x: RwSignal<f64>,
+    pub trigger_y: RwSignal<f64>,
     pub content_ref: NodeRef<html::Div>,
 }
 
@@ -39,13 +43,18 @@ pub fn MenuProvider(
     #[prop(optional)] dismissible: bool,
 ) -> impl IntoView {
     view! {
-        <Provider value=MenuProviderContext {
+        <Provider
+        value=MenuProviderContext {
             dismissible,
             open,
             modal,
             hidden,
             trigger_ref,
             content_ref,
-        }>{children()}</Provider>
+            trigger_width: RwSignal::new(0.0),
+            trigger_height: RwSignal::new(0.0),
+            trigger_x: RwSignal::new(0.0),
+            trigger_y:  RwSignal::new(0.0)
+    }>{children()}</Provider>
     }
 }

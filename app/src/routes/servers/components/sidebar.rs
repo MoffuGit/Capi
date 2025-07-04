@@ -1,28 +1,37 @@
+use api::convex::Query;
 use api::server::CreateServer;
+use common::convex::Server;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_location;
+use serde_json::json;
 
 use super::navbar::Navbar;
+use super::variants::ServerSideBar;
+use crate::components::auth::use_auth;
 use crate::components::icons::{
     IconCirclePlus, IconCommand, IconCompass, IconGlobe, IconInbox, IconSearch,
 };
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
+use crate::components::ui::context::{
+    ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
+};
 use crate::components::ui::dialog::{
     Dialog, DialogDescription, DialogFooter, DialogHeader, DialogPopup, DialogTitle, DialogTrigger,
-};
-use crate::components::ui::dropwdown::{
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 };
 use crate::components::ui::input::Input;
 use crate::components::ui::label::Label;
 use crate::components::ui::sidebar::{
     SideBarCollapsible, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-    SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize,
-    SidebarMenuItem, SidebarRail,
+    SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
+    SidebarRail, SidebarSeparator,
 };
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
+use crate::hooks::sycn::SyncSignal;
 use crate::routes::servers::components::servers::ServersItems;
+use crate::routes::servers::components::variants::{
+    DiscoverSideBar, InboxSideBar, PrivateSideBar, SearchSideBar, ServersSideBar,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarRoute {
@@ -31,6 +40,7 @@ pub enum SideBarRoute {
     Servers,
     Search,
     Inbox,
+    Private,
 }
 
 /// Helper function to derive SideBarRoute from a given path
@@ -38,6 +48,7 @@ fn get_route_from_path(path: &str) -> SideBarRoute {
     match path.split('/').nth(2) {
         None | Some("") => SideBarRoute::Servers, // Covers /servers and /servers/
         Some("discover") => SideBarRoute::Discover,
+        Some("me") => SideBarRoute::Private,
         _ => SideBarRoute::Server, // Covers /servers/{id} or anything else
     }
 }
@@ -48,8 +59,6 @@ pub fn SideBar() -> impl IntoView {
     let (active_sidebar_route, set_active_sidebar_route) = signal(SideBarRoute::Servers);
     let (mounted, set_mounted) = signal(false);
 
-    // Effect to update sidebar_state when the URL path changes
-    // This handles actual navigation to different URLs.
     Effect::new(move |_| {
         let path = location.pathname.get();
         let new_state = get_route_from_path(&path);
@@ -59,6 +68,17 @@ pub fn SideBar() -> impl IntoView {
     Effect::new(move |_| {
         set_mounted(true);
     });
+
+    let auth = use_auth();
+
+    let servers: SyncSignal<Vec<Server>> = SyncSignal::new(Memo::new(move |_| {
+        auth.user.get().flatten().map(|user| Query {
+            name: "user:getServers".to_string(),
+            args: json!({
+                "user": user.id
+            }),
+        })
+    }));
 
     view! {
         <Sidebar collapsible=SideBarCollapsible::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
@@ -115,7 +135,10 @@ pub fn SideBar() -> impl IntoView {
                                 </ToolTip>
                                     </SidebarMenuItem>
                             <ServerMenu set_active_sidebar_route=set_active_sidebar_route/>
-                            <ServersItems/>
+                            <SidebarSeparator
+                                class="mr-2 data-[orientation=horizontal]:w-4 my-0.5"
+                            />
+                            <ServersItems servers=servers.signal/>
                         </SidebarMenu>
                     </SidebarGroupContent>
                   </SidebarGroup>
@@ -127,38 +150,18 @@ pub fn SideBar() -> impl IntoView {
 
             <Show when=move || mounted()>
                 <Sidebar collapsible=SideBarCollapsible::None class="hidden flex-1 md:flex">
-                    <SidebarHeader class="gap-3.5 border-b p-4">
-                    <div class="flex w-full items-center justify-between">
-                        <div class="text-foreground text-base font-medium">
-                            // Display title based on current sidebar state
-                            { move || match active_sidebar_route.get() {
-                                SideBarRoute::Server => "Server",
-                                SideBarRoute::Discover => "Discover",
-                                SideBarRoute::Servers => "Servers",
-                                SideBarRoute::Search => "Search",
-                                SideBarRoute::Inbox => "Inbox",
-                            }}
-                        </div>
-                        <Label class="flex items-center gap-2 text-sm">
-                            <span>Unreads</span>
-                        </Label>
-                    </div>
-                    <SidebarInput {..} placeholder="Type to search..." />
-                    </SidebarHeader>
-                    <SidebarContent>
-                        <SidebarGroup class="px-0">
-                            <SidebarGroupContent>
-                                // Conditionally render content based on current sidebar state
-                                { move || match active_sidebar_route.get() {
-                                    SideBarRoute::Server => view! { <div>"Server Specific Content (e.g., Channels, Members)"</div> }.into_any(),
-                                    SideBarRoute::Discover => view! { <div>"Discover Servers Content"</div> }.into_any(),
-                                    SideBarRoute::Servers => view! { <div>"Your Servers List Content"</div> }.into_any(),
-                                    SideBarRoute::Search => view! { <div>"Global Search Interface"</div> }.into_any(),
-                                    SideBarRoute::Inbox => view! { <div>"Inbox Messages/Notifications"</div> }.into_any(),
-                                }}
-                            </SidebarGroupContent>
-                        </SidebarGroup>
-                    </SidebarContent>
+                    {
+                        move || {
+                            match active_sidebar_route.get() {
+                                SideBarRoute::Server => view!{<ServerSideBar servers=servers.signal/>}.into_any(),
+                                SideBarRoute::Discover => view!{<DiscoverSideBar/>}.into_any(),
+                                SideBarRoute::Servers => view!{<ServersSideBar/>}.into_any(),
+                                SideBarRoute::Search => view!{<SearchSideBar/>}.into_any(),
+                                SideBarRoute::Inbox => view!{<InboxSideBar/>}.into_any(),
+                                SideBarRoute::Private => view!{<PrivateSideBar/>}.into_any()
+                            }
+                        }
+                    }
                 </Sidebar>
                 <SidebarRail/>
             </Show>
@@ -175,11 +178,11 @@ pub fn ServerMenu(set_active_sidebar_route: WriteSignal<SideBarRoute>) -> impl I
     view! {
     <Dialog>
         <SidebarMenuItem>
-            <DropdownMenu>
+            <ContextMenu>
                 <A href="/servers"
                    on:click=move |_| set_active_sidebar_route(get_route_from_path(&location.pathname.get_untracked()))
                 >
-                    <DropdownMenuTrigger>
+                    <ContextMenuTrigger pointer=false >
                         <ToolTip>
                             <ToolTipTrigger>
                             <SidebarMenuButton
@@ -192,25 +195,25 @@ pub fn ServerMenu(set_active_sidebar_route: WriteSignal<SideBarRoute>) -> impl I
                                 "Servers"
                             </ToolTipContent>
                         </ToolTip>
-                    </DropdownMenuTrigger>
+                    </ContextMenuTrigger>
                 </A>
-                <DropdownMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
                     <DialogTrigger as_child=true>
-                        <DropdownMenuItem>
+                        <ContextMenuItem>
                             <IconCirclePlus/>
                             "Create"
-                        </DropdownMenuItem>
+                        </ContextMenuItem>
                     </DialogTrigger>
                     <A href="/servers/discover"
                        on:click=move |_| set_active_sidebar_route(get_route_from_path(&location.pathname.get_untracked()))
                     >
-                        <DropdownMenuItem close_on_click=true>
+                        <ContextMenuItem close_on_click=true>
                             <IconCompass />
                             "Search" // This "Search" is for Discover servers, not the global search
-                        </DropdownMenuItem>
+                        </ContextMenuItem>
                     </A>
-                </DropdownMenuContent>
-            </DropdownMenu>
+                </ContextMenuContent>
+            </ContextMenu>
         </SidebarMenuItem>
         <DialogPopup>
             <DialogHeader>

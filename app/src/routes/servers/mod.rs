@@ -12,7 +12,7 @@ use self::components::sidebar::SideBar;
 #[component]
 pub fn Servers() -> impl IntoView {
     view! {
-        <SidebarProvider style="--sidebar-width: 350px;">
+        <SidebarProvider style="--sidebar-width: 300px">
             <SideBar/>
             <SidebarInset>
                 <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-4">

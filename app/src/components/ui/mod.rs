@@ -2,6 +2,7 @@
 pub mod avatar;
 pub mod button;
 pub mod card;
+pub mod context;
 pub mod dialog;
 pub mod divider;
 pub mod dropwdown;

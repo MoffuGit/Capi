@@ -9,7 +9,7 @@ pub fn Navbar() -> impl IntoView {
     view! {
         {
             move || {
-                auth.user.signal.get().flatten().map(|user| {
+                auth.user.get().flatten().map(|user| {
                     view!{
                         <SidebarMenuButton
                           size=SidebarMenuButtonSize::Lg

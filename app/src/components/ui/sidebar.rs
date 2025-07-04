@@ -432,14 +432,14 @@ pub fn SidebarInput(#[prop(optional, into)] class: Option<String>) -> impl IntoV
 
 #[component]
 pub fn SidebarHeader(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <div
             data-slot="sidebar-header"
             data-sidebar="header"
-            class=format!("flex flex-col gap-2 p-2 {}", &class.unwrap_or_default())
+            class=move || tw_merge!("flex flex-col gap-2 p-2 {}", &class.get())
         >
             {children()}
         </div>

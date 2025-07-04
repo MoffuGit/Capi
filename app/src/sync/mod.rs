@@ -41,9 +41,14 @@ impl SyncManager {
         &mut self,
         query: Query,
         tx: oneshot::Sender<(async_broadcast::Receiver<QueryResponse>, Option<Value>)>,
-    ) {
+    ) -> bool {
         if let Some(channel) = self.channels.get(&query) {
             let _ = tx.send((channel.sender.new_receiver(), channel.value.clone()));
+            log!(
+                "count channel for: {query:?}, count: {}",
+                channel.sender.receiver_count()
+            );
+            true
         } else {
             let (sender, receiver) = async_broadcast::broadcast(100);
             let channel = SyncChannel {
@@ -63,7 +68,9 @@ impl SyncManager {
             );
             let _ = tx.send((receiver, channel.value.clone()));
 
+            log!("created channel for: {query:?}");
             self.channels.insert(query, channel);
+            false
         }
     }
 
@@ -94,8 +101,9 @@ impl SyncManager {
                 request = rx.next().fuse() => {
                     if let Some((query, tx)) = request {
                         log!("sub request for query {query:?}");
-                        let _ = ws_tx.send(Ok(SyncRequest::Subscribe(query.clone()))).await;
-                        self.subscribe(query, tx).await;
+                        if !self.subscribe(query.clone(), tx).await {
+                            let _ = ws_tx.send(Ok(SyncRequest::Subscribe(query))).await;
+                        }
                     }
                 }
             }

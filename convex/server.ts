@@ -18,7 +18,6 @@ export const create = mutation({
     const server = await db.insert("servers", {
       name: name,
       image_url: image_url,
-      invitations: [],
     });
     const status = await db.insert("userStatus", {
       user: user._id,
@@ -30,5 +29,32 @@ export const create = mutation({
       name: "Default",
       status: status,
     });
+  },
+});
+
+export const getChannels = query({
+  args: {
+    server: v.id("servers"),
+    category: v.optional(v.id("categories")),
+  },
+  handler: async ({ db }, { server, category }) => {
+    return await db
+      .query("channels")
+      .withIndex("by_server_and_category", (q) =>
+        q.eq("server", server).eq("category", category),
+      )
+      .collect();
+  },
+});
+
+export const getCategories = query({
+  args: {
+    server: v.id("servers"),
+  },
+  handler: async ({ db }, { server }) => {
+    return await db
+      .query("categories")
+      .withIndex("by_server", (q) => q.eq("server", server))
+      .collect();
   },
 });
