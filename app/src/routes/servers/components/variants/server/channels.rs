@@ -3,7 +3,10 @@ use common::convex::{Channel, Server};
 use leptos::prelude::*;
 use serde_json::json;
 
-use crate::components::ui::sidebar::{SidebarMenu, SidebarMenuButton, SidebarMenuItem};
+use crate::components::icons::{IconEllipsis, IconPlus};
+use crate::components::ui::sidebar::{
+    SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem,
+};
 use crate::hooks::sycn::SyncSignal;
 
 #[component]
@@ -38,9 +41,13 @@ pub fn ChannelsItems(
                     children=move |channel| {
                         view!{
                             <SidebarMenuItem>
-                                <SidebarMenuButton>
+                                <SidebarMenuButton /* class="min-w-full" */>
                                     {channel.name}
                                 </SidebarMenuButton>
+                                <SidebarMenuAction show_on_hover=true>
+                                    <IconEllipsis />
+                                    <span class="sr-only">More</span>
+                                </SidebarMenuAction>
                             </SidebarMenuItem>
                         }
                     }

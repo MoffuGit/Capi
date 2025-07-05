@@ -148,8 +148,8 @@ pub fn SideBar() -> impl IntoView {
                 </SidebarFooter>
             </Sidebar>
 
-            <Show when=move || mounted()>
-                <Sidebar collapsible=SideBarCollapsible::None class="hidden flex-1 md:flex">
+            <Sidebar collapsible=SideBarCollapsible::None class="flex-1 md:flex min-w-[250px]">
+                <Show when=move || mounted()>
                     {
                         move || {
                             match active_sidebar_route.get() {
@@ -162,9 +162,9 @@ pub fn SideBar() -> impl IntoView {
                             }
                         }
                     }
-                </Sidebar>
-                <SidebarRail/>
-            </Show>
+                </Show>
+            </Sidebar>
+            <SidebarRail/>
         </Sidebar>
     }
 }

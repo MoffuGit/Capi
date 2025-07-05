@@ -31,13 +31,31 @@ export default defineSchema({
     server: v.id("servers"),
     invitation: v.string(),
   }),
+  roles: defineTable({
+    server: v.id("servers"),
+    name: v.string(),
+    isOwner: v.boolean(), // True for the unique owner role
+    canBeDeleted: v.boolean(), // False for the owner role
+    actions: v.object({
+      canManageChannels: v.boolean(),
+      canManageCategories: v.boolean(),
+      canManageRoles: v.boolean(), // Ability to create, delete, or modify roles
+      canManageMembers: v.boolean(), // Ability to kick, ban, or assign roles to members
+      canManageServerSettings: v.boolean(),
+      canCreateInvitation: v.boolean(),
+      // Add more specific actions as needed
+    }),
+  }).index("by_server", ["server"]), // Index to quickly find roles for a server
   members: defineTable({
     user: v.id("users"),
     server: v.id("servers"),
+    roles: v.array(v.id("roles")), // A member can now have multiple roles
     name: v.string(),
     image_url: v.optional(v.string()),
     status: v.id("userStatus"),
-  }).index("by_user", ["user"]),
+  })
+    .index("by_user", ["user"])
+    .index("by_server", ["server"]), // Index to find members of a server
   userStatus: defineTable({
     user: v.id("users"),
     status: v.union(

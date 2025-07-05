@@ -185,6 +185,27 @@ pub fn IconInbox(#[prop(into, optional)] class: Signal<String>) -> impl IntoView
 }
 
 #[component]
+pub fn IconEllipsis(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <circle cx="12" cy="12" r="1"/>
+            <circle cx="19" cy="12" r="1"/>
+            <circle cx="5" cy="12" r="1"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconLoaderCircle(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M21 12a9 9 0 1 1-6.219-8.56">
+            </path>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconPanelLeft(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>

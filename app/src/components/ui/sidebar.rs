@@ -205,7 +205,7 @@ pub fn SidebarProvider(
             <div
                 data-slot="sidebar-wrapper"
                 style=style_str
-                class=format!("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full {}", class)
+                class=tw_merge!("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full {}", class)
             >
                 {children()}
             </div>
@@ -240,7 +240,7 @@ pub fn Sidebar(
     variant: SideBarVariant,
     #[prop(optional, into, default = SideBarCollapsible::Offcanvas)]
     collapsible: SideBarCollapsible,
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: ChildrenFn,
 ) -> impl IntoView {
     let sidebar_context = use_sidebar();
@@ -248,13 +248,11 @@ pub fn Sidebar(
     let open_mobile = sidebar_context.open_mobile;
     let state = sidebar_context.state;
 
-    let final_class = class.unwrap_or_default();
-
     if collapsible == SideBarCollapsible::None {
         return view! {
             <div
                 data-slot="sidebar"
-                class=format!("bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col {}", final_class)
+                class=move || tw_merge!("bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col", class.get())
             >
                 {children()}
             </div>
@@ -265,7 +263,7 @@ pub fn Sidebar(
     let children = StoredValue::new(children);
 
     let sidebar_gap_class = Memo::new(move |_| {
-        format!("{} {} {} {}",  "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",  "group-data-[collapsible=offcanvas]:w-0", &format!("group-data-[side={side}]"), if variant == SideBarVariant::Floating|| variant == SideBarVariant::Inset{
+        tw_merge!("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",  "group-data-[collapsible=offcanvas]:w-0", &tw_merge!("group-data-[side={side}]"), if variant == SideBarVariant::Floating|| variant == SideBarVariant::Inset{
             "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
         } else {
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
@@ -283,7 +281,7 @@ pub fn Sidebar(
         } else {
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l"
         },
-            &final_class
+            class.get()
         )
     });
     view! {
@@ -347,7 +345,7 @@ pub fn Sidebar(
 
 #[component]
 pub fn SidebarTrigger(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     #[prop(optional)] on_click: Option<Box<dyn Fn(MouseEvent)>>,
 ) -> impl IntoView {
     let SidebarContextValue { toggle_sidebar, .. } = use_sidebar();
@@ -355,7 +353,7 @@ pub fn SidebarTrigger(
         <Button
             variant=ButtonVariants::Ghost
             size=ButtonSizes::Icon
-            class=format!("{} {}", "size-7", &class.unwrap_or_default())
+            class=Signal::derive(move || tw_merge!( "size-7", class.get()))
             {..}
             data-sidebar="trigger"
             data-slot="sidebar-trigger"
@@ -373,7 +371,7 @@ pub fn SidebarTrigger(
 }
 
 #[component]
-pub fn SidebarRail(#[prop(optional, into)] class: Option<String>) -> impl IntoView {
+pub fn SidebarRail(#[prop(optional, into)] class: Signal<String>) -> impl IntoView {
     let SidebarContextValue { toggle_sidebar, .. } = use_sidebar();
 
     view! {
@@ -384,15 +382,14 @@ pub fn SidebarRail(#[prop(optional, into)] class: Option<String>) -> impl IntoVi
             tabindex="-1"
             on:click=move |_| toggle_sidebar.run(())
             title="Toggle Sidebar"
-            class=format!(
-                "{} {} {} {} {} {} {}",
+            class=move || tw_merge!(
                 "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
                 "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
                 "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
                 "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
                 "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
                 "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         />
     }
@@ -400,17 +397,16 @@ pub fn SidebarRail(#[prop(optional, into)] class: Option<String>) -> impl IntoVi
 
 #[component]
 pub fn SidebarInset(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <main
             data-slot="sidebar-inset"
-            class=format!(
-                "{} {} {}",
+            class=move || tw_merge!(
                 "bg-background relative flex w-full flex-1 flex-col",
                 "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}
@@ -419,10 +415,10 @@ pub fn SidebarInset(
 }
 
 #[component]
-pub fn SidebarInput(#[prop(optional, into)] class: Option<String>) -> impl IntoView {
+pub fn SidebarInput(#[prop(optional, into)] class: Signal<String>) -> impl IntoView {
     view! {
         <Input
-            class=format!("bg-background h-8 w-full shadow-none {}", &class.unwrap_or_default())
+            class=Signal::derive(move || tw_merge!("bg-background h-8 w-full shadow-none {}", class.get()))
             {..}
             data-slot="sidebar-input"
             data-sidebar="input"
@@ -439,7 +435,7 @@ pub fn SidebarHeader(
         <div
             data-slot="sidebar-header"
             data-sidebar="header"
-            class=move || tw_merge!("flex flex-col gap-2 p-2 {}", &class.get())
+            class=move || tw_merge!("flex flex-col gap-2 p-2", &class.get())
         >
             {children()}
         </div>
@@ -448,14 +444,14 @@ pub fn SidebarHeader(
 
 #[component]
 pub fn SidebarFooter(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <div
             data-slot="sidebar-footer"
             data-sidebar="footer"
-            class=format!["flex flex-col gap-2 p-2 {}", &class.unwrap_or_default()]
+            class=move || tw_merge!["flex flex-col gap-2 p-2", class.get()]
         >
             {children()}
         </div>
@@ -466,7 +462,7 @@ pub fn SidebarFooter(
 pub fn SidebarSeparator(#[prop(optional, into)] class: MaybeProp<String>) -> impl IntoView {
     view! {
         <Separator
-            class=tw_merge!("bg-sidebar-border mx-2 w-auto {}", &class.get())
+            class=tw_merge!("bg-sidebar-border mx-2 w-auto", &class.get())
             {..}
             data-slot="sidebar-separator"
             data-sidebar="separator"
@@ -476,16 +472,16 @@ pub fn SidebarSeparator(#[prop(optional, into)] class: MaybeProp<String>) -> imp
 
 #[component]
 pub fn SidebarContent(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <div
             data-slot="sidebar-content"
             data-sidebar="content"
-            class=format!(
-                "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden {}",
-                &class.unwrap_or_default(),
+            class=move || tw_merge!(
+                "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+                class.get(),
             )
         >
             {children()}
@@ -495,14 +491,14 @@ pub fn SidebarContent(
 
 #[component]
 pub fn SidebarGroup(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <div
             data-slot="sidebar-group"
             data-sidebar="group"
-            class=format!("relative flex w-full min-w-0 flex-col p-2 {}", &class.unwrap_or_default())
+            class=move || tw_merge!("relative flex w-full min-w-0 flex-col p-2", class.get())
         >
             {children()}
         </div>
@@ -510,7 +506,7 @@ pub fn SidebarGroup(
 }
 #[component]
 pub fn SidebarGroupLabel(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     #[prop(optional)] as_child: bool,
     children: Children,
 ) -> impl IntoView {
@@ -522,11 +518,10 @@ pub fn SidebarGroupLabel(
         <div
             data-slot="sidebar-group-label"
             data-sidebar="group-label"
-            class=format!(
-                "{} {} {}",
+            class=move || tw_merge!(
                 "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
                 "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}
@@ -536,7 +531,7 @@ pub fn SidebarGroupLabel(
 
 #[component]
 pub fn SidebarGroupAction(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     #[prop(optional)] as_child: bool,
     children: Children,
 ) -> impl IntoView {
@@ -548,12 +543,11 @@ pub fn SidebarGroupAction(
         <button
             data-slot="sidebar-group-action"
             data-sidebar="group-action"
-            class=format!(
-                "{} {} {} {}",
+            class=move || tw_merge!(
                 "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
                 "after:absolute after:-inset-2 md:after:hidden",
                 "group-data-[collapsible=icon]:hidden",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}
@@ -579,14 +573,14 @@ pub fn SidebarGroupContent(
 
 #[component]
 pub fn SidebarMenu(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <ul
             data-slot="sidebar-menu"
             data-sidebar="menu"
-            class=format!("flex w-full min-w-0 flex-col gap-1 {}", &class.unwrap_or_default())
+            class=move || tw_merge!("flex w-full min-w-0 flex-col gap-1", class.get())
         >
             {children()}
         </ul>
@@ -595,14 +589,14 @@ pub fn SidebarMenu(
 
 #[component]
 pub fn SidebarMenuItem(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <li
             data-slot="sidebar-menu-item"
             data-sidebar="menu-item"
-            class=format!("{} {}", "group/menu-item relative", &class.unwrap_or_default())
+            class=tw_merge!("group/menu-item relative", class.get())
         >
             {children()}
         </li>
@@ -614,19 +608,15 @@ pub fn SidebarMenuButton(
     #[prop(optional, into)] is_active: Signal<bool>,
     #[prop(default = SidebarMenuButtonVariant::Default)] variant: SidebarMenuButtonVariant,
     #[prop(default = SidebarMenuButtonSize::Default)] size: SidebarMenuButtonSize,
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
-    let button_class = Signal::derive(move || {
-        tw_merge!(
-            &sidebar_menu_button_variants(variant, size),
-            &class.clone().unwrap_or_default(),
-        )
-    });
+    let button_class =
+        Signal::derive(move || tw_merge!(sidebar_menu_button_variants(variant, size), class.get()));
 
     view! {
         <div
-            class={button_class}
+            class=button_class
             data-active=move || is_active.get().to_string()
             data-sidebar="menu-button"
             data-slot="sidebar-menu-button"
@@ -639,15 +629,10 @@ pub fn SidebarMenuButton(
 
 #[component]
 pub fn SidebarMenuAction(
-    #[prop(optional, into)] class: Option<String>,
-    #[prop(optional)] as_child: bool,
+    #[prop(optional, into)] class: Signal<String>,
     #[prop(optional)] show_on_hover: bool,
     children: Children,
 ) -> impl IntoView {
-    if as_child {
-        return children().into_any();
-    }
-
     let show_on_hover_class = if show_on_hover {
         "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0"
     } else {
@@ -658,41 +643,39 @@ pub fn SidebarMenuAction(
         <button
             data-slot="sidebar-menu-action"
             data-sidebar="menu-action"
-            class=format!(
-                "{} {} {} {} {} {} {} {}",
-                "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+            class=move || tw_merge!(
+                "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
                 "after:absolute after:-inset-2 md:after:hidden",
                 "peer-data-[size=sm]/menu-button:top-1",
                 "peer-data-[size=default]/menu-button:top-1.5",
                 "peer-data-[size=lg]/menu-button:top-2.5",
                 "group-data-[collapsible=icon]:hidden",
                 show_on_hover_class,
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}
         </button>
-    }.into_any()
+    }
 }
 
 #[component]
 pub fn SidebarMenuBadge(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <div
             data-slot="sidebar-menu-badge"
             data-sidebar="menu-badge"
-            class=format!(
-                "{} {} {} {} {} {} {}",
+            class=move || tw_merge!(
                 "text-sidebar-foreground pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums select-none",
                 "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
                 "peer-data-[size=sm]/menu-button:top-1",
                 "peer-data-[size=default]/menu-button:top-1.5",
                 "peer-data-[size=lg]/menu-button:top-2.5",
                 "group-data-[collapsible=icon]:hidden",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}
@@ -702,7 +685,7 @@ pub fn SidebarMenuBadge(
 
 #[component]
 pub fn SidebarMenuSkeleton(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     #[prop(optional)] show_icon: bool,
 ) -> impl IntoView {
     let width = Memo::new(move |_| {
@@ -716,7 +699,7 @@ pub fn SidebarMenuSkeleton(
         <div
             data-slot="sidebar-menu-skeleton"
             data-sidebar="menu-skeleton"
-            class=format!("{} {}", "flex h-8 items-center gap-2 rounded-md px-2", &class.unwrap_or_default())
+            class=move || tw_merge!( "flex h-8 items-center gap-2 rounded-md px-2", class.get())
         >
             {show_icon.then(|| view! {
                 <Skeleton
@@ -737,18 +720,17 @@ pub fn SidebarMenuSkeleton(
 
 #[component]
 pub fn SidebarMenuSub(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <ul
             data-slot="sidebar-menu-sub"
             data-sidebar="menu-sub"
-            class=format!(
-                "{} {} {}",
+            class=move || tw_merge!(
                 "border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5",
                 "group-data-[collapsible=icon]:hidden",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}
@@ -758,14 +740,14 @@ pub fn SidebarMenuSub(
 
 #[component]
 pub fn SidebarMenuSubItem(
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <li
             data-slot="sidebar-menu-sub-item"
             data-sidebar="menu-sub-item"
-            class=format!("{} {}", "group/menu-sub-item relative", &class.unwrap_or_default())
+            class=move || tw_merge!( "group/menu-sub-item relative", class.get())
         >
             {children()}
         </li>
@@ -777,7 +759,7 @@ pub fn SidebarMenuSubButton(
     #[prop(optional)] as_child: bool,
     #[prop(optional, default = "md".to_string())] size: String,
     #[prop(optional)] is_active: bool,
-    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] class: Signal<String>,
     children: Children,
 ) -> impl IntoView {
     if as_child {
@@ -798,13 +780,12 @@ pub fn SidebarMenuSubButton(
             data-sidebar="menu-sub-button"
             data-size=size.clone()
             data-active=is_active.to_string()
-            class=format!(
-                "{} {} {} {} {}",
+            class=move || tw_merge!(
                 "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
                 "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
                 size_class,
                 "group-data-[collapsible=icon]:hidden",
-                &class.unwrap_or_default(),
+                class.get(),
             )
         >
             {children()}

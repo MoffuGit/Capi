@@ -3,7 +3,10 @@ use common::convex::{Category, Server};
 use leptos::prelude::*;
 use serde_json::json;
 
-use crate::components::ui::sidebar::{SidebarGroup, SidebarGroupContent, SidebarGroupLabel};
+use crate::components::icons::IconPlus;
+use crate::components::ui::sidebar::{
+    SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel,
+};
 use crate::hooks::sycn::SyncSignal;
 use crate::routes::servers::components::variants::server::channels::ChannelsItems;
 
@@ -28,6 +31,10 @@ pub fn CategoriesItems(server: Signal<Option<Server>>) -> impl IntoView {
                             <SidebarGroupLabel>
                                 {category.name}
                             </SidebarGroupLabel>
+                            <SidebarGroupAction>
+                                <IconPlus/>
+                                <span class="sr-only">Add channel</span>
+                            </SidebarGroupAction>
                             <SidebarGroupContent>
                                 <ChannelsItems server=server category=category.id />
                             </SidebarGroupContent>
