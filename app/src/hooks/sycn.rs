@@ -4,7 +4,6 @@ use api::convex::{Query, QueryResponse};
 use futures::channel::oneshot;
 use futures::{SinkExt, StreamExt};
 use leptos::prelude::*;
-use leptos::reactive::spawn_local;
 use leptos::task::spawn_local_scoped_with_cancellation;
 use leptos_dom::log;
 use serde::Deserialize;
@@ -48,6 +47,8 @@ impl<T: for<'a> Deserialize<'a> + Send + Sync + Debug + 'static> SyncSignal<T> {
                         }
                     }
                 });
+            } else {
+                signal.set(None);
             }
         });
 

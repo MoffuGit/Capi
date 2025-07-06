@@ -1,7 +1,6 @@
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_params_map;
-use web_sys::MouseEvent;
 
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::sidebar::{SidebarMenuButton, SidebarMenuItem};
@@ -10,10 +9,7 @@ use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use super::sidebar::SideBarData;
 
 #[component]
-pub fn ServersItems(
-    data: RwSignal<Option<Vec<SideBarData>>>,
-    on_click: Callback<MouseEvent>,
-) -> impl IntoView {
+pub fn ServersItems(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView {
     let params = use_params_map();
     view! {
         {
@@ -41,8 +37,6 @@ pub fn ServersItems(
                                     <ToolTipTrigger>
                                         <A
                                             href=move || href()
-                                            {..}
-                                            on:click=move |evt| on_click.run(evt)
                                         >
                                             <SidebarMenuButton
                                                 is_active=is_active

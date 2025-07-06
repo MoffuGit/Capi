@@ -65,8 +65,8 @@ pub fn ServerSideBar(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView 
                     <ChannelsItems server=server/>
                 </SidebarGroupContent>
                 <PendingCategoryItem create_category=create_category/>
-                <CategoriesItems server=server />
             </SidebarGroup>
+            <CategoriesItems server=server />
             <SideBarContextMenu create_channel=create_channel create_category=create_category server=server/>
         </SidebarContent>
     }
@@ -128,11 +128,18 @@ pub fn SideBarContextMenu(
         <ContextMenu>
             <ContextMenuTrigger class="w-full h-full"/>
             <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
-                // Use on:select to set the signal, allowing ContextMenu to close naturally
-                <ContextMenuItem {..}>
+                <ContextMenuItem {..}
+                    on:click=move |_| {
+                        create_channel_open.set(true)
+                    }
+                >
                     "Create Channel"
                 </ContextMenuItem>
-                <ContextMenuItem {..}>
+                <ContextMenuItem {..}
+                    on:click=move |_| {
+                        create_category_open.set(true)
+                    }
+                >
                     "Create Category"
                 </ContextMenuItem>
             </ContextMenuContent>

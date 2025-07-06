@@ -1,4 +1,6 @@
+mod collapsible;
+mod icons;
 mod navbar;
-pub mod servers;
+mod servers;
 pub mod sidebar;
 mod variants;
