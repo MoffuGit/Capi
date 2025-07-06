@@ -1,14 +1,14 @@
 mod categories;
 mod channels;
+mod header;
 
 use api::server::{CreateCategory, CreateChannel};
 use common::convex::Server;
 use leptos::prelude::*;
-use leptos_router::hooks::use_params_map;
+use leptos_router::hooks::use_location;
 
-use crate::components::icons::{IconLoaderCircle, IconPlus, IconTrash};
+use crate::components::icons::IconLoaderCircle;
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
-use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::context::{
     ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
 };
@@ -16,201 +16,143 @@ use crate::components::ui::dialog::{Dialog, DialogFooter, DialogHeader, DialogPo
 use crate::components::ui::input::Input;
 use crate::components::ui::label::Label;
 use crate::components::ui::sidebar::{
-    SidebarContent, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel,
-    SidebarHeader, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuButtonSize,
-    SidebarMenuItem,
+    SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenuAction,
+    SidebarMenuButton, SidebarMenuItem,
 };
+use crate::routes::servers::components::sidebar::SideBarData;
 
 use self::categories::CategoriesItems;
 use self::channels::ChannelsItems;
+use self::header::ServerHeader;
 
 #[component]
-pub fn ServerSideBar(servers: RwSignal<Option<Vec<Server>>>) -> impl IntoView {
+pub fn ServerSideBar(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView {
     let create_channel: ServerAction<CreateChannel> = ServerAction::new();
     let create_category: ServerAction<CreateCategory> = ServerAction::new();
 
-    let params = use_params_map();
-    let server = Signal::derive(move || {
-        let id = params.get().get("server");
-        let servers = servers.get();
-        id.and_then(|id| {
-            servers.map(|servers| servers.iter().find(|server| server.id == id).cloned())
+    let servers = Memo::new(move |_| {
+        data.get().map(|data| {
+            data.iter()
+                .map(|data| data.server.clone())
+                .collect::<Vec<Server>>()
         })
-        .flatten()
     });
 
-    // Signals to control the open state of each dialog
-    let show_create_channel_dialog = RwSignal::new(false);
-    let show_create_category_dialog = RwSignal::new(false);
+    let location = use_location();
+    let path = location.pathname;
 
-    let channel_pending = create_channel.pending();
-    let channel_value = create_channel.input();
-    let channel_result = create_channel.value();
+    let server = Memo::new(move |_| {
+        let server = path
+            .get()
+            .split('/')
+            .nth(2)
+            .map(|server| server.to_string());
+        let servers = servers.get();
+        let server = server
+            .and_then(|id| {
+                servers.map(|servers| servers.iter().find(|server| server.id == id).cloned())
+            })
+            .flatten();
+        server
+    });
 
-    let category_pending = create_category.pending();
-    let category_value = create_category.input();
-    let category_result = create_category.value();
+    view! {
+        <ServerHeader server=server />
+        <SidebarContent>
+            <SidebarGroup>
+                <SidebarGroupContent>
+                    <PendingChannelItem create_channel=create_channel/>
+                    <ChannelsItems server=server/>
+                </SidebarGroupContent>
+                <PendingCategoryItem create_category=create_category/>
+                <CategoriesItems server=server />
+            </SidebarGroup>
+            <SideBarContextMenu create_channel=create_channel create_category=create_category server=server/>
+        </SidebarContent>
+    }
+}
 
-    let last_channel_input: RwSignal<Option<CreateChannel>> = RwSignal::new(None);
-    let last_category_input: RwSignal<Option<CreateCategory>> = RwSignal::new(None);
-
+#[component]
+pub fn PendingCategoryItem(create_category: ServerAction<CreateCategory>) -> impl IntoView {
+    let input = create_category.input();
     view! {
             {
                 move || {
-                    server.get().map(|server| {
-                        let name = StoredValue::new(server.name.clone());
-                        let image_url = StoredValue::new(server.image_url.clone());
-                        view!{
-                            <SidebarHeader class="flex w-full">
-                                <SidebarMenu>
-                                    <SidebarMenuItem>
-                                        <SidebarMenuButton size=SidebarMenuButtonSize::Lg>
-                                            <Avatar class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                                <AvatarImage url=image_url.get_value()/>
-                                                <AvatarFallback class="rounded-lg select-none bg-transparent">
-                                                    {name.get_value().chars().next()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div class="grid flex-1 text-left text-base leading-tight">
-                                                <span class="truncate font-medium">
-                                                    {
-                                                        name.get_value()
-                                                    }
-                                                </span>
-                                            </div>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                </SidebarMenu>
-                            </SidebarHeader>
+                    input.get().map(|input| {
+                        view! {
+                            <SidebarGroup>
+                                <SidebarGroupLabel>
+                                    {input.name.clone()}
+                                </SidebarGroupLabel>
+                            </SidebarGroup>
                         }
                     })
-                }
-            }
-            <ContextMenu>
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupContent>
-                            <Show when=move || channel_pending.get()>
-                                {
-                                    move || {
-                                        channel_value.get().map(|input| {
-                                            view! {
-                                                <SidebarMenuItem>
-                                                    <SidebarMenuButton class="min-w-full opacity-50 cursor-not-allowed">
-                                                        {input.name.clone()}
-                                                    </SidebarMenuButton>
-                                                    {
-                                                        move || {
-                                                            match channel_result.get() {
-                                                                None => view!{
-                                                                    <SidebarMenuAction>
-                                                                        <IconLoaderCircle class="animate-spin" />
-                                                                        <span class="sr-only">Loading</span>
-                                                                    </SidebarMenuAction>
-                                                                }.into_any(),
-                                                                Some(Err(_)) => view!{
-                                                                        <SidebarMenuAction class="bg-destructive text-white hover:bg-destructive/90">
-                                                                            <IconTrash  />
-                                                                            <span class="sr-only">Error</span>
-                                                                        </SidebarMenuAction>
-                                                                }.into_any(),
-                                                                _ => ().into_any()
-                                                            }
-                                                        }
-                                                    }
-                                                </SidebarMenuItem>
-                                            }
-                                        })
-                                    }
-                                }
-                            </Show>
-                            <ChannelsItems server=server/>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                        <Show when=move || category_pending.get()>
-                            {
-                                move || {
-                                    category_value.get().map(|category| {
-                                        view! {
-                                            <SidebarGroup>
-                                                <SidebarGroupLabel>
-                                                    {category.name}
-                                                </SidebarGroupLabel>
-                                                {
-                                                    move || {
-                                                        match channel_result.get() {
-                                                            None => view!{
-                                                                <SidebarGroupAction>
-                                                                    <IconLoaderCircle class="animate-spin" />
-                                                                    <span class="sr-only">Loading</span>
-                                                                </SidebarGroupAction>
-                                                            }.into_any(),
-                                                            Some(Err(_)) => view!{
-                                                                    <SidebarGroupAction class="bg-destructive text-white hover:bg-destructive/90">
-                                                                        <IconTrash  />
-                                                                        <span class="sr-only">Error</span>
-                                                                    </SidebarGroupAction>
-                                                            }.into_any(),
-                                                            _ => ().into_any()
-                                                        }
-                                                    }
-                                                }
-                                            </SidebarGroup>
-                                        }
-                                    })
-                                }
-                            }
-                        </Show>
-                    <CategoriesItems server=server/>
-                    <ContextMenuTrigger class="w-full h-full"/>
-                </SidebarContent>
-                <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
-                    // Use on:select to set the signal, allowing ContextMenu to close naturally
-                    <ContextMenuItem {..} on:click=move |_| show_create_channel_dialog.set(true)>
-                        "Create Channel"
-                    </ContextMenuItem>
-                    <ContextMenuItem {..} on:click=move |_| show_create_category_dialog.set(true)>
-                        "Create Category"
-                    </ContextMenuItem>
-                </ContextMenuContent>
-            </ContextMenu>
-
-            {
-                move || {
-                    server.get().map(|server| {
-                        view! {
-                            <CreateChannelDialog
-                                create_channel=create_channel
-                                show_create_channel_dialog=show_create_channel_dialog
-                                server=server.clone()
-                                last_channel_input=last_channel_input
-                            />
-                            <CreateCategoryDialog
-                                create_category=create_category
-                                show_create_category_dialog=show_create_category_dialog
-                                server=server
-                                last_category_input=last_category_input
-                            />
-                        }
-                })
                 }
             }
     }
 }
 
 #[component]
-pub fn CreateChannelDialog(
-    show_create_channel_dialog: RwSignal<bool>,
+pub fn PendingChannelItem(create_channel: ServerAction<CreateChannel>) -> impl IntoView {
+    let input = create_channel.input();
+    view! {
+            {
+                move || {
+                    input.get().map(|input| {
+                        view! {
+                            <SidebarMenuItem>
+                                <SidebarMenuButton class="min-w-full opacity-50 cursor-not-allowed">
+                                    {input.name.clone()}
+                                </SidebarMenuButton>
+                                <SidebarMenuAction>
+                                    <IconLoaderCircle class="animate-spin" />
+                                    <span class="sr-only">Loading</span>
+                                </SidebarMenuAction>
+                            </SidebarMenuItem>
+                        }
+                    })
+                }
+            }
+    }
+}
+
+#[component]
+pub fn SideBarContextMenu(
+    server: Memo<Option<Server>>,
     create_channel: ServerAction<CreateChannel>,
-    server: Server,
-    last_channel_input: RwSignal<Option<CreateChannel>>,
+    create_category: ServerAction<CreateCategory>,
+) -> impl IntoView {
+    let create_channel_open = RwSignal::new(false);
+    let create_category_open = RwSignal::new(false);
+    view! {
+        <ContextMenu>
+            <ContextMenuTrigger class="w-full h-full"/>
+            <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                // Use on:select to set the signal, allowing ContextMenu to close naturally
+                <ContextMenuItem {..}>
+                    "Create Channel"
+                </ContextMenuItem>
+                <ContextMenuItem {..}>
+                    "Create Category"
+                </ContextMenuItem>
+            </ContextMenuContent>
+        </ContextMenu>
+        <CreateChannelDialog open=create_channel_open server=server create_channel=create_channel/>
+        <CreateCategoryDialog open=create_category_open server=server create_category=create_category/>
+    }
+}
+
+#[component]
+pub fn CreateChannelDialog(
+    open: RwSignal<bool>,
+    create_channel: ServerAction<CreateChannel>,
+    server: Memo<Option<Server>>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let pending = create_channel.pending();
-    let id = StoredValue::new(server.id);
     view! {
         <Dialog
-            open=show_create_channel_dialog
+            open=open
         >
             <DialogPopup>
                 <DialogHeader>
@@ -235,13 +177,14 @@ pub fn CreateChannelDialog(
                     <button
                         on:click=move |_| {
                             if !name.get().is_empty() {
-                                let input = CreateChannel { name: name.get(), server: id.get_value() , category: None };
-                                create_channel.dispatch(input.clone());
-                                last_channel_input.set(Some(input));
-                                show_create_channel_dialog.set(false);
+                                if let Some(server) = server.get() {
+                                    let input = CreateChannel { name: name.get(), server: server.id , category: None };
+                                    create_channel.dispatch(input.clone());
+                                    open.set(false);
+                                }
                             }
                         }
-                        disabled=move || pending.get()
+                        disabled=move || pending.get() | server.get().is_none()
                         class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
                     >
                         "Create"
@@ -255,17 +198,15 @@ pub fn CreateChannelDialog(
 
 #[component]
 pub fn CreateCategoryDialog(
-    show_create_category_dialog: RwSignal<bool>,
-    server: Server,
+    open: RwSignal<bool>,
+    server: Memo<Option<Server>>,
     create_category: ServerAction<CreateCategory>,
-    last_category_input: RwSignal<Option<CreateCategory>>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let pending = create_category.pending();
-    let id = StoredValue::new(server.id);
     view! {
         <Dialog
-            open=show_create_category_dialog
+            open=open
         >
             <DialogPopup>
                 <DialogHeader>
@@ -290,13 +231,14 @@ pub fn CreateCategoryDialog(
                     <button
                         on:click=move |_| {
                             if !name.get().is_empty() {
-                                let input = CreateCategory { name: name.get(), server: id.get_value() };
-                                create_category.dispatch(input.clone());
-                                last_category_input.set(Some(input));
-                                show_create_category_dialog.set(false);
+                                if let Some(server) = server.get() {
+                                    let input = CreateCategory { name: name.get(), server: server.id };
+                                    create_category.dispatch(input.clone());
+                                    open.set(false);
+                                }
                             }
                         }
-                        disabled=move || pending.get()
+                        disabled=move || pending.get() | server.get().is_none()
                         class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
                     >
                         "Create"

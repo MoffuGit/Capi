@@ -11,12 +11,14 @@ export const getServers = query({
       .withIndex("by_user", (q) => q.eq("user", user))
       .collect();
 
-    const serverIds = members.map((member) => member.server);
-    const servers = await Promise.all(
-      serverIds.map((serverId) => ctx.db.get(serverId)),
+    const results = await Promise.all(
+      members.map(async (member) => {
+        const server = await ctx.db.get(member.server);
+        return { member, server };
+      }),
     );
 
-    return servers.filter((q) => q !== null);
+    return results.filter((item) => item.server !== null);
   },
 });
 
@@ -29,6 +31,51 @@ export const getUser = query({
       .query("users")
       .withIndex("by_auth", (q) => q.eq("authId", auth))
       .unique();
+  },
+});
+
+export const getMemberForServerByUser = query({
+  args: {
+    user: v.id("users"),
+    serverId: v.id("servers"),
+  },
+  handler: async (ctx, { user, serverId }) => {
+    // Query the 'members' table to find the unique member entry
+    // that matches both the server ID and the authenticated user's ID.
+    // This assumes an index like `index("by_server_and_user", ["server", "user"])`
+    // is defined on your 'members' table in Convex.
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user),
+      )
+      .unique();
+
+    return member;
+  },
+});
+
+export const setLastVisitedChannel = mutation({
+  args: {
+    auth: v.int64(),
+    member: v.id("members"),
+    channel: v.id("channels"),
+  },
+  handler: async (ctx, { auth, member, channel }) => {
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+    if (user === null) {
+      return;
+    }
+
+    const memberData = await ctx.db.get(member);
+    if (memberData === null || memberData.user !== user._id) {
+      return;
+    }
+
+    await ctx.db.patch(member, { lastVisitedChannel: channel });
   },
 });
 

@@ -11,7 +11,7 @@ use crate::hooks::sycn::SyncSignal;
 use crate::routes::servers::components::variants::server::channels::ChannelsItems;
 
 #[component]
-pub fn CategoriesItems(server: Signal<Option<Server>>) -> impl IntoView {
+pub fn CategoriesItems(server: Memo<Option<Server>>) -> impl IntoView {
     let categories: SyncSignal<Vec<Category>> = SyncSignal::new(Memo::new(move |_| {
         server.get().map(|server| Query {
             name: "server:getCategories".to_string(),

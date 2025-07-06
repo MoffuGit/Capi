@@ -4,13 +4,14 @@ use api::convex::{Query, QueryResponse};
 use futures::channel::oneshot;
 use futures::{SinkExt, StreamExt};
 use leptos::prelude::*;
+use leptos::reactive::spawn_local;
 use leptos::task::spawn_local_scoped_with_cancellation;
 use leptos_dom::log;
 use serde::Deserialize;
 
 use crate::sync::SyncContext;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct SyncSignal<T: for<'a> Deserialize<'a>> {
     pub signal: RwSignal<Option<T>>,
 }

@@ -53,9 +53,11 @@ export default defineSchema({
     name: v.string(),
     image_url: v.optional(v.string()),
     status: v.id("userStatus"),
+    lastVisitedChannel: v.optional(v.id("channels")),
   })
     .index("by_user", ["user"])
-    .index("by_server", ["server"]), // Index to find members of a server
+    .index("by_server", ["server"])
+    .index("by_server_and_user", ["server", "user"]),
   userStatus: defineTable({
     user: v.id("users"),
     status: v.union(

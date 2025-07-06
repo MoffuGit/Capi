@@ -83,10 +83,19 @@ pub fn App() -> impl IntoView {
                                         path=StaticSegment("me")
                                         view=move || view! { <div>"Private conversations"</div> }
                                     />
-                                    <Route
-                                        path=(ParamSegment("server")/* , ParamSegment("channel") */)
-                                        view=move || view! { <div>"server channel"</div> }
-                                    />
+                                    <ParentRoute
+                                        path=ParamSegment("server")
+                                        view=move || view! {<Outlet/>}
+                                    >
+                                        <Route
+                                            path=StaticSegment("")
+                                            view=move || view!{<div>"server"</div>}
+                                        />
+                                        <Route
+                                            path=ParamSegment("channel")
+                                            view=move || view!{<div>"channel"</div>}
+                                        />
+                                    </ParentRoute>
                                 </ProtectedParentRoute>
                             </Routes>
                         </main>

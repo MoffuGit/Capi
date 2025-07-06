@@ -1,4 +1,5 @@
 mod components;
+pub mod server;
 
 use leptos::prelude::*;
 use leptos_router::components::Outlet;

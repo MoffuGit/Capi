@@ -2,6 +2,37 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { ConvexError } from "convex/values";
 
+export const get = query({
+  args: {
+    channelId: v.id("channels"),
+    serverId: v.id("servers"),
+    memberId: v.id("members"),
+  },
+  handler: async ({ db }, { channelId, serverId, memberId }) => {
+    const channel = await db.get(channelId);
+
+    if (!channel) {
+      throw new ConvexError("Channel not found");
+    }
+
+    if (String(channel.server) !== String(serverId)) {
+      throw new ConvexError("Channel does not belong to the specified server");
+    }
+
+    const member = await db.get(memberId);
+
+    if (!member) {
+      throw new ConvexError("Member not found");
+    }
+
+    if (String(member.server) !== String(serverId)) {
+      throw new ConvexError("Member does not belong to the specified server");
+    }
+
+    return channel;
+  },
+});
+
 export const create = mutation({
   args: {
     auth: v.int64(),

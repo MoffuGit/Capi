@@ -1,5 +1,4 @@
-#[cfg(feature = "ssr")]
-mod mutations;
+pub mod mutations;
 #[cfg(feature = "ssr")]
 mod subscripton;
 

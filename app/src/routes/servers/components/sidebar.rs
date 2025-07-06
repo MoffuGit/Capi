@@ -1,10 +1,12 @@
 use api::convex::Query;
 use api::server::CreateServer;
-use common::convex::Server;
+use common::convex::{Member, Server};
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_location;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use web_sys::MouseEvent;
 
 use super::navbar::Navbar;
 use super::variants::ServerSideBar;
@@ -38,8 +40,6 @@ pub enum SideBarRoute {
     Server,
     Discover,
     Servers,
-    Search,
-    Inbox,
     Private,
 }
 
@@ -53,25 +53,31 @@ fn get_route_from_path(path: &str) -> SideBarRoute {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SideBarData {
+    pub server: Server,
+    pub member: Member,
+}
+
 #[component]
 pub fn SideBar() -> impl IntoView {
     let location = use_location();
-    let (active_sidebar_route, set_active_sidebar_route) = signal(SideBarRoute::Servers);
-    let (mounted, set_mounted) = signal(false);
-
-    Effect::new(move |_| {
+    let side_bar_route = Memo::new(move |_| {
         let path = location.pathname.get();
-        let new_state = get_route_from_path(&path);
-        set_active_sidebar_route(new_state);
+        get_route_from_path(&path)
     });
 
-    Effect::new(move |_| {
-        set_mounted(true);
-    });
+    let (inbox, set_inbox) = signal(false);
+    let (search, set_search) = signal(false);
+
+    let on_click = move |_| {
+        set_inbox(false);
+        set_search(false);
+    };
 
     let auth = use_auth();
 
-    let servers: SyncSignal<Vec<Server>> = SyncSignal::new(Memo::new(move |_| {
+    let data: SyncSignal<Vec<SideBarData>> = SyncSignal::new(Memo::new(move |_| {
         auth.user.get().flatten().map(|user| Query {
             name: "user:getServers".to_string(),
             args: json!({
@@ -91,8 +97,8 @@ pub fn SideBar() -> impl IntoView {
                     <SidebarMenuItem>
                       <SidebarMenuButton size=SidebarMenuButtonSize::Lg  class="md:h-8 md:p-0">
                         <A href="/servers/me"
-                           on:click=move |_| set_active_sidebar_route(get_route_from_path(&location.pathname.get_untracked()))
                             {..}
+                            on:click=on_click
                            class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                             <IconCommand class="size-4" />
                         </A>
@@ -109,7 +115,11 @@ pub fn SideBar() -> impl IntoView {
                                     <ToolTipTrigger>
                                       <SidebarMenuButton
                                         class="px-2.5 md:px-2"
-                                        on:click=move |_| set_active_sidebar_route(SideBarRoute::Search) // Manual override
+                                        {..}
+                                        on:click=move |_| {
+                                            set_inbox(false);
+                                            set_search(true);
+                                        }
                                       >
                                         <IconSearch/>
                                       </SidebarMenuButton>
@@ -124,7 +134,11 @@ pub fn SideBar() -> impl IntoView {
                                     <ToolTipTrigger>
                                       <SidebarMenuButton
                                         class="px-2.5 md:px-2"
-                                        on:click=move |_| set_active_sidebar_route(SideBarRoute::Inbox) // Manual override
+                                        {..}
+                                        on:click=move |_| {
+                                            set_search(false);
+                                            set_inbox(true);
+                                        }
                                       >
                                         <IconInbox/>
                                       </SidebarMenuButton>
@@ -134,11 +148,11 @@ pub fn SideBar() -> impl IntoView {
                                     </ToolTipContent>
                                 </ToolTip>
                                     </SidebarMenuItem>
-                            <ServerMenu set_active_sidebar_route=set_active_sidebar_route/>
+                            <ServerMenu on_click=Callback::new(on_click) />
                             <SidebarSeparator
                                 class="mr-2 data-[orientation=horizontal]:w-4 my-0.5"
                             />
-                            <ServersItems servers=servers.signal/>
+                            <ServersItems data=data.signal on_click=Callback::new(on_click)/>
                         </SidebarMenu>
                     </SidebarGroupContent>
                   </SidebarGroup>
@@ -149,20 +163,17 @@ pub fn SideBar() -> impl IntoView {
             </Sidebar>
 
             <Sidebar collapsible=SideBarCollapsible::None class="flex-1 md:flex min-w-[250px]">
-                <Show when=move || mounted()>
-                    {
-                        move || {
-                            match active_sidebar_route.get() {
-                                SideBarRoute::Server => view!{<ServerSideBar servers=servers.signal/>}.into_any(),
-                                SideBarRoute::Discover => view!{<DiscoverSideBar/>}.into_any(),
-                                SideBarRoute::Servers => view!{<ServersSideBar/>}.into_any(),
-                                SideBarRoute::Search => view!{<SearchSideBar/>}.into_any(),
-                                SideBarRoute::Inbox => view!{<InboxSideBar/>}.into_any(),
-                                SideBarRoute::Private => view!{<PrivateSideBar/>}.into_any()
-                            }
-                        }
+                {
+                    move || match side_bar_route.get() {
+                        // (true, _, _) => view!{ <InboxSideBar/> }.into_any(),
+                        // (_, true, _) => view!{ <SearchSideBar/> }.into_any(),
+                        SideBarRoute::Server  => view!{<ServerSideBar data=data.signal/>}.into_any(),
+                        SideBarRoute::Discover  => view!{<DiscoverSideBar/>}.into_any(),
+                        SideBarRoute::Servers  => view!{<ServersSideBar/>}.into_any(),
+                        SideBarRoute::Private  => view!{<PrivateSideBar/>}.into_any(),
                     }
-                </Show>
+
+                }
             </Sidebar>
             <SidebarRail/>
         </Sidebar>
@@ -170,8 +181,7 @@ pub fn SideBar() -> impl IntoView {
 }
 
 #[component]
-pub fn ServerMenu(set_active_sidebar_route: WriteSignal<SideBarRoute>) -> impl IntoView {
-    let location = use_location();
+pub fn ServerMenu(on_click: Callback<MouseEvent>) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let create_server: ServerAction<CreateServer> = ServerAction::new();
     let pending = create_server.pending();
@@ -179,8 +189,10 @@ pub fn ServerMenu(set_active_sidebar_route: WriteSignal<SideBarRoute>) -> impl I
     <Dialog>
         <SidebarMenuItem>
             <ContextMenu>
-                <A href="/servers"
-                   on:click=move |_| set_active_sidebar_route(get_route_from_path(&location.pathname.get_untracked()))
+                <A
+                    href="/servers"
+                    {..}
+                    on:click=move |evt| on_click.run(evt)
                 >
                     <ContextMenuTrigger pointer=false >
                         <ToolTip>
@@ -204,8 +216,10 @@ pub fn ServerMenu(set_active_sidebar_route: WriteSignal<SideBarRoute>) -> impl I
                             "Create"
                         </ContextMenuItem>
                     </DialogTrigger>
-                    <A href="/servers/discover"
-                       on:click=move |_| set_active_sidebar_route(get_route_from_path(&location.pathname.get_untracked()))
+                    <A
+                        href="/servers/discover"
+                        {..}
+                        on:click=move |evt| on_click.run(evt)
                     >
                         <ContextMenuItem close_on_click=true>
                             <IconCompass />
