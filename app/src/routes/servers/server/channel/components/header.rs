@@ -28,12 +28,12 @@ pub fn Header(channel: RwSignal<Option<Channel>>, members_open: RwSignal<bool>) 
                                 <BreadcrumbItem>
                                     <BreadcrumbPage>{channel.name}</BreadcrumbPage>
                                 </BreadcrumbItem>
-                                <Separator
-                                    orientation=Orientation::Vertical
-                                    class="data-[orientation=vertical]:h-4"
-                                />
                                 {
                                     channel.topic.map(|topic| view!{
+                                        <Separator
+                                            orientation=Orientation::Vertical
+                                            class="data-[orientation=vertical]:h-4"
+                                        />
                                         <BreadcrumbItem>
                                             <BreadcrumbPage>{topic}</BreadcrumbPage>
                                         </BreadcrumbItem>

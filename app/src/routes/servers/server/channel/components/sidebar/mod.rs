@@ -2,7 +2,7 @@ mod members;
 mod roles;
 
 use api::convex::Query;
-use common::convex::{Member, Role};
+use common::convex::Member;
 use leptos::prelude::*;
 use serde_json::json;
 
@@ -22,9 +22,17 @@ pub fn MembersSideBar(
     server: Memo<Option<String>>,
     member: RwSignal<Option<Option<Member>>>,
 ) -> impl IntoView {
-    let members: SyncSignal<Vec<Member>> = SyncSignal::new(Memo::new(move |_| {
+    let online: SyncSignal<Vec<Member>> = SyncSignal::new(Memo::new(move |_| {
         server.get().map(|server| Query {
             name: "member:getOnlineMembersByRole".to_string(),
+            args: json!({
+                "server": server
+            }),
+        })
+    }));
+    let offline: SyncSignal<Vec<Member>> = SyncSignal::new(Memo::new(move |_| {
+        server.get().map(|server| Query {
+            name: "member:getOfflineMembers".to_string(),
             args: json!({
                 "server": server
             }),
@@ -37,13 +45,23 @@ pub fn MembersSideBar(
             </SidebarHeader>
             <SidebarContent>
                 <RolesItems server=server/>
-                <Show when=move || members.signal.get().is_some_and(|members| !members.is_empty())>
+                <Show when=move || online.signal.get().is_some_and(|members| !members.is_empty())>
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarGroupLabel>
-                                "Active"
+                                "Online"
                             </SidebarGroupLabel>
-                            <MembersItems members=members.signal/>
+                            <MembersItems members=online.signal/>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </Show>
+                <Show when=move || offline.signal.get().is_some_and(|members| !members.is_empty())>
+                    <SidebarGroup>
+                        <SidebarGroupContent>
+                            <SidebarGroupLabel>
+                                "Offline"
+                            </SidebarGroupLabel>
+                            <MembersItems members=offline.signal/>
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </Show>
