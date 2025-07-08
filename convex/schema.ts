@@ -68,16 +68,16 @@ export default defineSchema({
     .index("by_user", ["user"])
     .index("by_server", ["server"])
     .index("by_server_and_user", ["server", "user"])
-    .index("by_important_role", ["mostImportantRole"])
-    .index("by_important_role_and_status", ["mostImportantRole", "online"]),
+    .index("by_server_and_important_role", ["server", "mostImportantRole"])
+    .index("by_server_and_status", ["server", "online"])
+    .index("by_server_and_important_role_and_status", [
+      "server",
+      "mostImportantRole",
+      "online",
+    ]),
   userStatus: defineTable({
     user: v.id("users"),
     status: presenceStatus,
-  }).index("by_user", ["user"]),
-  presence: defineTable({
-    user: v.id("users"),
-    online: v.boolean(),
-    lastDisconnected: v.number(),
   }).index("by_user", ["user"]),
   sessions: defineTable({
     userId: v.id("users"),

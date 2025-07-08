@@ -40,10 +40,6 @@ export const getMemberForServerByUser = query({
     serverId: v.id("servers"),
   },
   handler: async (ctx, { user, serverId }) => {
-    // Query the 'members' table to find the unique member entry
-    // that matches both the server ID and the authenticated user's ID.
-    // This assumes an index like `index("by_server_and_user", ["server", "user"])`
-    // is defined on your 'members' table in Convex.
     const member = await ctx.db
       .query("members")
       .withIndex("by_server_and_user", (q) =>

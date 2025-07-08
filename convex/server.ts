@@ -51,6 +51,7 @@ export const create = mutation({
       name: user.name,
       image_url: user.image_url,
       roles: [ownerRole],
+      mostImportantRole: ownerRole,
       online: true,
     });
 
