@@ -50,7 +50,17 @@ pub struct Category {
     pub server: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Invitation {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub server: String,
+    pub invitation: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Member {
     #[serde(rename = "_id")]
     pub id: String,
@@ -60,7 +70,54 @@ pub struct Member {
     pub server: String,
     pub roles: Vec<String>,
     pub name: String,
+    pub image_url: Option<String>,
+    #[serde(rename = "lastVisitedChannel")]
     pub last_visited_channel: Option<String>,
     pub online: bool,
-    most_important_role: Option<String>,
+    #[serde(rename = "mostImportantRole")]
+    pub most_important_role: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum PresenceStatus {
+    #[serde(rename = "Online")]
+    Online,
+    #[serde(rename = "Idle")]
+    Idle,
+    #[serde(rename = "NotDisturb")]
+    NotDisturb,
+    #[serde(rename = "Invisible")]
+    Invisible,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct RoleActions {
+    #[serde(rename = "canManageChannels")]
+    pub can_manage_channels: bool,
+    #[serde(rename = "canManageCategories")]
+    pub can_manage_categories: bool,
+    #[serde(rename = "canManageRoles")]
+    pub can_manage_roles: bool,
+    #[serde(rename = "canManageMembers")]
+    pub can_manage_members: bool,
+    #[serde(rename = "canManageServerSettings")]
+    pub can_manage_server_settings: bool,
+    #[serde(rename = "canCreateInvitation")]
+    pub can_create_invitation: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Role {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub server: String,
+    pub name: String,
+    #[serde(rename = "isOwner")]
+    pub is_owner: bool,
+    #[serde(rename = "canBeDeleted")]
+    pub can_be_deleted: bool,
+    pub level: f64,
+    pub actions: RoleActions,
 }

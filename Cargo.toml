@@ -62,8 +62,9 @@ reqwest = { version = "0.12", features = ["json"] }
 futures = "0.3.31"
 async-broadcast = "0.7.2"
 gloo-timers = { version =  "0.3.0", features = ["futures"] }
-leptos-use = { version =  "0.16.2", default-features = false, features = ["on_click_outside", "use_element_bounding", "use_mouse"] }
+leptos-use = { version =  "0.16.2", default-features = false, features = ["on_click_outside", "use_element_bounding", "use_mouse", "use_interval_fn"] }
 maplit = "1.0.2"
+uuid = { version = "1.17.0", features = ["v4", "js"] }
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 

@@ -166,6 +166,7 @@ dependencies = [
  "strum_macros",
  "tailwind_fuse",
  "thiserror 2.0.12",
+ "uuid",
  "wasm-bindgen",
  "web-sys",
 ]

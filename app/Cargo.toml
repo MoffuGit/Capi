@@ -35,6 +35,7 @@ serde_json.workspace = true
 async-broadcast.workspace = true
 gloo-timers.workspace = true
 leptos-use.workspace = true
+uuid.workspace = true
 
 [features]
 default = []
