@@ -16,7 +16,7 @@ use self::{
         auth::{use_auth, AuthProvider},
         ui::theme::ThemeProvider,
     },
-    routes::{GoogleAuth, Login, Servers, SignUp},
+    routes::{server::channel::Channel, GoogleAuth, Login, Servers, SignUp},
     sync::SyncProvider,
 };
 
@@ -93,7 +93,7 @@ pub fn App() -> impl IntoView {
                                         />
                                         <Route
                                             path=ParamSegment("channel")
-                                            view=move || view!{<div>"channel"</div>}
+                                            view=move || view!{<Channel />}
                                         />
                                     </ParentRoute>
                                 </ProtectedParentRoute>

@@ -17,7 +17,7 @@ use crate::components::ui::sheet::{Sheet, SheetPopup};
 use crate::components::ui::skeleton::Skeleton;
 
 #[derive(Clone)]
-struct SidebarContextValue {
+pub struct SidebarContextValue {
     open: RwSignal<bool>,
     open_mobile: RwSignal<bool>,
     is_mobile: Memo<bool>,
@@ -25,7 +25,7 @@ struct SidebarContextValue {
     toggle_sidebar: Callback<()>,
 }
 
-fn use_sidebar() -> SidebarContextValue {
+pub fn use_sidebar() -> SidebarContextValue {
     use_context::<SidebarContextValue>().expect("useSidebar must be used within a SidebarProvider.")
 }
 
@@ -108,10 +108,23 @@ pub fn SidebarProvider(
     #[prop(optional, into)] on_open_change: Option<Callback<(bool,), ()>>,
     #[prop(optional, into)] class: String,
     #[prop(optional, into)] style: Option<String>,
+    #[prop(optional, into, default = true)] main: bool,
+    #[prop(optional, into)] shortcut: Option<String>,
     children: Children,
 ) -> impl IntoView {
-    open.set(initial_state());
-    let toggle_sidebar_action = ServerAction::<ToggleSideBar>::new();
+    let state = Memo::new(move |_| {
+        if open.get() {
+            SideBarState::Expanded
+        } else {
+            SideBarState::Collapsed
+        }
+    });
+
+    if main {
+        open.set(initial_state());
+        let toggle_sidebar_action = ServerAction::<ToggleSideBar>::new();
+        Effect::new(move |_| toggle_sidebar_action.dispatch(ToggleSideBar { state: state.get() }));
+    }
 
     let is_mobile = is_mobile();
     let open_mobile = RwSignal::new(false);
@@ -138,7 +151,14 @@ pub fn SidebarProvider(
         use wasm_bindgen::prelude::Closure;
         use wasm_bindgen::JsCast;
         let handle_key_down = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
-            if event.key() == SIDEBAR_KEYBOARD_SHORTCUT && (event.meta_key() || event.ctrl_key()) {
+            if let Some(key) = shortcut.clone() {
+                if event.key() == key && (event.meta_key() || event.ctrl_key()) {
+                    event.prevent_default();
+                    toggle_sidebar.run(());
+                }
+            } else if event.key() == SIDEBAR_KEYBOARD_SHORTCUT
+                && (event.meta_key() || event.ctrl_key())
+            {
                 event.prevent_default();
                 toggle_sidebar.run(());
             }
@@ -170,18 +190,6 @@ pub fn SidebarProvider(
         });
     }
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
-    let state = Memo::new(move |_| {
-        if open.get() {
-            SideBarState::Expanded
-        } else {
-            SideBarState::Collapsed
-        }
-    });
-
-    Effect::new(move |_| toggle_sidebar_action.dispatch(ToggleSideBar { state: state.get() }));
-
     provide_context(SidebarContextValue {
         open,
         open_mobile,
@@ -201,15 +209,13 @@ pub fn SidebarProvider(
     });
 
     view! {
-        // <TooltipProvider delay_duration=0>
-            <div
-                data-slot="sidebar-wrapper"
-                style=style_str
-                class=tw_merge!("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full {}", class)
-            >
-                {children()}
-            </div>
-        // </TooltipProvider>
+        <div
+            data-slot="sidebar-wrapper"
+            style=style_str
+            class=tw_merge!("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full", class)
+        >
+            {children()}
+        </div>
     }
 }
 

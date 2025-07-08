@@ -27,9 +27,12 @@ pub fn SheetTrigger(
     #[prop(into, optional)] as_child: MaybeProp<bool>,
     #[prop(optional)] node_ref: AnyNodeRef,
     #[prop(optional)] children: Option<ChildrenFn>,
+    #[prop(optional, into)] class: Signal<String>,
 ) -> impl IntoView {
     view! {
-        <SheetTriggerPrimitive as_child=as_child node_ref=node_ref>
+        <SheetTriggerPrimitive
+            as_child=as_child node_ref={node_ref}
+            {..} class=move || class.get()>
             {children.clone().map(|children| children())}
         </SheetTriggerPrimitive>
     }

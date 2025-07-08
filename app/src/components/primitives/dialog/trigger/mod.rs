@@ -15,7 +15,7 @@ pub fn DialogTrigger(
     let DialogRootContext { open, set_open, .. } = use_dialog_root_context();
     view! {
         <Primitive
-            element=html::button
+            element=html::div
             as_child=as_child
             node_ref={node_ref}
             // {..attrs}

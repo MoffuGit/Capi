@@ -1,11 +1,19 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+const presenceStatus = v.union(
+  v.literal("Online"),
+  v.literal("Idle"),
+  v.literal("NotDisturb"),
+  v.literal("Invisible"),
+);
+
 export default defineSchema({
   channels: defineTable({
     name: v.string(),
     type: v.union(v.literal("text")),
     server: v.id("servers"),
+    topic: v.optional(v.string()),
     category: v.optional(v.id("categories")),
   })
     .index("by_server_and_category", ["server", "category"])
@@ -36,6 +44,7 @@ export default defineSchema({
     name: v.string(),
     isOwner: v.boolean(), // True for the unique owner role
     canBeDeleted: v.boolean(), // False for the owner role
+    level: v.number(), // New field to define the importance level of a role
     actions: v.object({
       canManageChannels: v.boolean(),
       canManageCategories: v.boolean(),
@@ -52,20 +61,33 @@ export default defineSchema({
     roles: v.array(v.id("roles")), // A member can now have multiple roles
     name: v.string(),
     image_url: v.optional(v.string()),
-    status: v.id("userStatus"),
     lastVisitedChannel: v.optional(v.id("channels")),
+    online: v.boolean(),
+    mostImportantRole: v.optional(v.id("roles")), // New field for the most important role
   })
     .index("by_user", ["user"])
     .index("by_server", ["server"])
-    .index("by_server_and_user", ["server", "user"]),
+    .index("by_server_and_user", ["server", "user"])
+    .index("by_important_role", ["mostImportantRole"])
+    .index("by_important_role_and_status", ["mostImportantRole", "online"]),
   userStatus: defineTable({
     user: v.id("users"),
-    status: v.union(
-      v.literal("Online"),
-      v.literal("Idle"),
-      v.literal("NotDisturb"),
-      v.literal("Invisible"),
-      v.literal("Offline"),
-    ),
-  }),
+    status: presenceStatus,
+  }).index("by_user", ["user"]),
+  presence: defineTable({
+    user: v.id("users"),
+    online: v.boolean(),
+    lastDisconnected: v.number(),
+  }).index("by_user", ["user"]),
+  sessions: defineTable({
+    userId: v.id("users"),
+    sessionId: v.string(),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_userId", ["userId"]),
+
+  sessionTimeouts: defineTable({
+    sessionId: v.string(),
+    scheduledFunctionId: v.id("_scheduled_functions"),
+  }).index("by_sessionId", ["sessionId"]),
 });

@@ -37,6 +37,7 @@ pub struct Channel {
     pub _type: Option<ChannelType>,
     pub category: Option<String>,
     pub server: String,
+    pub topic: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -59,6 +60,7 @@ pub struct Member {
     pub server: String,
     pub roles: Vec<String>,
     pub name: String,
-    pub status: String,
     pub last_visited_channel: Option<String>,
+    pub online: bool,
+    most_important_role: Option<String>,
 }

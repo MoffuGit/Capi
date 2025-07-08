@@ -29,6 +29,7 @@ export const create = mutation({
       name: "Owner",
       isOwner: true,
       canBeDeleted: false,
+      level: 0,
       actions: {
         canManageChannels: true,
         canManageCategories: true,
@@ -39,7 +40,7 @@ export const create = mutation({
       },
     });
 
-    const status = await db.insert("userStatus", {
+    await db.insert("userStatus", {
       user: user._id,
       status: "Online",
     });
@@ -49,8 +50,8 @@ export const create = mutation({
       server: server,
       name: user.name,
       image_url: user.image_url,
-      status: status,
       roles: [ownerRole],
+      online: true,
     });
 
     return server;
