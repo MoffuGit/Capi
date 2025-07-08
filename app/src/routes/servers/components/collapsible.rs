@@ -10,20 +10,37 @@ use super::sidebar::{SideBarData, SideBarRoute};
 
 #[component]
 pub fn SidebarCollapsible(
-    selected: Memo<SideBarRoute>,
+    route: Memo<SideBarRoute>,
+    option: RwSignal<Option<SideBarOption>>,
     data: RwSignal<Option<Vec<SideBarData>>>,
 ) -> impl IntoView {
     view! {
-        <Sidebar collapsible=SideBarCollapsible::None class="flex-1 md:flex min-w-[250px]">
+        <Sidebar collapsible=SideBarCollapsible::None class="flex-1 md:flex min-w-[250px] relative">
             {
-                move || match selected.get() {
+                move || {
+                     option.get().map(|option| {
+                        view!{
+                            <div class="absolute inset-0 bg-sidebar z-50">
+                                {
+                                    move || {
+                                        match option {
+                                            SideBarOption::Search => view!{<SearchSideBar/>}.into_any(),
+                                            SideBarOption::Inbox => view!{<InboxSideBar/>}.into_any(),
+                                        }
+                                    }
+
+                                }
+                            </div>
+                        }
+                    })
+                }
+            }
+            {
+                move || match route.get() {
                     SideBarRoute::Server  => view!{<ServerSideBar data=data/>}.into_any(),
                     SideBarRoute::Discover  => view!{<DiscoverSideBar/>}.into_any(),
                     SideBarRoute::Servers  => view!{<ServersSideBar/>}.into_any(),
                     SideBarRoute::Private  => view!{<PrivateSideBar/>}.into_any(),
-                    SideBarRoute::Option(SideBarOption::Inbox) => view!{<InboxSideBar/>}.into_any(),
-                    SideBarRoute::Option(SideBarOption::Search) => view!{<SearchSideBar/>}.into_any(),
-                    SideBarRoute::None => ().into_any()
                 }
 
             }

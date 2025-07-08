@@ -1,6 +1,7 @@
 use api::server::CreateServer;
 use leptos::prelude::*;
 use leptos_router::components::A;
+use web_sys::MouseEvent;
 
 use crate::components::icons::{
     IconCirclePlus, IconCommand, IconCompass, IconGlobe, IconInbox, IconSearch,
@@ -30,6 +31,9 @@ pub fn SidebarIcons(
     data: RwSignal<Option<Vec<SideBarData>>>,
     option: RwSignal<Option<SideBarOption>>,
 ) -> impl IntoView {
+    let set_option = Callback::new(move |_| {
+        option.set(None);
+    });
     view! {
         <Sidebar
             collapsible=SideBarCollapsible::None
@@ -41,6 +45,7 @@ pub fn SidebarIcons(
                         <SidebarMenuButton size=SidebarMenuButtonSize::Lg  class="md:h-8 md:p-0">
                             <A href="/servers/me"
                                 {..}
+                                on:click=move |_| set_option.run(())
                                 class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                 <IconCommand class="size-4" />
                             </A>
@@ -54,11 +59,11 @@ pub fn SidebarIcons(
                         <SidebarMenu>
                             <InboxOption option=option/>
                             <SearchOption option=option/>
-                            <ServerMenu />
+                            <ServerMenu set_option=set_option/>
                             <SidebarSeparator
                                 class="mr-2 data-[orientation=horizontal]:w-4 my-0.5"
                             />
-                            <ServersItems data=data />
+                            <ServersItems data=data set_option=set_option/>
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -121,7 +126,7 @@ pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
 }
 
 #[component]
-pub fn ServerMenu() -> impl IntoView {
+pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let create_server: ServerAction<CreateServer> = ServerAction::new();
     let pending = create_server.pending();
@@ -131,6 +136,8 @@ pub fn ServerMenu() -> impl IntoView {
             <ContextMenu>
                 <A
                     href="/servers"
+                    {..}
+                    on:click=move |_| set_option.run(())
                 >
                     <ContextMenuTrigger pointer=false >
                         <ToolTip>

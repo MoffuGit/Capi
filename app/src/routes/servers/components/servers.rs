@@ -9,7 +9,10 @@ use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use super::sidebar::SideBarData;
 
 #[component]
-pub fn ServersItems(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView {
+pub fn ServersItems(
+    data: RwSignal<Option<Vec<SideBarData>>>,
+    set_option: Callback<()>,
+) -> impl IntoView {
     let params = use_params_map();
     view! {
         {
@@ -37,6 +40,10 @@ pub fn ServersItems(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView {
                                     <ToolTipTrigger>
                                         <A
                                             href=move || href()
+                                            {..}
+                                            on:click=move |_| {
+                                                set_option.run(())
+                                            }
                                         >
                                             <SidebarMenuButton
                                                 is_active=is_active

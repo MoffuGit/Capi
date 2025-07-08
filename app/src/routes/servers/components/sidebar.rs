@@ -15,12 +15,10 @@ use crate::routes::servers::components::icons::SidebarIcons;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarRoute {
-    None,
     Server,
     Discover,
     Servers,
     Private,
-    Option(SideBarOption),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -49,22 +47,11 @@ pub struct SideBarData {
 pub fn SideBar() -> impl IntoView {
     let location = use_location();
 
-    let route = RwSignal::new(SideBarRoute::None);
-
     let option: RwSignal<Option<SideBarOption>> = RwSignal::new(None);
 
-    Effect::new(move |_| {
+    let route = Memo::new(move |_| {
         let path = location.pathname.get();
-        route.set(get_route_from_path(&path));
-        option.set(None);
-    });
-
-    let selected = Memo::new(move |_| {
-        if let Some(option) = option.get() {
-            SideBarRoute::Option(option)
-        } else {
-            route.get()
-        }
+        get_route_from_path(&path)
     });
 
     let auth = use_auth();
@@ -81,7 +68,7 @@ pub fn SideBar() -> impl IntoView {
     view! {
         <Sidebar collapsible=SideBarCollapsibleType::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
             <SidebarIcons data=data.signal option=option/>
-            <SidebarCollapsible data=data.signal selected=selected/>
+            <SidebarCollapsible data=data.signal route=route option=option/>
             <SidebarRail/>
         </Sidebar>
     }
