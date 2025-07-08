@@ -38,32 +38,34 @@ export default defineSchema({
   invitations: defineTable({
     server: v.id("servers"),
     invitation: v.string(),
-  }),
+    expiresAt: v.number(),
+  })
+    .index("by_invitation", ["invitation"])
+    .index("by_server", ["server"]),
   roles: defineTable({
     server: v.id("servers"),
     name: v.string(),
-    isOwner: v.boolean(), // True for the unique owner role
-    canBeDeleted: v.boolean(), // False for the owner role
-    level: v.number(), // New field to define the importance level of a role
+    isOwner: v.boolean(),
+    canBeDeleted: v.boolean(),
+    level: v.number(),
     actions: v.object({
       canManageChannels: v.boolean(),
       canManageCategories: v.boolean(),
-      canManageRoles: v.boolean(), // Ability to create, delete, or modify roles
-      canManageMembers: v.boolean(), // Ability to kick, ban, or assign roles to members
+      canManageRoles: v.boolean(),
+      canManageMembers: v.boolean(),
       canManageServerSettings: v.boolean(),
       canCreateInvitation: v.boolean(),
-      // Add more specific actions as needed
     }),
-  }).index("by_server", ["server"]), // Index to quickly find roles for a server
+  }).index("by_server", ["server"]),
   members: defineTable({
     user: v.id("users"),
     server: v.id("servers"),
-    roles: v.array(v.id("roles")), // A member can now have multiple roles
+    roles: v.array(v.id("roles")),
     name: v.string(),
     image_url: v.optional(v.string()),
     lastVisitedChannel: v.optional(v.id("channels")),
     online: v.boolean(),
-    mostImportantRole: v.optional(v.id("roles")), // New field for the most important role
+    mostImportantRole: v.optional(v.id("roles")),
   })
     .index("by_user", ["user"])
     .index("by_server", ["server"])

@@ -107,6 +107,18 @@ pub struct RoleActions {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Invitations {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub server: String,
+    pub invitation: String,
+    #[serde(rename = "expiresAt")]
+    pub expires_at: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Role {
     #[serde(rename = "_id")]
     pub id: String,

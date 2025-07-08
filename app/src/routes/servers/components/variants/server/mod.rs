@@ -2,8 +2,10 @@ mod categories;
 mod channels;
 mod header;
 
+use api::convex::mutations::invitation::{self, CreateInvitation};
+use api::convex::Query;
 use api::server::{CreateCategory, CreateChannel};
-use common::convex::Server;
+use common::convex::{Member, Server};
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 
@@ -19,6 +21,7 @@ use crate::components::ui::sidebar::{
     SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenuAction,
     SidebarMenuButton, SidebarMenuItem,
 };
+use crate::hooks::sycn::SyncSignal;
 use crate::routes::servers::components::sidebar::SideBarData;
 
 use self::categories::CategoriesItems;
@@ -30,30 +33,35 @@ pub fn ServerSideBar(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView 
     let create_channel: ServerAction<CreateChannel> = ServerAction::new();
     let create_category: ServerAction<CreateCategory> = ServerAction::new();
 
-    let servers = Memo::new(move |_| {
-        data.get().map(|data| {
-            data.iter()
-                .map(|data| data.server.clone())
-                .collect::<Vec<Server>>()
-        })
-    });
-
     let location = use_location();
     let path = location.pathname;
 
     let server = Memo::new(move |_| {
-        let server = path
+        let id = path
             .get()
             .split('/')
             .nth(2)
-            .map(|server| server.to_string());
-        let servers = servers.get();
-        let server = server
-            .and_then(|id| {
-                servers.map(|servers| servers.iter().find(|server| server.id == id).cloned())
-            })
-            .flatten();
-        server
+            .map(|server| server.to_string())
+            .unwrap_or_default();
+        data.get().and_then(|data| {
+            data.iter()
+                .find(|SideBarData { server, .. }| server.id == id)
+                .map(|data| data.server.clone())
+        })
+    });
+
+    let member = Memo::new(move |_| {
+        let id = path
+            .get()
+            .split('/')
+            .nth(2)
+            .map(|server| server.to_string())
+            .unwrap_or_default();
+        data.get().and_then(|data| {
+            data.iter()
+                .find(|SideBarData { server, .. }| server.id == id)
+                .map(|data| data.member.clone())
+        })
     });
 
     view! {
@@ -67,7 +75,7 @@ pub fn ServerSideBar(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView 
                 <PendingCategoryItem create_category=create_category/>
             </SidebarGroup>
             <CategoriesItems server=server />
-            <SideBarContextMenu create_channel=create_channel create_category=create_category server=server/>
+            <SideBarContextMenu create_channel=create_channel create_category=create_category server=server member=member/>
         </SidebarContent>
     }
 }
@@ -119,11 +127,13 @@ pub fn PendingChannelItem(create_channel: ServerAction<CreateChannel>) -> impl I
 #[component]
 pub fn SideBarContextMenu(
     server: Memo<Option<Server>>,
+    member: Memo<Option<Member>>,
     create_channel: ServerAction<CreateChannel>,
     create_category: ServerAction<CreateCategory>,
 ) -> impl IntoView {
     let create_channel_open = RwSignal::new(false);
     let create_category_open = RwSignal::new(false);
+    let invitation_open = RwSignal::new(false);
     view! {
         <ContextMenu>
             <ContextMenuTrigger class="w-full h-full"/>
@@ -142,10 +152,65 @@ pub fn SideBarContextMenu(
                 >
                     "Create Category"
                 </ContextMenuItem>
+                <ContextMenuItem {..}
+                    on:click=move |_| {
+                        invitation_open.set(true)
+                    }
+                >
+                    "Invitate People"
+                </ContextMenuItem>
             </ContextMenuContent>
         </ContextMenu>
+        <InvitationDialog open=invitation_open server=server member=member/>
         <CreateChannelDialog open=create_channel_open server=server create_channel=create_channel/>
         <CreateCategoryDialog open=create_category_open server=server create_category=create_category/>
+    }
+}
+
+#[component]
+pub fn InvitationDialog(
+    open: RwSignal<bool>,
+    server: Memo<Option<Server>>,
+    member: Memo<Option<Member>>,
+) -> impl IntoView {
+    let invitation: ServerAction<CreateInvitation> = ServerAction::new();
+
+    Effect::new(move |_| {
+        if let (Some(server), Some(member)) = (server.get(), member.get()) {
+            invitation.dispatch(CreateInvitation {
+                server: server.id,
+                member: member.id,
+            });
+        }
+    });
+
+    view! {
+        <Dialog
+            open=open
+        >
+            <DialogPopup>
+                <DialogHeader>
+                    <DialogTitle>"Invitation Code"</DialogTitle>
+                    // <DialogDescription>
+                    //     "Give your new server a personality with a name and an icon. You can always change it later."
+                    // </DialogDescription>
+                </DialogHeader>
+                    <div class="grid gap-2">
+                        {
+                            move || {
+                                invitation.value().get().map(|value| {
+                                    value.ok().map(|invitation| view!{
+                                        <div>
+                                            {invitation}
+                                        </div>
+                                    })
+                                })
+                            }
+                        }
+                    </div>
+            </DialogPopup>
+        </Dialog>
+
     }
 }
 

@@ -1,10 +1,12 @@
+use api::convex::mutations::invitation::JoinWithInvitation;
 use api::server::CreateServer;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use web_sys::MouseEvent;
 
+use crate::components::auth::use_auth;
 use crate::components::icons::{
-    IconCirclePlus, IconCommand, IconCompass, IconGlobe, IconInbox, IconSearch,
+    IconCirclePlus, IconCommand, IconCompass, IconGlobe, IconInbox, IconPencil, IconSearch,
 };
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::context::{
@@ -127,11 +129,9 @@ pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
 
 #[component]
 pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
-    let (name, set_name) = signal(String::default());
-    let create_server: ServerAction<CreateServer> = ServerAction::new();
-    let pending = create_server.pending();
+    let create_open = RwSignal::new(false);
+    let join_open = RwSignal::new(false);
     view! {
-    <Dialog>
         <SidebarMenuItem>
             <ContextMenu>
                 <A
@@ -155,12 +155,24 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                     </ContextMenuTrigger>
                 </A>
                 <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
-                    <DialogTrigger as_child=true>
-                        <ContextMenuItem>
-                            <IconCirclePlus/>
-                            "Create"
-                        </ContextMenuItem>
-                    </DialogTrigger>
+                    <ContextMenuItem
+                        {..}
+                        on:click=move |_| {
+                            create_open.set(true);
+                        }
+                    >
+                        <IconPencil/>
+                        "Create"
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                        {..}
+                        on:click=move |_| {
+                            join_open.set(true);
+                        }
+                    >
+                        <IconCirclePlus/>
+                        "Join"
+                    </ContextMenuItem>
                     <A
                         href="/servers/discover"
                     >
@@ -172,39 +184,101 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                 </ContextMenuContent>
             </ContextMenu>
         </SidebarMenuItem>
-        <DialogPopup>
-            <DialogHeader>
-                <DialogTitle >"Create New Server"</DialogTitle>
-                <DialogDescription>
-                    "Give your new server a personality with a name and an icon. You can always change it later."
-                </DialogDescription>
-            </DialogHeader>
-                <div class="grid gap-2">
-                    <Label {..} for="server-name">Server Name</Label>
-                    <Input
-                        {..}
-                        id="server-name"
-                        type="text"
-                        placeholder="My Awesome Server"
-                        required=true
-                        value=name
-                        on:input=move |ev| set_name(event_target_value(&ev))
-                    />
-                </div>
-            <DialogFooter>
-                <button
-                    on:click=move |_| {
-                        if !name.get().is_empty() {
-                            create_server.dispatch(CreateServer { name: name.get() });
+        <CreateServerDialog open=create_open/>
+        <JoinServerDialog open=join_open/>
+    }
+}
+
+#[component]
+pub fn JoinServerDialog(open: RwSignal<bool>) -> impl IntoView {
+    let auth = use_auth().user;
+    let join_server: ServerAction<JoinWithInvitation> = ServerAction::new();
+    let (name, set_name) = signal(String::default());
+    let pending = join_server.pending();
+    view! {
+        <Dialog open=open>
+            <DialogPopup>
+                <DialogHeader>
+                    <DialogTitle >"Join Server"</DialogTitle>
+                    <DialogDescription>
+                        "use your invitation code"
+                    </DialogDescription>
+                </DialogHeader>
+                    <div class="grid gap-2">
+                        <Label {..} for="invitation">Invitation Code</Label>
+                        <Input
+                            {..}
+                            id="invitation"
+                            type="text"
+                            placeholder="Your code"
+                            required=true
+                            value=name
+                            on:input=move |ev| set_name(event_target_value(&ev))
+                        />
+                    </div>
+                <DialogFooter>
+                    <button
+                        on:click=move |_| {
+                            if !name.get().is_empty() {
+                                if let Some(user) = auth.get().flatten() {
+                                    join_server.dispatch(JoinWithInvitation {
+                                        invitation: name.get(),
+                                        user: user.id
+                                    });
+                                }
+                            }
                         }
-                    }
-                    disabled=move || pending.get()
-                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                >
-                    "Create"
-                </button>
-            </DialogFooter>
-        </DialogPopup>
-    </Dialog>
+                        disabled=move || pending.get()
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                        "Create"
+                    </button>
+                </DialogFooter>
+            </DialogPopup>
+        </Dialog>
+    }
+}
+
+#[component]
+pub fn CreateServerDialog(open: RwSignal<bool>) -> impl IntoView {
+    let create_server: ServerAction<CreateServer> = ServerAction::new();
+    let (name, set_name) = signal(String::default());
+    let pending = create_server.pending();
+    view! {
+        <Dialog open=open>
+            <DialogPopup>
+                <DialogHeader>
+                    <DialogTitle >"Create New Server"</DialogTitle>
+                    <DialogDescription>
+                        "Give your new server a personality with a name and an icon. You can always change it later."
+                    </DialogDescription>
+                </DialogHeader>
+                    <div class="grid gap-2">
+                        <Label {..} for="server-name">Server Name</Label>
+                        <Input
+                            {..}
+                            id="server-name"
+                            type="text"
+                            placeholder="My Awesome Server"
+                            required=true
+                            value=name
+                            on:input=move |ev| set_name(event_target_value(&ev))
+                        />
+                    </div>
+                <DialogFooter>
+                    <button
+                        on:click=move |_| {
+                            if !name.get().is_empty() {
+                                create_server.dispatch(CreateServer { name: name.get() });
+                            }
+                        }
+                        disabled=move || pending.get()
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                        "Create"
+                    </button>
+                </DialogFooter>
+            </DialogPopup>
+        </Dialog>
     }
 }

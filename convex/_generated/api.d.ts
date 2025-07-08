@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as category from "../category.js";
 import type * as channel from "../channel.js";
+import type * as invitations from "../invitations.js";
 import type * as member from "../member.js";
 import type * as presence from "../presence.js";
 import type * as roles from "../roles.js";
@@ -33,6 +34,7 @@ import type * as user from "../user.js";
 declare const fullApi: ApiFromModules<{
   category: typeof category;
   channel: typeof channel;
+  invitations: typeof invitations;
   member: typeof member;
   presence: typeof presence;
   roles: typeof roles;
