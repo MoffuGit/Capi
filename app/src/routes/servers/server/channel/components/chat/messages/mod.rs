@@ -1,12 +1,13 @@
-use api::convex::Query;
 use common::convex::{Channel, ChannelMessage};
 use leptos::prelude::*;
+
+use api::convex::Query;
 use serde_json::json;
 
 use crate::hooks::sycn::SyncSignal;
 
 #[component]
-pub fn Chat(channel: RwSignal<Option<Channel>>) -> impl IntoView {
+pub fn Messages(channel: RwSignal<Option<Channel>>) -> impl IntoView {
     let messages: SyncSignal<Vec<ChannelMessage>> = SyncSignal::new(Memo::new(move |_| {
         channel.get().map(|channel| Query {
             name: "messages:getMessagesInChannel".to_string(),
