@@ -133,3 +133,67 @@ pub struct Role {
     pub level: f64,
     pub actions: RoleActions,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Reaction {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub message: String,
+    pub member: String,
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Mention {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub message: String,
+    pub member: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct RoleMention {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub message: String,
+    pub role: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Attachment {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub message: String,
+    pub name: String,
+    pub url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ChannelMessage {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    pub channel: String,
+    pub sender: String,
+    pub reference: Option<String>,
+    pub content: String,
+    pub pinned: bool,
+    #[serde(rename = "mention_everyone")]
+    pub mention_everyone: bool,
+    #[serde(rename = "mention_roles")]
+    pub mention_roles: Vec<String>,
+    pub reactions: Vec<Reaction>,
+    pub mentions: Vec<Mention>,
+    #[serde(rename = "role_mentions")]
+    pub role_mentions: Vec<RoleMention>,
+    pub attachments: Vec<Attachment>,
+}

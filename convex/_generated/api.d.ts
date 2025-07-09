@@ -17,6 +17,7 @@ import type * as category from "../category.js";
 import type * as channel from "../channel.js";
 import type * as invitations from "../invitations.js";
 import type * as member from "../member.js";
+import type * as messages from "../messages.js";
 import type * as presence from "../presence.js";
 import type * as roles from "../roles.js";
 import type * as server from "../server.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   channel: typeof channel;
   invitations: typeof invitations;
   member: typeof member;
+  messages: typeof messages;
   presence: typeof presence;
   roles: typeof roles;
   server: typeof server;

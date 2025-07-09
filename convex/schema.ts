@@ -19,6 +19,37 @@ export default defineSchema({
     .index("by_server_and_category", ["server", "category"])
     .index("by_server", ["server"])
     .index("by_category", ["category"]),
+  messages: defineTable({
+    channel: v.id("channels"),
+    sender: v.id("members"),
+    reference: v.optional(v.id("messages")),
+    content: v.string(),
+    pinned: v.boolean(),
+    mention_everyone: v.boolean(),
+    mention_roles: v.array(v.id("roles")),
+  }).index("by_channel", ["channel"]),
+  // embeds: defineTable({
+  //     message: v.id("messages"),
+  //     url: v.string(),
+  // }),
+  reactions: defineTable({
+    message: v.id("messages"),
+    member: v.id("members"),
+    name: v.string(),
+  }).index("by_message", ["message"]),
+  mentions: defineTable({
+    message: v.id("messages"),
+    member: v.id("member"),
+  }).index("by_message", ["message"]),
+  role_mentions: defineTable({
+    message: v.id("messages"),
+    role: v.id("roles"),
+  }).index("by_message", ["message"]),
+  attachments: defineTable({
+    message: v.id("messages"),
+    name: v.string(),
+    url: v.string(),
+  }).index("by_message", ["message"]),
   categories: defineTable({
     name: v.string(),
     server: v.id("servers"),
