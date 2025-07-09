@@ -1,0 +1,15 @@
+[package]
+name = "uploadthing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+serde_json.workspace = true
+futures.workspace = true
+http.workspace = true
+reqwest.workspace = true
+tokio-util.workspace = true
+urlencoding.workspace = true

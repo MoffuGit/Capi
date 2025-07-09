@@ -12,7 +12,8 @@ axum = { workspace = true, optional = true }
 leptos_axum = { workspace = true, optional = true }
 sqlx = { workspace = true, optional = true } 
 convex = { workspace = true, optional = true }
+uploadthing = { path = "../uploadthing", optional = true}
 
 [features]
 default = []
-ssr = ["dep:sqlx", "dep:axum", "dep:leptos_axum", "dep:convex"]
+ssr = ["dep:sqlx", "dep:axum", "dep:leptos_axum", "dep:convex", "dep:uploadthing"]
