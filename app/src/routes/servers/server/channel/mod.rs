@@ -11,7 +11,7 @@ use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{SidebarInset, SidebarProvider};
 use crate::hooks::sycn::SyncSignal;
 
-use self::components::content::Content;
+use self::components::chat::Chat;
 use self::components::header::Header;
 use self::components::sidebar::MembersSideBar;
 
@@ -70,7 +70,7 @@ pub fn Channel() -> impl IntoView {
         <Header channel=channel.signal members_open=open />
         <SidebarProvider class="flex-1 min-h-0" open=open main=false style="--sidebar-width: 250px" shortcut="u">
             <SidebarInset class="flex-1">
-                <Content channel=channel.signal/>
+                <Chat channel=channel.signal/>
             </SidebarInset>
             <MembersSideBar server=server member=member.signal/>
         </SidebarProvider>

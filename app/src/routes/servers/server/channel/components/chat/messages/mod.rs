@@ -18,18 +18,20 @@ pub fn Messages(channel: RwSignal<Option<Channel>>) -> impl IntoView {
     }));
 
     view! {
-        <Show when=move || messages.signal.get().is_some()>
-            <For
-                each=move || messages.signal.get().unwrap()
-                key=|message| message.id.clone()
-                children=move |message| {
-                    view!{
-                        <div>
-                            {message.content}
-                        </div>
+        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
+            <Show when=move || messages.signal.get().is_some()>
+                <For
+                    each=move || messages.signal.get().unwrap()
+                    key=|message| message.id.clone()
+                    children=move |message| {
+                        view!{
+                            <div>
+                                {message.content}
+                            </div>
+                        }
                     }
-                }
-            />
-        </Show>
+                />
+            </Show>
+        </div>
     }
 }
