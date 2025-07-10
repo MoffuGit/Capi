@@ -4,7 +4,7 @@ mod sender;
 
 use leptos::prelude::*;
 
-use common::convex::{Channel, ChannelMessage};
+use common::convex::{Channel, ChannelMessage, Member};
 use leptos::context::Provider;
 
 use self::messages::Messages;
@@ -17,14 +17,17 @@ pub struct ChatContext {
 }
 
 #[component]
-pub fn Chat(channel: RwSignal<Option<Channel>>) -> impl IntoView {
+pub fn Chat(
+    channel: RwSignal<Option<Channel>>,
+    member: RwSignal<Option<Option<Member>>>,
+) -> impl IntoView {
     let chat_context = ChatContext::default();
     view! {
         <Provider value=chat_context>
             // <ChatDropZone/>
             <div class="flex h-full w-full flex-col">
                 <Messages channel=channel/>
-                <Sender channel=channel/>
+                <Sender channel=channel member=member/>
             </div>
         </Provider>
     }

@@ -70,6 +70,7 @@ uuid = { version = "1.17.0", features = ["v4", "js"] }
 chrono = "0.4.41"
 pulldown-cmark = "0.13.0"
 regex = "1.11.1"
+gloo-file = { version =  "0.3.0", features = ["futures"] }
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 

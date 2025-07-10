@@ -1,11 +1,16 @@
 use crate::components::icons::{IconCirclePlus, IconSend, IconSticker};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use common::convex::Channel;
+use api::convex::mutations::messages::SendMessage;
+use common::convex::{Channel, Member};
 use leptos::html::Div;
 use leptos::prelude::*;
 
 #[component]
-pub fn Sender(channel: RwSignal<Option<Channel>>) -> impl IntoView {
+pub fn Sender(
+    channel: RwSignal<Option<Channel>>,
+    member: RwSignal<Option<Option<Member>>>,
+) -> impl IntoView {
+    let send: ServerAction<SendMessage> = ServerAction::new();
     let message = RwSignal::new(String::default());
     let content_ref: NodeRef<Div> = NodeRef::new();
     let on_input = move |_| {
@@ -43,11 +48,21 @@ pub fn Sender(channel: RwSignal<Option<Channel>>) -> impl IntoView {
                     </div>
                 </div>
 
-                <div class="flex items-center">
-                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
+                <div class="flex items-center gap-2">
+                    <Button
+                        size=ButtonSizes::Icon variant=ButtonVariants::Ghost
+                    >
                         <IconSticker/>
                     </Button>
-                    <Button size=ButtonSizes::Icon>
+                    <Button size=ButtonSizes::Icon
+                        on:click=move |_| {
+                            if let Some(channel) = channel.get() {
+                                if let Some(member) = member.get().flatten() {
+                                    send.dispatch(SendMessage {  channel: channel.id, message: message.get(), member: member.id });
+                                }
+                            }
+                        }
+                    >
                         <IconSend/>
                     </Button>
                 </div>

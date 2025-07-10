@@ -69,8 +69,8 @@ pub fn Channel() -> impl IntoView {
     view! {
         <Header channel=channel.signal members_open=open />
         <SidebarProvider class="flex-1 min-h-0" open=open main=false style="--sidebar-width: 250px" shortcut="u">
-            <SidebarInset class="flex-1">
-                <Chat channel=channel.signal/>
+            <SidebarInset class="flex-1 max-h-screen">
+                <Chat channel=channel.signal member=member.signal/>
             </SidebarInset>
             <MembersSideBar server=server member=member.signal/>
         </SidebarProvider>

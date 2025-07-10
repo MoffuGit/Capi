@@ -7,7 +7,6 @@ use pulldown_cmark::{
 use regex::Regex;
 use uuid::Uuid;
 
-use leptos::either::Either;
 use leptos::prelude::*;
 
 #[component]
@@ -40,7 +39,7 @@ pub fn MarkdownParagraph(node: MarkdownNode) -> impl IntoView {
         MarkdownElement::Bold => view! {<strong>{childrens}</strong>}.into_any(),
         MarkdownElement::Italic => view! {<em>{childrens}</em>}.into_any(),
         MarkdownElement::Heading(level) => match level {
-            HeadingLevel::H1 => view! {<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">{childrens}</h1>}.into_any(),
+            HeadingLevel::H1 => view! {<h1 class="scroll-m-20 my-2 text-4xl font-extrabold tracking-tight text-balance">{childrens}</h1>}.into_any(),
             HeadingLevel::H2 => view! {<h2 class="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{childrens}</h2>}.into_any(),
             HeadingLevel::H3 => view! {<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">{childrens}</h3>}.into_any(),
             HeadingLevel::H4 => view! {<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">{childrens}</h4>}.into_any(),
@@ -51,25 +50,25 @@ pub fn MarkdownParagraph(node: MarkdownNode) -> impl IntoView {
             if kind.is_some() {
                 // block_kind.set(kind);
             }
-            view! {<blockquote class="mt-6 border-l-2 pl-6 italic">{childrens}</blockquote>}.into_any()
+            view! {<blockquote class="my-2 border-l-2 pl-6 italic">{childrens}</blockquote>}.into_any()
         }
         MarkdownElement::ListItem => view! {<li>{childrens}</li>}.into_any(),
         MarkdownElement::List { order } => {
             if order {
-                view! {<ol class="my-6 ml-6 list-decimal [&>li]:mt-2">{childrens}</ol>}.into_any()
+                view! {<ol class="my-2 ml-6 list-decimal">{childrens}</ol>}.into_any()
             } else {
-                view! {<ul class="my-6 ml-6 list-disc [&>li]:mt-2">{childrens}</ul>}.into_any()
+                view! {<ul class="my-2 ml-6 list-disc">{childrens}</ul>}.into_any()
             }
         }
-        MarkdownElement::Code(code) => view! {<code class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">{code}</code>}.into_any(),
+        MarkdownElement::Code(code) => view! {<code class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] text-sm font-semibold font-mono">{code}</code>}.into_any(),
         MarkdownElement::CodeBlock(_lang) => view! {
-            <pre>
+            <pre class="my-2 bg-muted relative rounded px-[0.3rem] py-[0.2rem] text-sm font-semibold font-mono">
                 <code>{childrens}</code>
             </pre>
         }
         .into_any(),
         MarkdownElement::Link { url } => view! {
-            <a href=url>{url.clone()}</a>
+            <a href=url class="text-primary font-medium underline underline-offset-4">{url.clone()}</a>
         }
         .into_any(),
         MarkdownElement::Role(id) => view! {

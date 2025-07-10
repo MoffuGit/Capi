@@ -36,7 +36,7 @@ pub fn Servers() -> impl IntoView {
     view! {
         <SidebarProvider style="--sidebar-width: 300px">
             <SideBar/>
-            <SidebarInset >
+            <SidebarInset class="max-h-screen" >
                 <Outlet/>
             </SidebarInset>
         </SidebarProvider>
