@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const getOnlineMembersByRole = query({
@@ -27,5 +28,21 @@ export const getOfflineMembers = query({
         q.eq("server", server).eq("online", false),
       )
       .collect();
+  },
+});
+
+export const getMembersByIds = query({
+  args: {
+    memberIds: v.array(v.id("members")),
+  },
+  handler: async ({ db }, { memberIds }) => {
+    const members: Array<Doc<"members">> = [];
+    for (const memberId of memberIds) {
+      const member = await db.get(memberId);
+      if (member) {
+        members.push(member);
+      }
+    }
+    return members;
   },
 });

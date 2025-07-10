@@ -11,9 +11,12 @@ pub fn Separator(
     #[prop(into, default = Signal::from(Orientation::Horizontal))] orientation: Signal<
         crate::components::primitives::separator::Orientation,
     >,
+    #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let class = Signal::derive(move || tw_merge!(BASE, class.get()));
     view! {
-        <SeparatorPrimitive class=class orientation=orientation/>
+        <SeparatorPrimitive class=class orientation=orientation >
+            {children.map(|children| children())}
+        </SeparatorPrimitive>
     }
 }

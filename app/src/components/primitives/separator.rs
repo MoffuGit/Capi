@@ -9,8 +9,11 @@ pub fn Separator(
     #[prop(into, default = Signal::from(Orientation::Horizontal))] orientation: Signal<
         crate::components::primitives::separator::Orientation,
     >,
+    #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     view! {
-        <div class=class data-orientation=move || orientation.get().to_string()/>
+        <div class=class data-orientation=move || orientation.get().to_string()>
+            {children.map(|children| children())}
+        </div>
     }
 }

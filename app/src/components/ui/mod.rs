@@ -9,6 +9,7 @@ pub mod divider;
 pub mod dropwdown;
 pub mod input;
 pub mod label;
+pub mod markdown;
 pub mod sheet;
 pub mod sidebar;
 pub mod skeleton;

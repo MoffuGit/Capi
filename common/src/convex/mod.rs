@@ -1,4 +1,5 @@
-use serde::{Deserialize, Serialize};
+use serde::de::Error;
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Server {
@@ -60,12 +61,38 @@ pub struct Invitation {
     pub invitation: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+fn deserialize_f64_to_i64<'de, D>(deserializer: D) -> Result<i64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+    match value {
+        serde_json::Value::Number(num) => {
+            if let Some(i) = num.as_i64() {
+                // Already an i64, use it directly
+                Ok(i)
+            } else if let Some(f) = num.as_f64() {
+                // It's an f64, check if it's a whole number and fits in i64
+                Ok(f as i64)
+            } else {
+                Err(D::Error::custom(format!(
+                    "expected a number convertible to i64, but found {num:?}"
+                )))
+            }
+        }
+        _ => Err(D::Error::custom(format!(
+            "expected a number, found {value:?}"
+        ))),
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Hash, Eq)]
 pub struct Member {
     #[serde(rename = "_id")]
     pub id: String,
     #[serde(rename = "_creationTime")]
-    pub creation_time: f64,
+    #[serde(deserialize_with = "deserialize_f64_to_i64")]
+    creation_time: i64,
     pub user: String,
     pub server: String,
     pub roles: Vec<String>,

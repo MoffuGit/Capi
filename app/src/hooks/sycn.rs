@@ -23,7 +23,6 @@ impl<T: for<'a> Deserialize<'a> + Send + Sync + Debug + 'static> SyncSignal<T> {
 
         Effect::new(move |_| {
             if let Some(query) = query.get() {
-                log!("{:?}", query);
                 let mut sync_tx = sync.tx.clone();
                 spawn_local_scoped_with_cancellation(async move {
                     let (tx, rx) = oneshot::channel();
@@ -31,7 +30,6 @@ impl<T: for<'a> Deserialize<'a> + Send + Sync + Debug + 'static> SyncSignal<T> {
                     if let Ok((mut rx, value)) = rx.await {
                         signal.set(value.and_then(|value| serde_json::from_value(value).ok()));
                         while let Some(msg) = rx.next().await {
-                            log!("{msg:?}");
                             match msg {
                                 QueryResponse::Update(value) => {
                                     match serde_json::from_value(value) {

@@ -36,6 +36,9 @@ async-broadcast.workspace = true
 gloo-timers.workspace = true
 leptos-use.workspace = true
 uuid.workspace = true
+chrono.workspace = true
+pulldown-cmark.workspace = true
+regex.workspace = true
 
 [features]
 default = []
