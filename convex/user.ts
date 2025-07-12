@@ -94,6 +94,10 @@ export const create = mutation({
     image_url: v.optional(v.string()),
   },
   handler: async (ctx, { auth, name, image_url }) => {
-    await ctx.db.insert("users", { authId: auth, name, image_url });
+    let user = await ctx.db.insert("users", { authId: auth, name, image_url });
+    await ctx.db.insert("userStatus", {
+      user: user,
+      status: "Online",
+    });
   },
 });

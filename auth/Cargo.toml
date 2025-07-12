@@ -7,7 +7,7 @@ edition = "2024"
 sqlx.workspace = true
 axum_session_sqlx.workspace = true
 axum_session_auth.workspace = true
-common = { path = "../common" }
+common = { path = "../common", feature = ["ssr"] }
 leptos.workspace = true
 leptos_router.workspace = true
 async-trait.workspace = true

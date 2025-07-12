@@ -40,8 +40,9 @@ chrono.workspace = true
 pulldown-cmark.workspace = true
 regex.workspace = true
 gloo-file.workspace = true
+uploadthing = { path = "../uploadthing", optional = true }
 
 [features]
 default = []
-hydrate = ["leptos/hydrate", "api/hydrate", "dep:common"]
-ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common"]
+hydrate = ["leptos/hydrate", "api/hydrate", "dep:common", "dep:uploadthing"]
+ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common", "dep:uploadthing"]

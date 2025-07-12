@@ -199,6 +199,8 @@ pub struct Attachment {
     #[serde(rename = "_creationTime")]
     pub creation_time: f64,
     pub message: String,
+    #[serde(rename = "type")]
+    pub _type: String,
     pub name: String,
     pub url: String,
 }

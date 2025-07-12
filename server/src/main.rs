@@ -13,7 +13,7 @@ use leptos::prelude::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
-use uploadthing::UploadThing;
+use uploadthing::server::UploadThing;
 
 #[tokio::main]
 async fn main() {

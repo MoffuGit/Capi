@@ -40,11 +40,6 @@ export const create = mutation({
       },
     });
 
-    await db.insert("userStatus", {
-      user: user._id,
-      status: "Online",
-    });
-
     await db.insert("members", {
       user: user._id,
       server: server,

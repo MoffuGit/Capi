@@ -1,9 +1,72 @@
-use crate::components::icons::{IconCirclePlus, IconSend, IconSticker};
+use std::str::FromStr;
+
+use crate::components::icons::{IconCirclePlus, IconSend, IconSticker, IconTrash};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use api::convex::mutations::messages::SendMessage;
+use crate::components::uploadthing::input::FileInput;
+use crate::routes::server::channel::components::chat::ChatContext;
+use api::convex::mutations::messages::{send_message_attachments, SendMessage};
 use common::convex::{Channel, Member};
+use gloo_file::Blob;
 use leptos::html::Div;
 use leptos::prelude::*;
+use uploadthing::{FileData, FileType, UploadthingFile};
+use web_sys::{FormData, Url};
+
+#[component]
+pub fn Attachment(
+    attachment: UploadthingFile,
+    idx: usize,
+    attachments: RwSignal<Vec<UploadthingFile>>,
+) -> impl IntoView {
+    let FileData {
+        name, file_type, ..
+    } = attachment.data;
+    let file_type = FileType::from_str(&file_type).unwrap();
+    let url: RwSignal<Option<String>> = RwSignal::new(match file_type {
+        FileType::Jpeg | FileType::Png => {
+            Url::create_object_url_with_blob(&Blob::new(&*attachment.chunks).into()).ok()
+        }
+        _ => None,
+    });
+    view! {
+        <div class="relative w-40 h-40 p-2 rounded-lg border border-base-100 flex flex-col items-center justify-around">
+            <Button
+                size=ButtonSizes::Icon variant=ButtonVariants::Destructive
+                on:click=move |_| {
+                    attachments.update(|attachments| {
+                        attachments.remove(idx);
+                    });
+                }
+                class="absolute top-1 right-1"
+            >
+                <IconTrash
+                />
+            </Button>
+            {
+                match file_type {
+                    FileType::Jpeg | FileType::Png =>  {
+                        view! {
+                            <img
+                                class="w-full mx-1 h-28 object-cover rounded-md"
+                                src=move || url.get().unwrap()
+                                on:load=move |_| {
+                                    let _ = Url::revoke_object_url(&url.get().unwrap());
+                                }
+                            />
+                        }.into_any()
+                    },
+                    _ => {
+                        ().into_any()
+                    }
+                }
+            }
+            <div class="w-full text-start max-h-4 text-xs text-nowrap truncate inline-block">
+                {name}
+            </div>
+        </div>
+
+    }
+}
 
 #[component]
 pub fn Sender(
@@ -19,11 +82,66 @@ pub fn Sender(
         }
     };
 
+    let send_attachments = Action::new_local(|data: &FormData| {
+        let data = data.clone();
+        send_message_attachments(data.into())
+    });
+
+    let context: ChatContext = use_context().expect("should acces the chat context");
+
+    let attachments = context.attachments;
+
+    Effect::watch(
+        move || send.value().get(),
+        move |message_id, _, _| {
+            // if let Some(Ok(message_id)) = message_id {
+            //     if !attachments.get().is_empty() {
+            //         let multipart = FormData::new().expect("should create the form data");
+            //         multipart
+            //             .append_with_str("message_id", &message_id.to_string())
+            //             .expect("Something");
+            //         for attachment in attachments.get() {
+            //             let file_name = attachment.data.name;
+            //             multipart
+            //                 .append_with_blob_and_filename(
+            //                     &file_name,
+            //                     &Blob::new_with_options(
+            //                         &*attachment.chunks,
+            //                         Some(&attachment.data.file_type),
+            //                     )
+            //                     .into(),
+            //                     &file_name,
+            //                 )
+            //                 .expect("should add the file to the form data")
+            //         }
+            //         attachments.set(vec![]);
+            //         send_attachments.dispatch_local(multipart);
+            //     }
+            // }
+        },
+        false,
+    );
+
     view! {
         <div class="flex flex-col gap-2 p-5">
+            <Show when=move || !context.attachments.get().is_empty()>
+                <div class="relative w-full h-auto bg-base-300 border first:rounded-t-lg border-b-0 border-base-100 flex items-center p-2 text-sm">
+                    {
+                        move || {
+                            context.attachments.get().iter().enumerate().map(|(idx, att)| {
+                                view!{
+                                    <Attachment attachment=att.clone() idx=idx attachments=context.attachments/>
+                                }
+                            }).collect_view()
+                        }
+                    }
+                </div>
+            </Show>
             <div class="border-input dark:bg-input/30 flex w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs md:text-sm justify-between">
+
                 <div class="flex items-center justify-center">
-                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
+                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="relative">
+                        <FileInput class="absolute inset-0 opacity-0" files=context.attachments/>
                         <IconCirclePlus/>
                     </Button>
                 </div>

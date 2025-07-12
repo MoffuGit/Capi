@@ -2,7 +2,6 @@ use api::convex::mutations::invitation::JoinWithInvitation;
 use api::server::CreateServer;
 use leptos::prelude::*;
 use leptos_router::components::A;
-use web_sys::MouseEvent;
 
 use crate::components::auth::use_auth;
 use crate::components::icons::{
@@ -13,7 +12,7 @@ use crate::components::ui::context::{
     ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
 };
 use crate::components::ui::dialog::{
-    Dialog, DialogDescription, DialogFooter, DialogHeader, DialogPopup, DialogTitle, DialogTrigger,
+    Dialog, DialogDescription, DialogFooter, DialogHeader, DialogPopup, DialogTitle,
 };
 use crate::components::ui::input::Input;
 use crate::components::ui::label::Label;

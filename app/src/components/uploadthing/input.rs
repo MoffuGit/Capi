@@ -1,13 +1,13 @@
 use leptos::html::Input as HtmlInput;
 use leptos::prelude::*;
+use uploadthing::UploadthingFile;
 
-use super::{read_file, UploadthingFile};
+use super::read_file;
 
 #[component]
 pub fn FileInput(
     files: RwSignal<Vec<UploadthingFile>>,
     #[prop(into)] class: Signal<String>,
-    #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let input_ref: NodeRef<HtmlInput> = NodeRef::new();
 
@@ -26,15 +26,12 @@ pub fn FileInput(
         }
     };
     view! {
-        <label class=move || format!("relative {}", class.get())>
-            {children.map(|children| children())}
-            <input
-                type="file"
-                class="absolute inset-0 opacity-0 pointer-events-none"
-                node_ref=input_ref
-                on:change=on_change
-                multiple=true
-            />
-        </label>
+        <input
+            type="file"
+            class=class
+            node_ref=input_ref
+            on:change=on_change
+            multiple=true
+        />
     }
 }

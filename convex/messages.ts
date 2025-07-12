@@ -71,6 +71,24 @@ export const getMessagesInChannel = query({
   },
 });
 
+export const addAttachmentToMessage = mutation({
+  args: {
+    messageId: v.id("messages"),
+    name: v.string(),
+    type: v.string(),
+    url: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const newAttachment = {
+      message: args.messageId,
+      name: args.name,
+      type: args.type,
+      url: args.url,
+    };
+    return await ctx.db.insert("attachments", newAttachment);
+  },
+});
+
 export const deleteMessage = mutation({
   args: {
     messageId: v.id("messages"),

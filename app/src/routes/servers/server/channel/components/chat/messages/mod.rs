@@ -148,31 +148,23 @@ pub fn Messages(channel: RwSignal<Option<Channel>>) -> impl IntoView {
 
     view! {
         <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
-            <Show when=move || !display_items_memo.get().is_empty()>
-                <For
-                    each=move || display_items_memo.get()
-                    key=|item| {
-                        match item {
-                            MessageDisplayItem::DateSeparator(date_str) => format!("date-{date_str}"),
-                            MessageDisplayItem::MessageGroup(grouped_msg) => {
-                                format!("{}-{}", grouped_msg.author_id, grouped_msg.creation_time)
+                {
+                    move || {
+                        display_items_memo.get().into_iter().map(|item| {
+                            match item {
+                                MessageDisplayItem::DateSeparator(date_str) => {
+                                    view! { <DateSeparator date_string=date_str/> }.into_any()
+                                }
+                                MessageDisplayItem::MessageGroup(group) => {
+                                    view! {
+                                        <MessageGroup group=group cached_members=cached_members />
+                                    }.into_any()
+                                }
                             }
-                        }
+
+                        }).collect_view()
                     }
-                    children=move |item| {
-                        match item {
-                            MessageDisplayItem::DateSeparator(date_str) => {
-                                view! { <DateSeparator date_string=date_str/> }.into_any()
-                            }
-                            MessageDisplayItem::MessageGroup(group) => {
-                                view! {
-                                    <MessageGroup group=group cached_members=cached_members />
-                                }.into_any()
-                            }
-                        }
-                    }
-                />
-            </Show>
+                }
         </div>
     }
 }

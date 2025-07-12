@@ -6,6 +6,7 @@ use leptos::prelude::*;
 
 use common::convex::{Channel, ChannelMessage, Member};
 use leptos::context::Provider;
+use uploadthing::UploadthingFile;
 
 use self::messages::Messages;
 use self::sender::Sender;
@@ -13,7 +14,7 @@ use self::sender::Sender;
 #[derive(Debug, Clone, Default)]
 pub struct ChatContext {
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
-    pub attachments: RwSignal<Vec<String>>,
+    pub attachments: RwSignal<Vec<UploadthingFile>>,
 }
 
 #[component]
@@ -21,9 +22,8 @@ pub fn Chat(
     channel: RwSignal<Option<Channel>>,
     member: RwSignal<Option<Option<Member>>>,
 ) -> impl IntoView {
-    let chat_context = ChatContext::default();
     view! {
-        <Provider value=chat_context>
+        <Provider value=ChatContext::default()>
             // <ChatDropZone/>
             <div class="flex h-full w-full flex-col">
                 <Messages channel=channel/>

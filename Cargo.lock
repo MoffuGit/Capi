@@ -130,10 +130,12 @@ dependencies = [
  "maplit",
  "serde",
  "serde_json",
+ "server_fn",
  "sqlx",
  "strum",
  "strum_macros",
  "tokio",
+ "uploadthing",
 ]
 
 [[package]]
@@ -170,6 +172,7 @@ dependencies = [
  "strum_macros",
  "tailwind_fuse",
  "thiserror 2.0.12",
+ "uploadthing",
  "uuid",
  "wasm-bindgen",
  "web-sys",
@@ -3591,6 +3594,7 @@ dependencies = [
  "hyper",
  "inventory",
  "js-sys",
+ "multer",
  "once_cell",
  "pin-project-lite",
  "rustc_version",
@@ -4623,6 +4627,8 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "strum",
+ "strum_macros",
  "tokio",
  "tokio-util",
  "urlencoding",

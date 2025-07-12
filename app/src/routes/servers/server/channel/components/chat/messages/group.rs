@@ -1,8 +1,10 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use chrono::{DateTime, Local};
 use common::convex::Member;
 use leptos::prelude::*;
+use uploadthing::FileType;
 
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::markdown::{Markdown, MarkdownParser};
@@ -66,6 +68,24 @@ pub fn MessageGroup(
                         let markdown = MarkdownParser::new(&msg_ref.content).parse_tree();
                         view! {
                             <Markdown markdown=markdown.into() />
+                            {
+                                move || {
+                                    msg_ref.attachments.iter().map(|att| {
+                                        let file_type = FileType::from_str(&att._type);
+                                        match file_type {
+                                            Ok(FileType::Jpeg) => {
+                                                view!{
+                                                    <img class="max-w-136 h-auto flex rounded-lg" src=att.url.clone()/>
+                                                }.into_any()
+                                            },
+                                            Ok(FileType::Png) => view!{
+                                                    <img class="max-w-136 h-auto flex rounded-lg" src=att.url.clone()/>
+                                            }.into_any(),
+                                            _ => ().into_any()
+                                        }
+                                    }).collect_view()
+                                }
+                            }
                         }
                     }
                 />

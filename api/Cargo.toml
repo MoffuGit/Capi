@@ -19,7 +19,9 @@ tokio = { workspace = true, optional = true }
 serde_json.workspace = true
 convex = { workspace = true, optional = true }
 maplit.workspace = true
+server_fn.workspace = true
+uploadthing = { path = "../uploadthing", optional = true }
 
 [features]
-hydrate = ["leptos/hydrate", "dep:common"]
-ssr = ["leptos/ssr", "dep:leptos_axum", "dep:tokio", "dep:convex", "dep:axum-extra", "dep:axum", "dep:auth", "dep:common", "dep:sqlx"]
+hydrate = ["leptos/hydrate", "dep:common", "dep:uploadthing"]
+ssr = ["leptos/ssr", "dep:leptos_axum", "dep:tokio", "dep:convex", "dep:axum-extra", "dep:axum", "dep:auth", "dep:common", "dep:sqlx","dep:uploadthing"]
