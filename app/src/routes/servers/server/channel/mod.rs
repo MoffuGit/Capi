@@ -9,6 +9,7 @@ use serde::Serialize;
 
 use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{SidebarInset, SidebarProvider};
+use crate::routes::use_profile;
 
 use self::components::chat::Chat;
 use self::components::header::Header;
@@ -45,7 +46,7 @@ impl Query<Option<Channel>> for GetChannel {
 
 #[component]
 pub fn Channel() -> impl IntoView {
-    let user = use_auth().user;
+    let user = use_profile();
     let set_last_visited: ServerAction<SetLastVisitedChannel> = ServerAction::new();
     let location = use_location();
     let path = location.pathname;
@@ -64,9 +65,7 @@ pub fn Channel() -> impl IntoView {
             .map(|channel| channel.to_string())
     });
 
-    // Query for member based on user and server_id_memo
     let member_query_signal_result = UseQuery::new(move || {
-        // This closure must return Option<GetMemberForServerByUser>
         user.get().and_then(|user_data| {
             server_id_memo
                 .get()
@@ -77,7 +76,6 @@ pub fn Channel() -> impl IntoView {
         })
     });
 
-    // Query for channel based on server_id_memo, channel_id_memo, and member_query_signal_result
     let channel_query_signal_result = UseQuery::new(move || {
         // This closure must return Option<GetChannel>
         let server = server_id_memo.get()?;
@@ -94,7 +92,6 @@ pub fn Channel() -> impl IntoView {
         })
     });
 
-    // Derive signals with the desired types for components
     let current_member: Signal<Option<Member>> = Signal::derive(move || {
         member_query_signal_result.get().and_then(|query_res| {
             query_res.ok().flatten() // Takes Option<Result<Option<Member>, String>> -> Option<Option<Member>> -> Option<Member>

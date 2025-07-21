@@ -1,4 +1,5 @@
 use api::sidebar::{SideBarState, ToggleSideBar, SIDEBAR_COOKIE_NAME};
+use leptos::context::Provider;
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 use web_sys::MouseEvent;

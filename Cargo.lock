@@ -146,6 +146,7 @@ dependencies = [
  "async-broadcast",
  "axum",
  "axum-extra",
+ "base64 0.13.1",
  "cfg-if",
  "chrono",
  "common",

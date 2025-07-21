@@ -316,6 +316,35 @@ impl ConvexClientBuilder {
 }
 
 #[component]
+pub fn ConvexProviderWithAuth(
+    children: Children,
+    access_token: impl Fn() -> Option<String> + Send + Sync + 'static,
+) -> impl IntoView {
+    #[cfg(feature = "hydrate")]
+    {
+        use leptos::task::spawn_local;
+
+        let access_token = Memo::new(move |_| access_token());
+
+        let client = ConvexClient::new("https://quick-cardinal-805.convex.cloud")
+            .expect("should provide the convex client");
+        let client_clone = client.clone();
+        Effect::new(move |_| {
+            let mut client = client_clone.clone();
+            let access_token = access_token.get();
+            spawn_local(async move {
+                client.set_auth(access_token).await;
+            });
+        });
+        provide_context(client);
+    }
+
+    view! {
+        {children()}
+    }
+}
+
+#[component]
 pub fn ConvexProvider(children: Children) -> impl IntoView {
     #[cfg(feature = "hydrate")]
     {
@@ -394,7 +423,7 @@ impl UseQuery {
                     });
                 }
             } else {
-                set_query_signal(Some(Err("ConvexClient context not found.".to_string())));
+                set_query_signal(None);
             }
         });
         query_signal
@@ -427,11 +456,11 @@ impl UseMutation {
     where
         M: Mutation + Clone,
     {
-        Action::new(|mutation: &M| {
+        let client = use_context::<ConvexClient>();
+        Action::new(move |mutation: &M| {
             let mutation = mutation.to_owned();
+            let mut client = client.clone().unwrap();
             async move {
-                let mut client =
-                    use_context::<ConvexClient>().expect("ConvexClient context not found.");
                 match client
                     .mutation(&mutation.name(), mutation.args().unwrap_or_default())
                     .await

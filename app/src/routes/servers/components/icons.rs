@@ -3,7 +3,6 @@ use api::server::CreateServer;
 use leptos::prelude::*;
 use leptos_router::components::A;
 
-use crate::components::auth::use_auth;
 use crate::components::icons::{
     IconCirclePlus, IconCommand, IconCompass, IconGlobe, IconInbox, IconPencil, IconSearch,
 };
@@ -24,6 +23,7 @@ use crate::components::ui::sidebar::{
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::routes::servers::components::navbar::Navbar;
 use crate::routes::servers::components::servers::ServersItems;
+use crate::routes::use_profile;
 
 use super::sidebar::{SideBarData, SideBarOption};
 
@@ -190,7 +190,7 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
 
 #[component]
 pub fn JoinServerDialog(open: RwSignal<bool>) -> impl IntoView {
-    let auth = use_auth().user;
+    let user = use_profile();
     let join_server: ServerAction<JoinWithInvitation> = ServerAction::new();
     let (name, set_name) = signal(String::default());
     let pending = join_server.pending();
@@ -217,27 +217,31 @@ pub fn JoinServerDialog(open: RwSignal<bool>) -> impl IntoView {
                     </div>
                 <DialogFooter>
                     <div/>
-                    // <button
-                    //     on:click=move |_| {
-                    //         if !name.get().is_empty() {
-                    //             if let Some(user) = auth.get().flatten() {
-                    //                 join_server.dispatch(JoinWithInvitation {
-                    //                     invitation: name.get(),
-                    //                     user: user.id
-                    //                 });
-                    //             }
-                    //         }
-                    //     }
-                    //     disabled=move || pending.get()
-                    //     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                    // >
-                    //     "Create"
-                    // </button>
+                    <button
+                        on:click=move |_| {
+                            if !name.get().is_empty() {
+                                if let Some(user) = user.get() {
+                                    join_server.dispatch(JoinWithInvitation {
+                                        invitation: name.get(),
+                                        user: user.id
+                                    });
+                                }
+                            }
+                        }
+                        disabled=move || pending.get()
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                        "Create"
+                    </button>
                 </DialogFooter>
             </DialogPopup>
         </Dialog>
     }
 }
+
+// pub struct CreateServer {
+//     name: String,
+// }
 
 #[component]
 pub fn CreateServerDialog(open: RwSignal<bool>) -> impl IntoView {

@@ -52,8 +52,8 @@ pub fn App() -> impl IntoView {
         <Title text="Capi"/>
 
         <ThemeProvider>
-            <ConvexProvider>
-                <AuthProvider>
+            <AuthProvider>
+                <ConvexProvider>
                     <Router>
                         <main id="app">
                             <Routes fallback=|| "Page not found.".into_view()>
@@ -64,7 +64,7 @@ pub fn App() -> impl IntoView {
                                     <Route path=StaticSegment("google")  view=GoogleAuth/>
                                 </ParentRoute>
                                 <ProtectedParentRoute
-                                    condition=move || use_auth().auth.get().map(|res| res.ok().flatten().is_some())
+                                    condition=move || use_auth().auth().get().and_then(|res| res.ok()).map(|res| res.is_some())
                                     path=StaticSegment("servers")
                                     redirect_path= || "/"
                                     view=Servers
@@ -98,8 +98,8 @@ pub fn App() -> impl IntoView {
                             </Routes>
                         </main>
                     </Router>
-                </AuthProvider>
-            </ConvexProvider>
+                </ConvexProvider>
+            </AuthProvider>
         </ThemeProvider>
     }
 }

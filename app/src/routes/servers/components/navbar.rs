@@ -1,15 +1,15 @@
 use leptos::prelude::*;
 
-use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{SidebarMenuButton, SidebarMenuButtonSize};
+use crate::routes::use_profile;
 
 #[component]
 pub fn Navbar() -> impl IntoView {
-    let auth = use_auth();
+    let user = use_profile();
     view! {
         {
             move || {
-                auth.user.get().map(|user| {
+                user.get().map(|user| {
                     view!{
                         <SidebarMenuButton
                           size=SidebarMenuButtonSize::Lg

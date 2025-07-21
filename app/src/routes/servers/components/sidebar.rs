@@ -10,6 +10,7 @@ use crate::components::ui::sidebar::{
 };
 use crate::routes::servers::components::collapsible::SidebarCollapsible;
 use crate::routes::servers::components::icons::SidebarIcons;
+use crate::routes::use_profile;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarRoute {
@@ -63,9 +64,9 @@ pub fn SideBar() -> impl IntoView {
         get_route_from_path(&path)
     });
 
-    let auth = use_auth();
+    let user = use_profile();
 
-    let data = UseQuery::new(move || auth.user.get().map(|user| GetServers { user: user.id }));
+    let data = UseQuery::new(move || user.get().map(|user| GetServers { user: user.id }));
     let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
 
     view! {

@@ -1,16 +1,12 @@
 pub mod form;
 
 use api::auth::{get_user, GoogleAuth, HandleGoogleRedirect, Logout, RefreshToken};
-use common::convex::User;
 use common::user::User as Auth;
-use convex_client::leptos::{Query, UseQuery};
 use leptos::context::Provider;
 use leptos::prelude::*;
-use leptos_dom::error;
 use leptos_router::hooks::{use_navigate, use_query};
 use leptos_router::params::Params;
 use leptos_router::NavigateOptions;
-use serde::Serialize;
 
 use crate::components::ui::button::Button;
 
@@ -22,24 +18,18 @@ pub struct AuthContext {
     google_auth: ServerAction<GoogleAuth>,
     handle_google_redirect: ServerAction<HandleGoogleRedirect>,
     refresh_google_token: ServerAction<RefreshToken>,
-    pub auth: Resource<Result<Option<Auth>, ServerFnError>>,
-    pub user: Signal<Option<User>>,
+    auth: Resource<Result<Option<Auth>, ServerFnError>>,
     expires_in: RwSignal<u64>,
+}
+
+impl AuthContext {
+    pub fn auth(&self) -> Resource<Result<Option<Auth>, ServerFnError>> {
+        self.auth
+    }
 }
 
 pub fn use_auth() -> AuthContext {
     use_context().expect("shoud acces to the auth context")
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct GetUser {
-    auth: i64,
-}
-
-impl Query<Option<User>> for GetUser {
-    fn name(&self) -> String {
-        "user:getUser".to_string()
-    }
 }
 
 #[component]
@@ -57,16 +47,6 @@ pub fn AuthProvider(children: Children) -> impl IntoView {
         },
         move |_| get_user(),
     );
-
-    let user = UseQuery::new(move || {
-        if let Some(Ok(Some(auth))) = auth.get() {
-            Some(GetUser { auth: auth.id })
-        } else {
-            None
-        }
-    });
-
-    let user = Signal::derive(move || user.get().and_then(|res| res.ok().flatten()));
 
     let expires_in: RwSignal<u64> = RwSignal::new(0);
 
@@ -140,7 +120,7 @@ pub fn AuthProvider(children: Children) -> impl IntoView {
     // });
 
     view! {
-        <Provider value=AuthContext { log_out, user, google_auth, handle_google_redirect, refresh_google_token, auth, expires_in }>
+        <Provider value=AuthContext { log_out, google_auth, handle_google_redirect, refresh_google_token, auth, expires_in }>
             {children()}
         </Provider>
     }
