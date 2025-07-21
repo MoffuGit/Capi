@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "api","app", "common", "frontend", "server", "api", "auth", "uploadthing"]
+members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "uploadthing", "convex-client"]
 
 # need to be applied only to wasm build
 [profile.release]
@@ -18,8 +18,15 @@ tailwind_fuse = { version =  "0.3.2", features = ["variant"] }
 axum = { version =  "0.8.4", features = ["macros"] }
 oauth2 = "5.0.0"
 anyhow = "1"
+base64 = { version = "0.13" }
+derive_more = { version = "2", features = [ "full" ] }
+headers = { version = "0.4" }
 axum-extra = { version =  "0.10.1", features = ["cookie"] }
+web-time = "1.1.0"
+js-sys = "0.3.77"
+url = "2.5.4"
 cfg-if = "1.0.0"
+gloo-net = { version =  "0.6.0", features = ["websocket"] }
 console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 http = "1.3.1"
@@ -28,6 +35,8 @@ simple_logger = "5.0.0"
 thiserror = "2.0.12"
 server_fn = { version =  "0.8.2", features = ["multipart"] }
 tokio = { version = "1.45.0", features = ["full"] }
+tokio-stream = { features = [ "io-util", "sync" ], version = "0.1" }
+tokio-tungstenite = { features = [ "url" ], version = "0.26.2" }
 tokio-util = "0.7.15"
 urlencoding = "2.1.3"
 tower = { version = "0.5.2", features = ["full"] }
@@ -68,8 +77,11 @@ gloo-timers = { version =  "0.3.0", features = ["futures"] }
 leptos-use = { version =  "0.16.2", default-features = false, features = ["on_click_outside", "use_element_bounding", "use_mouse", "use_interval_fn"] }
 maplit = "1.0.2"
 uuid = { version = "1.17.0", features = ["v4", "js"] }
+wasm-bindgen-futures = "0.4.50"
 chrono = "0.4.41"
 pulldown-cmark = "0.13.0"
+rand = "0.9.1"
+imbl = "5.0.0"
 regex = "1.11.1"
 gloo-file = { version =  "0.3.0", features = ["futures"] }
 

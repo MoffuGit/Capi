@@ -37,7 +37,7 @@ pub fn Channel() -> impl IntoView {
     });
     let member: SyncSignal<Option<Member>> = SyncSignal::new(Memo::new(move |_| {
         server.get().and_then(|server| {
-            user.get().flatten().map(|user| Query {
+            user.get().map(|user| Query {
                 name: "user:getMemberForServerByUser".to_string(),
                 args: json!({
                     "serverId": server,

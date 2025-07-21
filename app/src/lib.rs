@@ -3,6 +3,7 @@ mod hooks;
 mod routes;
 mod sync;
 
+use convex_client::leptos::ConvexProvider;
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
@@ -54,7 +55,7 @@ pub fn App() -> impl IntoView {
         <Title text="Capi"/>
 
         <ThemeProvider>
-            <SyncProvider>
+            <ConvexProvider>
                 <AuthProvider>
                     <Router>
                         <main id="app">
@@ -83,25 +84,25 @@ pub fn App() -> impl IntoView {
                                         path=StaticSegment("me")
                                         view=move || view! { <div>"Private conversations"</div> }
                                     />
-                                    <ParentRoute
-                                        path=ParamSegment("server")
-                                        view=move || view! {<Outlet/>}
-                                    >
-                                        <Route
-                                            path=StaticSegment("")
-                                            view=move || view!{<div>"server"</div>}
-                                        />
-                                        <Route
-                                            path=ParamSegment("channel")
-                                            view=move || view!{<Channel />}
-                                        />
-                                    </ParentRoute>
+                                //     <ParentRoute
+                                //         path=ParamSegment("server")
+                                //         view=move || view! {<Outlet/>}
+                                //     >
+                                //         <Route
+                                //             path=StaticSegment("")
+                                //             view=move || view!{<div>"server"</div>}
+                                //         />
+                                //         <Route
+                                //             path=ParamSegment("channel")
+                                //             view=move || view!{<Channel />}
+                                //         />
+                                //     </ParentRoute>
                                 </ProtectedParentRoute>
                             </Routes>
                         </main>
                     </Router>
                 </AuthProvider>
-            </SyncProvider>
+            </ConvexProvider>
         </ThemeProvider>
     }
 }

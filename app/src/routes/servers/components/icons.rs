@@ -29,7 +29,7 @@ use super::sidebar::{SideBarData, SideBarOption};
 
 #[component]
 pub fn SidebarIcons(
-    data: RwSignal<Option<Vec<SideBarData>>>,
+    data: Signal<Option<Vec<SideBarData>>>,
     option: RwSignal<Option<SideBarOption>>,
 ) -> impl IntoView {
     let set_option = Callback::new(move |_| {
@@ -216,22 +216,23 @@ pub fn JoinServerDialog(open: RwSignal<bool>) -> impl IntoView {
                         />
                     </div>
                 <DialogFooter>
-                    <button
-                        on:click=move |_| {
-                            if !name.get().is_empty() {
-                                if let Some(user) = auth.get().flatten() {
-                                    join_server.dispatch(JoinWithInvitation {
-                                        invitation: name.get(),
-                                        user: user.id
-                                    });
-                                }
-                            }
-                        }
-                        disabled=move || pending.get()
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                    >
-                        "Create"
-                    </button>
+                    <div/>
+                    // <button
+                    //     on:click=move |_| {
+                    //         if !name.get().is_empty() {
+                    //             if let Some(user) = auth.get().flatten() {
+                    //                 join_server.dispatch(JoinWithInvitation {
+                    //                     invitation: name.get(),
+                    //                     user: user.id
+                    //                 });
+                    //             }
+                    //         }
+                    //     }
+                    //     disabled=move || pending.get()
+                    //     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    // >
+                    //     "Create"
+                    // </button>
                 </DialogFooter>
             </DialogPopup>
         </Dialog>

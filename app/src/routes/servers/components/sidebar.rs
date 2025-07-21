@@ -1,5 +1,5 @@
-use api::convex::Query;
 use common::convex::{Member, Server};
+use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 use serde::{Deserialize, Serialize};
@@ -43,6 +43,17 @@ pub struct SideBarData {
     pub member: Member,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct GetServers {
+    user: String,
+}
+
+impl Query<Vec<SideBarData>> for GetServers {
+    fn name(&self) -> String {
+        "user:getServers".into()
+    }
+}
+
 #[component]
 pub fn SideBar() -> impl IntoView {
     let location = use_location();
@@ -56,19 +67,13 @@ pub fn SideBar() -> impl IntoView {
 
     let auth = use_auth();
 
-    let data: SyncSignal<Vec<SideBarData>> = SyncSignal::new(Memo::new(move |_| {
-        auth.user.get().flatten().map(|user| Query {
-            name: "user:getServers".to_string(),
-            args: json!({
-                "user": user.id
-            }),
-        })
-    }));
+    let data = UseQuery::new(move || auth.user.get().map(|user| GetServers { user: user.id }));
+    let data = Signal::derive(move || data.get().map(|res| res.ok()).flatten());
 
     view! {
         <Sidebar collapsible=SideBarCollapsibleType::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
-            <SidebarIcons data=data.signal option=option/>
-            <SidebarCollapsible data=data.signal route=route option=option/>
+            <SidebarIcons data=data option=option/>
+            <SidebarCollapsible data=data route=route option=option/>
             <SidebarRail/>
         </Sidebar>
     }

@@ -10,7 +10,7 @@ use super::sidebar::SideBarData;
 
 #[component]
 pub fn ServersItems(
-    data: RwSignal<Option<Vec<SideBarData>>>,
+    data: Signal<Option<Vec<SideBarData>>>,
     set_option: Callback<()>,
 ) -> impl IntoView {
     let params = use_params_map();
