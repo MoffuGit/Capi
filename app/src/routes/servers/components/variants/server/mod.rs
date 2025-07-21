@@ -2,8 +2,7 @@ mod categories;
 mod channels;
 mod header;
 
-use api::convex::mutations::invitation::{self, CreateInvitation};
-use api::convex::Query;
+use api::convex::mutations::invitation::CreateInvitation;
 use api::server::{CreateCategory, CreateChannel};
 use common::convex::{Member, Server};
 use leptos::prelude::*;
@@ -21,7 +20,6 @@ use crate::components::ui::sidebar::{
     SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenuAction,
     SidebarMenuButton, SidebarMenuItem,
 };
-use crate::hooks::sycn::SyncSignal;
 use crate::routes::servers::components::sidebar::SideBarData;
 
 use self::categories::CategoriesItems;
@@ -29,7 +27,7 @@ use self::channels::ChannelsItems;
 use self::header::ServerHeader;
 
 #[component]
-pub fn ServerSideBar(data: RwSignal<Option<Vec<SideBarData>>>) -> impl IntoView {
+pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
     let create_channel: ServerAction<CreateChannel> = ServerAction::new();
     let create_category: ServerAction<CreateCategory> = ServerAction::new();
 

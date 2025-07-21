@@ -18,10 +18,7 @@ pub struct ChatContext {
 }
 
 #[component]
-pub fn Chat(
-    channel: RwSignal<Option<Channel>>,
-    member: RwSignal<Option<Option<Member>>>,
-) -> impl IntoView {
+pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) -> impl IntoView {
     view! {
         <Provider value=ChatContext::default()>
             // <ChatDropZone/>

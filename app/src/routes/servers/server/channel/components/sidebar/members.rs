@@ -7,12 +7,12 @@ use crate::components::ui::sidebar::{
 };
 
 #[component]
-pub fn MembersItems(members: RwSignal<Option<Vec<Member>>>) -> impl IntoView {
+pub fn MembersItems(members: ReadSignal<Option<Result<Vec<Member>, String>>>) -> impl IntoView {
     view! {
         <SidebarMenu>
             {
                 move || {
-                    members.get().map(|members| {
+                    members.get().and_then(|res| res.ok()).map(|members| {
                         members.into_iter().map(|member| {
                             let name = StoredValue::new(member.name);
                             view!{

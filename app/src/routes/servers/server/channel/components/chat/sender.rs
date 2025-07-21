@@ -69,10 +69,7 @@ pub fn Attachment(
 }
 
 #[component]
-pub fn Sender(
-    channel: RwSignal<Option<Channel>>,
-    member: RwSignal<Option<Option<Member>>>,
-) -> impl IntoView {
+pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) -> impl IntoView {
     let send: ServerAction<SendMessage> = ServerAction::new();
     let message = RwSignal::new(String::default());
     let content_ref: NodeRef<Div> = NodeRef::new();
@@ -175,7 +172,7 @@ pub fn Sender(
                     <Button size=ButtonSizes::Icon
                         on:click=move |_| {
                             if let Some(channel) = channel.get() {
-                                if let Some(member) = member.get().flatten() {
+                                if let Some(member) = member.get() {
                                     send.dispatch(SendMessage {  channel: channel.id, message: message.get(), member: member.id });
                                 }
                             }

@@ -35,15 +35,15 @@ pub fn SidebarCollapsible(
                     })
                 }
             }
-            // {
-            //     move || match route.get() {
-            //         SideBarRoute::Server  => view!{<ServerSideBar data=data/>}.into_any(),
-            //         SideBarRoute::Discover  => view!{<DiscoverSideBar/>}.into_any(),
-            //         SideBarRoute::Servers  => view!{<ServersSideBar/>}.into_any(),
-            //         SideBarRoute::Private  => view!{<PrivateSideBar/>}.into_any(),
-            //     }
-            //
-            // }
+            {
+                move || match route.get() {
+                    SideBarRoute::Server  => view!{<ServerSideBar data=data/>}.into_any(),
+                    SideBarRoute::Discover  => view!{<DiscoverSideBar/>}.into_any(),
+                    SideBarRoute::Servers  => view!{<ServersSideBar/>}.into_any(),
+                    SideBarRoute::Private  => view!{<PrivateSideBar/>}.into_any(),
+                }
+
+            }
         </Sidebar>
     }
 }

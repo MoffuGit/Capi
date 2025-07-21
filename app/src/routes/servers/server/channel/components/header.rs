@@ -12,7 +12,7 @@ use crate::components::ui::sheet::{Sheet, SheetPopup, SheetTrigger};
 use crate::components::ui::sidebar::SidebarTrigger;
 
 #[component]
-pub fn Header(channel: RwSignal<Option<Channel>>, members_open: RwSignal<bool>) -> impl IntoView {
+pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) -> impl IntoView {
     view! {
         <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-4">
             <SidebarTrigger class="-ml-1" />

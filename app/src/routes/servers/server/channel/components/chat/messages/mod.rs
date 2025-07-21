@@ -1,15 +1,13 @@
 mod group;
 use chrono::{DateTime, Local, NaiveDate};
 use common::convex::{Channel, ChannelMessage, Member};
+use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
-
-use api::convex::Query;
-use serde_json::json;
 
 use crate::components::ui::divider::Separator;
 use crate::components::ui::label::Label;
-use crate::hooks::sycn::SyncSignal;
 
 use self::group::MessageGroup;
 
@@ -40,20 +38,41 @@ fn DateSeparator(date_string: String) -> impl IntoView {
     }
 }
 
+#[derive(Debug, Serialize, PartialEq, Clone)]
+pub struct GetMessagesInChannel {
+    #[serde(rename(serialize = "channelId"))]
+    channel: String,
+}
+
+impl Query<Vec<ChannelMessage>> for GetMessagesInChannel {
+    fn name(&self) -> String {
+        "messages:getMessagesInChannel".to_string()
+    }
+}
+
+#[derive(Debug, Serialize, PartialEq, Clone)]
+pub struct GetMembersById {
+    #[serde(rename(serialize = "memberIds"))]
+    members: Vec<String>,
+}
+
+impl Query<Vec<Member>> for GetMembersById {
+    fn name(&self) -> String {
+        "member:getMembersByIds".to_string()
+    }
+}
+
 #[component]
-pub fn Messages(channel: RwSignal<Option<Channel>>) -> impl IntoView {
-    let messages: SyncSignal<Vec<ChannelMessage>> = SyncSignal::new(Memo::new(move |_| {
-        channel.get().map(|channel| Query {
-            name: "messages:getMessagesInChannel".to_string(),
-            args: json!({
-                "channelId": channel.id
-            }),
+pub fn Messages(channel: Signal<Option<Channel>>) -> impl IntoView {
+    let messages = UseQuery::new(move || {
+        channel.get().map(|channel| GetMessagesInChannel {
+            channel: channel.id,
         })
-    }));
+    });
 
     let grouped_messages_data = Memo::new(move |_| {
         let mut grouped_messages: Vec<GroupedMessage> = Vec::new();
-        let msgs = messages.signal.get().unwrap_or_default();
+        let msgs = messages.get().and_then(|res| res.ok()).unwrap_or_default();
 
         for message in msgs.into_iter() {
             let current_msg_date = get_naive_date_from_convex_timestamp(message.creation_time);
@@ -127,18 +146,14 @@ pub fn Messages(channel: RwSignal<Option<Channel>>) -> impl IntoView {
         unique_senders
     });
 
-    let members_data: SyncSignal<Vec<Member>> = SyncSignal::new(Memo::new(move |_| {
-        let ids: Vec<String> = sender_ids_map.get().iter().cloned().collect();
-        Some(Query {
-            name: "member:getMembersByIds".to_string(),
-            args: json!({
-                "memberIds": ids
-            }),
+    let members_data = UseQuery::new(move || {
+        Some(GetMembersById {
+            members: sender_ids_map.get().iter().cloned().collect(),
         })
-    }));
+    });
 
     let cached_members: Memo<Option<HashMap<String, Member>>> = Memo::new(move |_| {
-        members_data.signal.get().map(|members| {
+        members_data.get().and_then(|res| res.ok()).map(|members| {
             members
                 .into_iter()
                 .map(|member| (member.id.clone(), member))

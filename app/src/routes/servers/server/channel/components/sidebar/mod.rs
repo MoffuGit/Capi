@@ -1,9 +1,10 @@
 mod members;
 mod roles;
 
-use api::convex::Query;
 use common::convex::Member;
+use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
+use serde::Serialize;
 use serde_json::json;
 
 use crate::components::primitives::common::Side;
@@ -12,32 +13,45 @@ use crate::components::ui::sidebar::{
     Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
     SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
 };
-use crate::hooks::sycn::SyncSignal;
 
 use self::members::MembersItems;
 use self::roles::RolesItems;
 
+#[derive(Debug, Serialize, PartialEq, Clone)]
+pub struct GetOnlineMembersByRole {
+    server: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    role: Option<String>,
+}
+
+impl Query<Vec<Member>> for GetOnlineMembersByRole {
+    fn name(&self) -> String {
+        "member:getOnlineMembersByRole".to_string()
+    }
+}
+
+#[derive(Debug, Serialize, PartialEq, Clone)]
+pub struct GetOfflineMembers {
+    server: String,
+}
+
+impl Query<Vec<Member>> for GetOfflineMembers {
+    fn name(&self) -> String {
+        "member:getOfflineMembers".to_string()
+    }
+}
+
 #[component]
 pub fn MembersSideBar(
     server: Memo<Option<String>>,
-    member: RwSignal<Option<Option<Member>>>,
+    member: Signal<Option<Member>>,
 ) -> impl IntoView {
-    let online: SyncSignal<Vec<Member>> = SyncSignal::new(Memo::new(move |_| {
-        server.get().map(|server| Query {
-            name: "member:getOnlineMembersByRole".to_string(),
-            args: json!({
-                "server": server
-            }),
-        })
-    }));
-    let offline: SyncSignal<Vec<Member>> = SyncSignal::new(Memo::new(move |_| {
-        server.get().map(|server| Query {
-            name: "member:getOfflineMembers".to_string(),
-            args: json!({
-                "server": server
-            }),
-        })
-    }));
+    let online = UseQuery::new(move || {
+        server
+            .get()
+            .map(|server| GetOnlineMembersByRole { server, role: None })
+    });
+    let offline = UseQuery::new(move || server.get().map(|server| GetOfflineMembers { server }));
     view! {
         <Sidebar class="mt-[61px] h-auto" side=Side::Right>
             <SidebarHeader>
@@ -45,23 +59,23 @@ pub fn MembersSideBar(
             </SidebarHeader>
             <SidebarContent>
                 <RolesItems server=server/>
-                <Show when=move || online.signal.get().is_some_and(|members| !members.is_empty())>
+                <Show when=move || online.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarGroupLabel>
                                 "Online"
                             </SidebarGroupLabel>
-                            <MembersItems members=online.signal/>
+                            <MembersItems members=online/>
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </Show>
-                <Show when=move || offline.signal.get().is_some_and(|members| !members.is_empty())>
+                <Show when=move || offline.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarGroupLabel>
                                 "Offline"
                             </SidebarGroupLabel>
-                            <MembersItems members=offline.signal/>
+                            <MembersItems members=offline/>
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </Show>
@@ -72,7 +86,7 @@ pub fn MembersSideBar(
 }
 
 #[component]
-pub fn Footer(member: RwSignal<Option<Option<Member>>>) -> impl IntoView {
+pub fn Footer(member: Signal<Option<Member>>) -> impl IntoView {
     view! {
         <SidebarFooter>
             <SidebarMenu>
@@ -83,7 +97,7 @@ pub fn Footer(member: RwSignal<Option<Option<Member>>>) -> impl IntoView {
                     >
                         {
                             move || {
-                                member.get().flatten().map(|member| {
+                                member.get().map(|member| {
                                     let name = StoredValue::new(member.name);
                                     view!{
                                         <Avatar class="h-8 w-8 rounded-lg">

@@ -1,7 +1,5 @@
 mod components;
-mod hooks;
 mod routes;
-mod sync;
 
 use convex_client::leptos::ConvexProvider;
 use leptos::prelude::*;
@@ -18,7 +16,6 @@ use self::{
         ui::theme::ThemeProvider,
     },
     routes::{server::channel::Channel, GoogleAuth, Login, Servers, SignUp},
-    sync::SyncProvider,
 };
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -84,19 +81,19 @@ pub fn App() -> impl IntoView {
                                         path=StaticSegment("me")
                                         view=move || view! { <div>"Private conversations"</div> }
                                     />
-                                //     <ParentRoute
-                                //         path=ParamSegment("server")
-                                //         view=move || view! {<Outlet/>}
-                                //     >
-                                //         <Route
-                                //             path=StaticSegment("")
-                                //             view=move || view!{<div>"server"</div>}
-                                //         />
-                                //         <Route
-                                //             path=ParamSegment("channel")
-                                //             view=move || view!{<Channel />}
-                                //         />
-                                //     </ParentRoute>
+                                    <ParentRoute
+                                        path=ParamSegment("server")
+                                        view=move || view! {<Outlet/>}
+                                    >
+                                        <Route
+                                            path=StaticSegment("")
+                                            view=move || view!{<div>"server"</div>}
+                                        />
+                                        <Route
+                                            path=ParamSegment("channel")
+                                            view=move || view!{<Channel />}
+                                        />
+                                    </ParentRoute>
                                 </ProtectedParentRoute>
                             </Routes>
                         </main>

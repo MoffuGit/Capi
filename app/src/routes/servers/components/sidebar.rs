@@ -3,13 +3,11 @@ use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{
     SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarRail,
 };
-use crate::hooks::sycn::SyncSignal;
 use crate::routes::servers::components::collapsible::SidebarCollapsible;
 use crate::routes::servers::components::icons::SidebarIcons;
 
@@ -68,7 +66,7 @@ pub fn SideBar() -> impl IntoView {
     let auth = use_auth();
 
     let data = UseQuery::new(move || auth.user.get().map(|user| GetServers { user: user.id }));
-    let data = Signal::derive(move || data.get().map(|res| res.ok()).flatten());
+    let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
 
     view! {
         <Sidebar collapsible=SideBarCollapsibleType::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
