@@ -9,6 +9,7 @@ leptos_axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
 axum = { workspace = true, optional = true }
 common = { path = "../common", optional = true }
+serde_with.workspace = true
 auth = { path = "../auth", optional = true }
 sqlx = { workspace = true, optional = true }
 strum.workspace = true

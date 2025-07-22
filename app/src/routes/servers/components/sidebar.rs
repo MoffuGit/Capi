@@ -1,8 +1,8 @@
-use common::convex::{Member, Server};
-use convex_client::leptos::{Query, UseQuery};
+pub use api::server::SideBarData;
+use api::server::{preload_server_data, GetServers};
+use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
-use serde::{Deserialize, Serialize};
 
 use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{
@@ -10,7 +10,6 @@ use crate::components::ui::sidebar::{
 };
 use crate::routes::servers::components::collapsible::SidebarCollapsible;
 use crate::routes::servers::components::icons::SidebarIcons;
-use crate::routes::use_profile;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarRoute {
@@ -36,23 +35,6 @@ fn get_route_from_path(path: &str) -> SideBarRoute {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SideBarData {
-    pub server: Server,
-    pub member: Member,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct GetServers {
-    user: String,
-}
-
-impl Query<Vec<SideBarData>> for GetServers {
-    fn name(&self) -> String {
-        "user:getServers".into()
-    }
-}
-
 #[component]
 pub fn SideBar() -> impl IntoView {
     let location = use_location();
@@ -64,15 +46,31 @@ pub fn SideBar() -> impl IntoView {
         get_route_from_path(&path)
     });
 
-    let user = use_profile();
+    let auth = use_auth().auth();
 
-    let data = UseQuery::new(move || user.get().map(|user| GetServers { user: user.id }));
-    let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
+    let preloaded_data = Resource::new(move || (), move |_| preload_server_data());
 
     view! {
         <Sidebar collapsible=SideBarCollapsibleType::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
-            <SidebarIcons data=data option=option/>
-            <SidebarCollapsible data=data route=route option=option/>
+            <Transition>
+                {
+                    move || {
+                        preloaded_data.and_then(|data| {
+                            let data = UseQuery::with_preloaded(move || {
+                                auth.get()
+                                    .and_then(|res| res.ok())
+                                    .flatten()
+                                    .map(|auth| GetServers { auth: auth.id })
+                            }, data.clone());
+                            let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
+                            view!{
+                                <SidebarIcons data=data option=option/>
+                                <SidebarCollapsible data=data route=route option=option/>
+                            }
+                        })
+                    }
+                }
+            </Transition>
             <SidebarRail/>
         </Sidebar>
     }

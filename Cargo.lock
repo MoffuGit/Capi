@@ -130,6 +130,7 @@ dependencies = [
  "maplit",
  "serde",
  "serde_json",
+ "serde_with",
  "server_fn",
  "sqlx",
  "strum",

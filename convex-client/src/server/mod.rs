@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use futures::SinkExt;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
@@ -205,17 +206,25 @@ impl ConvexClient {
     /// println!("{result:?}");
     /// # Ok(())
     /// # }
-    pub async fn query<F, Q>(&mut self, query: Q) -> anyhow::Result<FunctionResult>
+    pub async fn query<F, Q>(&mut self, query: Q) -> anyhow::Result<F>
     where
         F: DeserializeOwned + Send + Sync + 'static,
         Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone,
     {
-        Ok(self
+        let result = self
             .subscribe(&query.name(), query.args()?)
             .await?
             .next()
             .await
-            .expect("INTERNAL BUG: Convex Client dropped prematurely."))
+            .expect("INTERNAL BUG: Convex Client dropped prematurely.");
+        match result {
+            FunctionResult::Value(value) => match serde_json::from_value::<F>(value) {
+                Err(err) => Err(anyhow!("{err}")),
+                Ok(value) => Ok(value),
+            },
+            FunctionResult::ErrorMessage(err) => Err(anyhow!("{err}")),
+            FunctionResult::ConvexError(convex_error) => Err(anyhow!("{convex_error:?}")),
+        }
     }
 
     /// Perform a mutation `name` with `args` and return a future

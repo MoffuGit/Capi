@@ -3,10 +3,10 @@ mod components;
 use common::convex::{Channel, Member};
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
+use leptos_dom::error;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
 
-use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{SidebarInset, SidebarProvider};
 use crate::routes::use_profile;
 
@@ -50,39 +50,36 @@ pub fn Channel() -> impl IntoView {
     let location = use_location();
     let path = location.pathname;
 
-    let server_id_memo = Memo::new(move |_| {
+    let server = Memo::new(move |_| {
         path.get()
             .split('/')
             .nth(2)
             .map(|server| server.to_string())
     });
 
-    let channel_id_memo = Memo::new(move |_| {
+    let channel = Memo::new(move |_| {
         path.get()
             .split('/')
             .nth(3)
             .map(|channel| channel.to_string())
     });
 
-    let member_query_signal_result = UseQuery::new(move || {
-        user.get().and_then(|user_data| {
-            server_id_memo
-                .get()
-                .map(|server_id| GetMemberForServerByUser {
-                    server: server_id,
-                    user: user_data.id,
-                })
+    let member = UseQuery::new(move || {
+        let user = user.get()?;
+
+        server.get().map(|server_id| GetMemberForServerByUser {
+            server: server_id,
+            user: user.id,
         })
     });
 
     let channel_query_signal_result = UseQuery::new(move || {
-        // This closure must return Option<GetChannel>
-        let server = server_id_memo.get()?;
-        let channel = channel_id_memo.get()?;
+        let server = server.get()?;
+        let channel = channel.get()?;
 
-        let member_result = member_query_signal_result.get()?; // Option<Result<Option<Member>, String>>
-        let member_option = member_result.ok()?; // Option<Member>
-        let member = member_option?; // Member
+        let member_result = member.get()?;
+        let member_option = member_result.ok()?;
+        let member = member_option?;
 
         Some(GetChannel {
             server,
@@ -92,7 +89,7 @@ pub fn Channel() -> impl IntoView {
     });
 
     let current_member: Signal<Option<Member>> = Signal::derive(move || {
-        member_query_signal_result.get().and_then(|query_res| {
+        member.get().and_then(|query_res| {
             query_res.ok().flatten() // Takes Option<Result<Option<Member>, String>> -> Option<Option<Member>> -> Option<Member>
         })
     });
@@ -111,7 +108,7 @@ pub fn Channel() -> impl IntoView {
             <SidebarInset class="flex-1 max-h-screen">
                 <Chat channel=current_channel member=current_member/>
             </SidebarInset>
-            <MembersSideBar server=server_id_memo member=current_member/>
+            <MembersSideBar server=server member=current_member/>
         </SidebarProvider>
     }
 }

@@ -26,7 +26,7 @@ use uploadthing::{FileData, FileType, UploadthingFile};
 //     let mut client = convex()?;
 //     let result = client
 //         .mutation(
-//             "messages:createMessage",
+//,
 //             btreemap! {
 //                 "channelId".into() => channel.into(),
 //                 "senderId".into() => member.into(),

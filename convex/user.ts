@@ -3,12 +3,19 @@ import { mutation, query } from "./_generated/server";
 
 export const getServers = query({
   args: {
-    user: v.id("users"),
+    auth: v.int64(),
   },
-  handler: async (ctx, { user }) => {
+  handler: async (ctx, { auth }) => {
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+    if (user === null) {
+      return [];
+    }
     const members = await ctx.db
       .query("members")
-      .withIndex("by_user", (q) => q.eq("user", user))
+      .withIndex("by_user", (q) => q.eq("user", user._id))
       .collect();
 
     const results = await Promise.all(

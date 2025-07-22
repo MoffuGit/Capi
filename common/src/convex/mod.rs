@@ -11,7 +11,7 @@ pub struct Server {
     pub image_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct User {
     #[serde(rename = "_id")]
     pub id: String,

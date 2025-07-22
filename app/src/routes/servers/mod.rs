@@ -1,11 +1,11 @@
 mod components;
 pub mod server;
 
+use api::user::{preload_user, GetUser};
 use common::convex::User;
-// use api::convex::mutations::status::HeartBeat;
-use convex_client::leptos::{Mutation, Query, UseMutation, UseQuery};
-use leptos::context::Provider;
+use convex_client::leptos::{Mutation, UseMutation, UseQuery};
 use leptos::prelude::*;
+use leptos_dom::error;
 use leptos_router::components::Outlet;
 use leptos_use::use_interval_fn;
 use serde::Serialize;
@@ -30,18 +30,8 @@ impl Mutation for HeartBeat {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct GetUser {
-    auth: i64,
-}
-
-impl Query<Option<User>> for GetUser {
-    fn name(&self) -> String {
-        "user:getUser".to_string()
-    }
-}
-
 pub fn use_profile() -> Signal<Option<User>> {
+    Signal::derive(move || {});
     if let Some(signal) = use_context() {
         signal
     } else {
