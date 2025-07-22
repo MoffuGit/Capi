@@ -52,7 +52,7 @@ pub fn ServersItems(
                                             >
                                                 <Avatar class="h-8 w-8 rounded-lg">
                                                     <AvatarImage url=image_url.get_value()/>
-                                                    <AvatarFallback class="rounded-lg text-muted-foreground select-none bg-transparent">
+                                                    <AvatarFallback class="rounded-lg text-sidebar-foreground/70 select-none bg-transparent">
                                                         {name.get_value().chars().next()}
                                                     </AvatarFallback>
                                                 </Avatar>

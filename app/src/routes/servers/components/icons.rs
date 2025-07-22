@@ -76,7 +76,7 @@ pub fn Direct(set_option: Callback<()>) -> impl IntoView {
                             size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
                             class="md:h-8 md:p-0 flex items-center justify-center"
                         >
-                            <IconMessageCircle class="size-4 text-muted-foreground" />
+                            <IconMessageCircle class="size-4 text-sidebar-foreground/70" />
                         </SidebarMenuButton>
                     </A>
                 </ToolTipTrigger>
@@ -102,7 +102,7 @@ pub fn InboxOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
                             option.set(Some(SideBarOption::Inbox))
                         }
                     >
-                        <IconInbox class="size-4 text-muted-foreground"/>
+                        <IconInbox class="size-4 text-sidebar-foreground/70"/>
                     </SidebarMenuButton>
                 </ToolTipTrigger>
                 <ToolTipContent side_of_set=3.0>
@@ -127,7 +127,7 @@ pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
                             option.set(Some(SideBarOption::Search))
                         }
                     >
-                        <IconSearch class="size-4 text-muted-foreground"/>
+                        <IconSearch class="size-4 text-sidebar-foreground/70"/>
                     </SidebarMenuButton>
                 </ToolTipTrigger>
                 <ToolTipContent side_of_set=3.0 >
@@ -157,7 +157,7 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                             <SidebarMenuButton
                               class="px-2.5 md:px-2"
                             >
-                                <IconGlobe class="size-4 text-muted-foreground"/>
+                                <IconGlobe class="size-4 text-sidebar-foreground/70"/>
                             </SidebarMenuButton>
                             </ToolTipTrigger>
                             <ToolTipContent >

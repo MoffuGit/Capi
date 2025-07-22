@@ -19,14 +19,14 @@ pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
                             <SidebarMenu>
                                 <SidebarMenuItem>
                                     <SidebarMenuButton size=SidebarMenuButtonSize::Lg>
-                                        <Avatar class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                        <Avatar class="flex bg-accent aspect-square size-8 items-center justify-center rounded-lg">
                                             <AvatarImage url=image_url.get_value()/>
                                             <AvatarFallback class="rounded-lg select-none bg-transparent">
                                                 {name.get_value().chars().next()}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div class="grid flex-1 text-left text-base leading-tight">
-                                            <span class="truncate font-medium">
+                                        <div class="grid flex-1 text-left text-base capitalize">
+                                            <span class="truncate font-semibold">
                                                 {
                                                     name.get_value()
                                                 }

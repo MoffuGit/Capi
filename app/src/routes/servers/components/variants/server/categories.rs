@@ -3,7 +3,7 @@ use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use serde::Serialize;
 
-use crate::components::icons::IconPlus;
+use crate::components::icons::{IconChevronDown, IconPlus};
 use crate::components::ui::sidebar::{
     SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel,
 };
@@ -34,13 +34,16 @@ pub fn CategoriesItems(server: Memo<Option<Server>>) -> impl IntoView {
                 each=move || categories.get().unwrap()
                 key=|category| category.id.clone()
                 children=move |category| {
+                    let name = StoredValue::new(category.name);
                     view!{
                         <SidebarGroup>
-                            <SidebarGroupLabel>
-                                {category.name}
+                            <SidebarGroupLabel
+                                class="px-1 hover:bg-sidebar-accent">
+                                <IconChevronDown class="mr-0.5"/>
+                                {name.get_value()}
                             </SidebarGroupLabel>
                             <SidebarGroupAction>
-                                <IconPlus/>
+                                <IconPlus class="text-sidebar-foreground/70"/>
                                 <span class="sr-only">Add channel</span>
                             </SidebarGroupAction>
                             <SidebarGroupContent>
