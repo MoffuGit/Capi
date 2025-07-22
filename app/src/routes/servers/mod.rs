@@ -80,13 +80,11 @@ pub fn Servers() -> impl IntoView {
     }
     provide_context(user);
     view! {
-        // <Provider value=user>
-            <SidebarProvider style="--sidebar-width: 300px">
-                <SideBar/>
-                <SidebarInset class="max-h-screen" >
-                    <Outlet/>
-                </SidebarInset>
-            </SidebarProvider>
-        // </Provider>
+        <SidebarProvider style="--sidebar-width: 300px">
+            <SideBar/>
+            <SidebarInset class="max-h-screen" >
+                <Outlet/>
+            </SidebarInset>
+        </SidebarProvider>
     }
 }

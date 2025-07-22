@@ -43,7 +43,7 @@ pub fn ChannelsItems(
                                         view!{
                                             <A href=move || format!("/servers/{}/{}", channel.server,  channel.id)>
                                                 <SidebarMenuItem>
-                                                    <SidebarMenuButton /* class="min-w-full" */>
+                                                    <SidebarMenuButton>
                                                         {channel.name}
                                                     </SidebarMenuButton>
                                                     <SidebarMenuAction show_on_hover=true>

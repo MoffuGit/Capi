@@ -47,19 +47,19 @@ pub fn ServersItems(
                                         >
                                             <SidebarMenuButton
                                                 is_active=is_active
-                                                size=crate::components::ui::sidebar::SidebarMenuButtonSize::Lg
+                                                size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
                                                 class="md:h-8 md:p-0"
                                             >
                                                 <Avatar class="h-8 w-8 rounded-lg">
                                                     <AvatarImage url=image_url.get_value()/>
-                                                    <AvatarFallback class="rounded-lg select-none bg-transparent">
+                                                    <AvatarFallback class="rounded-lg text-muted-foreground select-none bg-transparent">
                                                         {name.get_value().chars().next()}
                                                     </AvatarFallback>
                                                 </Avatar>
                                             </SidebarMenuButton>
                                         </A>
                                     </ToolTipTrigger>
-                                    <ToolTipContent side_of_set=3.0 arrow=true>
+                                    <ToolTipContent side_of_set=3.0 >
                                         {name.get_value()}
                                     </ToolTipContent>
                                 </ToolTip>

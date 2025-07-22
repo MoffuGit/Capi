@@ -5,7 +5,6 @@ use common::convex::Member;
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use serde::Serialize;
-use serde_json::json;
 
 use crate::components::primitives::common::Side;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};

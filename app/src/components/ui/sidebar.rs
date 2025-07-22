@@ -59,7 +59,7 @@ fn sidebar_menu_button_variants(
     variant: SidebarMenuButtonVariant,
     size: SidebarMenuButtonSize,
 ) -> String {
-    let base_classes = "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0";
+    let base_classes = "peer/menu-button ease-in duration-[20ms] flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding,background] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0";
     let variant_classes = match variant {
         SidebarMenuButtonVariant::Default => {
             "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -270,7 +270,7 @@ pub fn Sidebar(
     let children = StoredValue::new(children);
 
     let sidebar_gap_class = Memo::new(move |_| {
-        tw_merge!("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",  "group-data-[collapsible=offcanvas]:w-0", &tw_merge!("group-data-[side={side}]"), if variant == SideBarVariant::Floating|| variant == SideBarVariant::Inset{
+        tw_merge!("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-out-cubic",  "group-data-[collapsible=offcanvas]:w-0", &tw_merge!("group-data-[side={side}]"), if variant == SideBarVariant::Floating|| variant == SideBarVariant::Inset{
             "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
         } else {
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
@@ -278,7 +278,7 @@ pub fn Sidebar(
     });
 
     let sidebar_container_class = Memo::new(move |_| {
-        tw_merge!("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex", if side == Side::Left {
+        tw_merge!("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-out-cubic md:flex", if side == Side::Left {
             "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
         } else {
             "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]"
@@ -651,7 +651,8 @@ pub fn SidebarMenuAction(
             data-slot="sidebar-menu-action"
             data-sidebar="menu-action"
             class=move || tw_merge!(
-                "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+                "ease-out transition-all duration-150",
+                "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
                 "after:absolute after:-inset-2 md:after:hidden",
                 "peer-data-[size=sm]/menu-button:top-1",
                 "peer-data-[size=default]/menu-button:top-1.5",

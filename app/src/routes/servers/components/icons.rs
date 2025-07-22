@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::icons::{
-    IconCirclePlus, IconCommand, IconCompass, IconGlobe, IconInbox, IconPencil, IconSearch,
+    IconCirclePlus, IconCompass, IconGlobe, IconInbox, IconMessageCircle, IconPencil, IconSearch,
 };
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::context::{
@@ -17,8 +17,7 @@ use crate::components::ui::input::Input;
 use crate::components::ui::label::Label;
 use crate::components::ui::sidebar::{
     SideBarCollapsible, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-    SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
-    SidebarSeparator,
+    SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator,
 };
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::routes::servers::components::navbar::Navbar;
@@ -40,24 +39,11 @@ pub fn SidebarIcons(
             collapsible=SideBarCollapsible::None
             class="w-[calc(var(--sidebar-width-icon)+1px)]! border-r"
         >
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size=SidebarMenuButtonSize::Lg  class="md:h-8 md:p-0">
-                            <A href="/servers/me"
-                                {..}
-                                on:click=move |_| set_option.run(())
-                                class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                <IconCommand class="size-4" />
-                            </A>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent class="px-1.5 md:px-0">
                         <SidebarMenu>
+                            <Direct set_option=set_option/>
                             <InboxOption option=option/>
                             <SearchOption option=option/>
                             <ServerMenu set_option=set_option/>
@@ -77,6 +63,33 @@ pub fn SidebarIcons(
 }
 
 #[component]
+pub fn Direct(set_option: Callback<()>) -> impl IntoView {
+    view! {
+        <SidebarMenuItem>
+            <ToolTip>
+                <ToolTipTrigger>
+                    <A href="/servers/me"
+                        {..}
+                        on:click=move |_| set_option.run(())
+                    >
+                        <SidebarMenuButton
+                            size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
+                            class="md:h-8 md:p-0 flex items-center justify-center"
+                        >
+                            <IconMessageCircle class="size-4 text-muted-foreground" />
+                        </SidebarMenuButton>
+                    </A>
+                </ToolTipTrigger>
+                <ToolTipContent side_of_set=3.0>
+                    "Direct Messages"
+                </ToolTipContent>
+            </ToolTip>
+        </SidebarMenuItem>
+
+    }
+}
+
+#[component]
 pub fn InboxOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
     view! {
         <SidebarMenuItem>
@@ -89,11 +102,11 @@ pub fn InboxOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
                             option.set(Some(SideBarOption::Inbox))
                         }
                     >
-                        <IconInbox/>
+                        <IconInbox class="size-4 text-muted-foreground"/>
                     </SidebarMenuButton>
                 </ToolTipTrigger>
-                <ToolTipContent side_of_set=3.0 arrow=true>
-                    "Search"
+                <ToolTipContent side_of_set=3.0>
+                    "Inbox"
                 </ToolTipContent>
             </ToolTip>
         </SidebarMenuItem>
@@ -114,10 +127,10 @@ pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
                             option.set(Some(SideBarOption::Search))
                         }
                     >
-                        <IconSearch/>
+                        <IconSearch class="size-4 text-muted-foreground"/>
                     </SidebarMenuButton>
                 </ToolTipTrigger>
-                <ToolTipContent side_of_set=3.0 arrow=true>
+                <ToolTipContent side_of_set=3.0 >
                     "Search"
                 </ToolTipContent>
             </ToolTip>
@@ -144,10 +157,10 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                             <SidebarMenuButton
                               class="px-2.5 md:px-2"
                             >
-                                <IconGlobe/>
+                                <IconGlobe class="size-4 text-muted-foreground"/>
                             </SidebarMenuButton>
                             </ToolTipTrigger>
-                            <ToolTipContent arrow=true>
+                            <ToolTipContent >
                                 "Servers"
                             </ToolTipContent>
                         </ToolTip>
