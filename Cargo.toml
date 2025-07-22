@@ -36,7 +36,7 @@ thiserror = "2.0.12"
 server_fn = { version =  "0.8.2", features = ["multipart"] }
 tokio = { version = "1.45.0", features = ["full"] }
 tokio-stream = { features = [ "io-util", "sync" ], version = "0.1" }
-tokio-tungstenite = { features = [ "url" ], version = "0.26.2" }
+tokio-tungstenite = { features = [ "url", "native-tls-vendored" ], version = "0.26.2" }
 tokio-util = "0.7.15"
 urlencoding = "2.1.3"
 tower = { version = "0.5.2", features = ["full"] }
@@ -62,7 +62,6 @@ axum_session_sqlx = { version = "0.5.0", features = [
     "postgres",
     "tls-rustls",
 ] }
-convex = "0.9.0"
 sqlx = { version = "0.8", features = [ "runtime-tokio", "postgres", "tls-rustls"] }
 axum_session = "0.16.0"
 serde = { version = "1", features = ["derive"] }

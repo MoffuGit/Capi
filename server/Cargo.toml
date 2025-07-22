@@ -29,4 +29,4 @@ axum_session.workspace = true
 async-trait.workspace = true
 dotenv.workspace = true
 dotenv_codegen.workspace = true
-convex.workspace = true
+convex-client = { path = "../convex-client" }

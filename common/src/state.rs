@@ -1,5 +1,5 @@
 use axum::extract::FromRef;
-use convex::ConvexClient;
+use convex_client::server::ConvexClient;
 use leptos::prelude::{LeptosOptions, ServerFnError, use_context};
 use leptos_axum::AxumRouteListing;
 use sqlx::PgPool;

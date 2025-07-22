@@ -1,6 +1,5 @@
 mod components;
 
-use api::convex::mutations::member::SetLastVisitedChannel;
 use common::convex::{Channel, Member};
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
@@ -47,7 +46,7 @@ impl Query<Option<Channel>> for GetChannel {
 #[component]
 pub fn Channel() -> impl IntoView {
     let user = use_profile();
-    let set_last_visited: ServerAction<SetLastVisitedChannel> = ServerAction::new();
+    // let set_last_visited: ServerAction<SetLastVisitedChannel> = ServerAction::new();
     let location = use_location();
     let path = location.pathname;
 

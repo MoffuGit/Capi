@@ -1,8 +1,9 @@
+use convex_client::leptos::Mutation;
 use leptos::server;
 
 use common::user::User;
 use leptos::prelude::ServerFnError;
-use maplit::btreemap;
+use serde::Serialize;
 
 #[server]
 pub async fn get_user() -> Result<Option<User>, ServerFnError> {
@@ -31,6 +32,21 @@ pub async fn google_auth() -> Result<String, ServerFnError> {
 
     // Send the url to the client.
     Ok(url)
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct CreateUser {
+    auth: i64,
+    name: String,
+    image_url: String,
+}
+
+impl Mutation for CreateUser {
+    type Output = ();
+
+    fn name(&self) -> String {
+        "user:create".into()
+    }
 }
 
 #[server]
@@ -138,14 +154,11 @@ pub async fn handle_google_redirect(
         let user = User::get_from_email(&email, &pool).await.unwrap();
         let mut client = convex()?;
         client
-            .mutation(
-                "user:create",
-                btreemap! {
-                    "auth".into() => user.id.into(),
-                    "name".into() => username.into(),
-                    "image_url".into() => image.into()
-                },
-            )
+            .mutation(CreateUser {
+                auth: user.id,
+                name: username,
+                image_url: image,
+            })
             .await
             .or(Err(ServerFnError::new("The creation of the user fail")))?;
         user

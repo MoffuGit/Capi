@@ -2,12 +2,13 @@ mod categories;
 mod channels;
 mod header;
 
-use api::convex::mutations::invitation::CreateInvitation;
-use api::server::{CreateCategory, CreateChannel};
 use common::convex::{Member, Server};
+use convex_client::leptos::{Mutation, UseMutation};
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
+use serde::Serialize;
 
+use crate::components::auth::use_auth;
 use crate::components::icons::IconLoaderCircle;
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::context::{
@@ -26,10 +27,42 @@ use self::categories::CategoriesItems;
 use self::channels::ChannelsItems;
 use self::header::ServerHeader;
 
+#[derive(Debug, Serialize, Clone)]
+pub struct CreateChannel {
+    name: String,
+    server: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    category: Option<String>,
+    auth: i64,
+}
+
+impl Mutation for CreateChannel {
+    type Output = ();
+
+    fn name(&self) -> String {
+        "channel:create".into()
+    }
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct CreateCategory {
+    name: String,
+    server: String,
+    auth: i64,
+}
+
+impl Mutation for CreateCategory {
+    type Output = ();
+
+    fn name(&self) -> String {
+        "category:create".into()
+    }
+}
+
 #[component]
 pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
-    let create_channel: ServerAction<CreateChannel> = ServerAction::new();
-    let create_category: ServerAction<CreateCategory> = ServerAction::new();
+    let create_channel = UseMutation::new::<CreateChannel>();
+    let create_category = UseMutation::new::<CreateCategory>();
 
     let location = use_location();
     let path = location.pathname;
@@ -79,7 +112,9 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
 }
 
 #[component]
-pub fn PendingCategoryItem(create_category: ServerAction<CreateCategory>) -> impl IntoView {
+pub fn PendingCategoryItem(
+    create_category: Action<CreateCategory, Result<(), String>>,
+) -> impl IntoView {
     let input = create_category.input();
     view! {
             {
@@ -99,7 +134,9 @@ pub fn PendingCategoryItem(create_category: ServerAction<CreateCategory>) -> imp
 }
 
 #[component]
-pub fn PendingChannelItem(create_channel: ServerAction<CreateChannel>) -> impl IntoView {
+pub fn PendingChannelItem(
+    create_channel: Action<CreateChannel, Result<(), String>>,
+) -> impl IntoView {
     let input = create_channel.input();
     view! {
             {
@@ -126,8 +163,8 @@ pub fn PendingChannelItem(create_channel: ServerAction<CreateChannel>) -> impl I
 pub fn SideBarContextMenu(
     server: Memo<Option<Server>>,
     member: Memo<Option<Member>>,
-    create_channel: ServerAction<CreateChannel>,
-    create_category: ServerAction<CreateCategory>,
+    create_channel: Action<CreateChannel, Result<(), String>>,
+    create_category: Action<CreateCategory, Result<(), String>>,
 ) -> impl IntoView {
     let create_channel_open = RwSignal::new(false);
     let create_category_open = RwSignal::new(false);
@@ -165,19 +202,36 @@ pub fn SideBarContextMenu(
     }
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct CreateInvitation {
+    server: String,
+    member: String,
+    #[serde(rename = "expiresInMinutes")]
+    expires: f64,
+}
+
+impl Mutation for CreateInvitation {
+    type Output = String;
+
+    fn name(&self) -> String {
+        "invitations:createInvitation".into()
+    }
+}
+
 #[component]
 pub fn InvitationDialog(
     open: RwSignal<bool>,
     server: Memo<Option<Server>>,
     member: Memo<Option<Member>>,
 ) -> impl IntoView {
-    let invitation: ServerAction<CreateInvitation> = ServerAction::new();
+    let invitation = UseMutation::new();
 
     Effect::new(move |_| {
         if let (Some(server), Some(member)) = (server.get(), member.get()) {
             invitation.dispatch(CreateInvitation {
                 server: server.id,
                 member: member.id,
+                expires: 1.0 * 60.0 * 7.0,
             });
         }
     });
@@ -215,11 +269,12 @@ pub fn InvitationDialog(
 #[component]
 pub fn CreateChannelDialog(
     open: RwSignal<bool>,
-    create_channel: ServerAction<CreateChannel>,
+    create_channel: Action<CreateChannel, Result<(), String>>,
     server: Memo<Option<Server>>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let pending = create_channel.pending();
+    let auth = use_auth().auth();
     view! {
         <Dialog
             open=open
@@ -248,9 +303,11 @@ pub fn CreateChannelDialog(
                         on:click=move |_| {
                             if !name.get().is_empty() {
                                 if let Some(server) = server.get() {
-                                    let input = CreateChannel { name: name.get(), server: server.id , category: None };
-                                    create_channel.dispatch(input.clone());
-                                    open.set(false);
+                                    if let Some(user) = auth.get().and_then(|res|res.ok()).flatten() {
+                                        let input = CreateChannel { name: name.get(), server: server.id , category: None, auth: user.id };
+                                        create_channel.dispatch(input.clone());
+                                        open.set(false);
+                                    }
                                 }
                             }
                         }
@@ -270,10 +327,11 @@ pub fn CreateChannelDialog(
 pub fn CreateCategoryDialog(
     open: RwSignal<bool>,
     server: Memo<Option<Server>>,
-    create_category: ServerAction<CreateCategory>,
+    create_category: Action<CreateCategory, Result<(), String>>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let pending = create_category.pending();
+    let auth = use_auth().auth();
     view! {
         <Dialog
             open=open
@@ -302,8 +360,10 @@ pub fn CreateCategoryDialog(
                         on:click=move |_| {
                             if !name.get().is_empty() {
                                 if let Some(server) = server.get() {
-                                    let input = CreateCategory { name: name.get(), server: server.id };
-                                    create_category.dispatch(input.clone());
+                                    if let Some(user) = auth.get().and_then(|res|res.ok()).flatten() {
+                                        let input = CreateCategory { name: name.get(), server: server.id, auth: user.id };
+                                        create_category.dispatch(input.clone());
+                                    }
                                     open.set(false);
                                 }
                             }

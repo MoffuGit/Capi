@@ -5,7 +5,7 @@ use axum_session::{SessionConfig, SessionLayer, SessionStore};
 use axum_session_auth::{AuthConfig, AuthSessionLayer};
 use axum_session_sqlx::SessionPgPool;
 use common::state::AppState;
-use convex::ConvexClient;
+use convex_client::server::ConvexClient;
 use dotenv::dotenv;
 use dotenv_codegen::dotenv;
 use leptos::logging::log;

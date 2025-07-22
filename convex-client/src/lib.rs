@@ -1,7 +1,7 @@
 mod base;
 pub mod leptos;
 #[cfg(feature = "ssr")]
-mod server;
+pub mod server;
 mod websocket;
 
 use serde_json::Value;

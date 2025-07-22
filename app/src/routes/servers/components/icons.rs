@@ -1,8 +1,9 @@
-use api::convex::mutations::invitation::JoinWithInvitation;
-use api::server::CreateServer;
+use convex_client::leptos::{Mutation, UseMutation};
 use leptos::prelude::*;
 use leptos_router::components::A;
+use serde::Serialize;
 
+use crate::components::auth::use_auth;
 use crate::components::icons::{
     IconCirclePlus, IconCompass, IconGlobe, IconInbox, IconMessageCircle, IconPencil, IconSearch,
 };
@@ -25,6 +26,20 @@ use crate::routes::servers::components::servers::ServersItems;
 use crate::routes::use_profile;
 
 use super::sidebar::{SideBarData, SideBarOption};
+
+#[derive(Debug, Serialize, Clone)]
+struct JoinWithInvitation {
+    invitation: String,
+    user: String,
+}
+
+impl Mutation for JoinWithInvitation {
+    type Output = Option<String>;
+
+    fn name(&self) -> String {
+        "invitations:joinServerWithInvitation".into()
+    }
+}
 
 #[component]
 pub fn SidebarIcons(
@@ -204,7 +219,7 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
 #[component]
 pub fn JoinServerDialog(open: RwSignal<bool>) -> impl IntoView {
     let user = use_profile();
-    let join_server: ServerAction<JoinWithInvitation> = ServerAction::new();
+    let join_server = UseMutation::new();
     let (name, set_name) = signal(String::default());
     let pending = join_server.pending();
     view! {
@@ -252,13 +267,24 @@ pub fn JoinServerDialog(open: RwSignal<bool>) -> impl IntoView {
     }
 }
 
-// pub struct CreateServer {
-//     name: String,
-// }
+#[derive(Debug, Serialize, Clone)]
+pub struct CreateServer {
+    name: String,
+    auth: i64,
+}
+
+impl Mutation for CreateServer {
+    type Output = ();
+
+    fn name(&self) -> String {
+        "server:create".into()
+    }
+}
 
 #[component]
 pub fn CreateServerDialog(open: RwSignal<bool>) -> impl IntoView {
-    let create_server: ServerAction<CreateServer> = ServerAction::new();
+    let create_server = UseMutation::new();
+    let auth = use_auth().auth();
     let (name, set_name) = signal(String::default());
     let pending = create_server.pending();
     view! {
@@ -286,7 +312,9 @@ pub fn CreateServerDialog(open: RwSignal<bool>) -> impl IntoView {
                     <button
                         on:click=move |_| {
                             if !name.get().is_empty() {
-                                create_server.dispatch(CreateServer { name: name.get() });
+                            if let Some(user) = auth.get().and_then(|res| res.ok()).flatten() {
+                                    create_server.dispatch(CreateServer { name: name.get(), auth: user.id });
+                                }
                             }
                         }
                         disabled=move || pending.get()

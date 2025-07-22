@@ -123,7 +123,7 @@ dependencies = [
  "axum",
  "axum-extra",
  "common",
- "convex",
+ "convex-client",
  "futures",
  "leptos",
  "leptos_axum",
@@ -352,7 +352,7 @@ dependencies = [
  "sha1",
  "sync_wrapper",
  "tokio",
- "tokio-tungstenite 0.26.2",
+ "tokio-tungstenite",
  "tower",
  "tower-layer",
  "tower-service",
@@ -662,7 +662,7 @@ name = "common"
 version = "0.1.0"
 dependencies = [
  "axum",
- "convex",
+ "convex-client",
  "leptos",
  "leptos_axum",
  "serde",
@@ -753,12 +753,6 @@ checksum = "f67855af358fcb20fac58f9d714c94e2b228fe5694c1c9b4ead4a366343eda1b"
 
 [[package]]
 name = "convert_case"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-
-[[package]]
-name = "convert_case"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
@@ -785,30 +779,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "convex"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb6ca936e4d49f774ae1b92e50a801d9811070b75f6f2c36c7ffa264c4143228"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.13.1",
- "bytes",
- "convex_sync_types 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures",
- "imbl 3.0.0",
- "rand 0.8.5",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tokio-tungstenite 0.21.0",
- "tracing",
- "url",
- "uuid",
-]
-
-[[package]]
 name = "convex-client"
 version = "0.1.0"
 dependencies = [
@@ -816,13 +786,13 @@ dependencies = [
  "async-broadcast",
  "async-trait",
  "base64 0.13.1",
- "convex_sync_types 0.9.0",
+ "convex_sync_types",
  "dotenv",
  "dotenv_codegen",
  "futures",
  "gloo-net",
  "gloo-timers",
- "imbl 5.0.0",
+ "imbl",
  "js-sys",
  "leptos",
  "rand 0.9.1",
@@ -830,7 +800,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tokio-stream",
- "tokio-tungstenite 0.26.2",
+ "tokio-tungstenite",
  "url",
  "uuid",
  "wasm-bindgen-futures",
@@ -843,24 +813,8 @@ version = "0.9.0"
 dependencies = [
  "anyhow",
  "base64 0.13.1",
- "derive_more 2.0.1",
+ "derive_more",
  "headers",
- "serde",
- "serde_json",
- "uuid",
-]
-
-[[package]]
-name = "convex_sync_types"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91789069386cfc12da3c0435675d12013939e9830729a1fd343b2428351b71c4"
-dependencies = [
- "anyhow",
- "base64 0.13.1",
- "derive_more 0.99.20",
- "headers",
- "rand 0.8.5",
  "serde",
  "serde_json",
  "uuid",
@@ -1061,19 +1015,6 @@ checksum = "510c292c8cf384b1a340b816a9a6cf2599eb8f566a44949024af88418000c50b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.104",
-]
-
-[[package]]
-name = "derive_more"
-version = "0.99.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6edb4b64a43d977b8e99788fe3a04d483834fba1215a7e02caa415b626497f7f"
-dependencies = [
- "convert_case 0.4.0",
- "proc-macro2",
- "quote",
- "rustc_version",
  "syn 2.0.104",
 ]
 
@@ -2070,19 +2011,6 @@ dependencies = [
 
 [[package]]
 name = "imbl"
-version = "3.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc3be8d8cd36f33a46b1849f31f837c44d9fa87223baee3b4bd96b8f11df81eb"
-dependencies = [
- "bitmaps",
- "imbl-sized-chunks",
- "rand_core 0.6.4",
- "rand_xoshiro 0.6.0",
- "version_check",
-]
-
-[[package]]
-name = "imbl"
 version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4308a675e4cfc1920f36a8f4d8fb62d5533b7da106844bd1ec51c6f1fa94a0c"
@@ -2091,7 +2019,7 @@ dependencies = [
  "bitmaps",
  "imbl-sized-chunks",
  "rand_core 0.9.3",
- "rand_xoshiro 0.7.0",
+ "rand_xoshiro",
  "version_check",
 ]
 
@@ -2838,9 +2766,9 @@ checksum = "d05e27ee213611ffe7d6348b942e8f942b37114c00cc03cec254295a4a17852e"
 
 [[package]]
 name = "openssl-src"
-version = "300.5.0+3.5.0"
+version = "300.5.1+3.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8ce546f549326b0e6052b649198487d91320875da901e7bd11a06d1ee3f9c2f"
+checksum = "735230c832b28c000e3bc117119e6466a663ec73506bc0a9907ea4187508e42a"
 dependencies = [
  "cc",
 ]
@@ -3258,15 +3186,6 @@ dependencies = [
 
 [[package]]
 name = "rand_xoshiro"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f97cdb2a36ed4183de61b2f824cc45c9f1037f28afe0a322e9fff4c108b5aaa"
-dependencies = [
- "rand_core 0.6.4",
-]
-
-[[package]]
-name = "rand_xoshiro"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f703f4665700daf5512dcca5f43afa6af89f09db47fb56be587f80636bda2d41"
@@ -3672,7 +3591,6 @@ version = "1.0.140"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20068b6e96dc6c9bd23e01df8827e6c7e1f2fddd43c21810382803c136b99373"
 dependencies = [
- "indexmap 2.10.0",
  "itoa",
  "memchr",
  "ryu",
@@ -3766,7 +3684,7 @@ dependencies = [
  "axum_session_auth",
  "axum_session_sqlx",
  "common",
- "convex",
+ "convex-client",
  "dotenv",
  "dotenv_codegen",
  "leptos",
@@ -4521,28 +4439,16 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c83b561d025642014097b66e6c1bb422783339e0909e4429cde4749d1990bc38"
-dependencies = [
- "futures-util",
- "log",
- "native-tls",
- "tokio",
- "tokio-native-tls",
- "tungstenite 0.21.0",
-]
-
-[[package]]
-name = "tokio-tungstenite"
 version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a9daff607c6d2bf6c16fd681ccb7eecc83e4e2cdc1ca067ffaadfca5de7f084"
 dependencies = [
  "futures-util",
  "log",
+ "native-tls",
  "tokio",
- "tungstenite 0.26.2",
+ "tokio-native-tls",
+ "tungstenite",
 ]
 
 [[package]]
@@ -4695,26 +4601,6 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "tungstenite"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ef1a641ea34f399a848dea702823bbecfb4c486f911735368f1f137cb8257e1"
-dependencies = [
- "byteorder",
- "bytes",
- "data-encoding",
- "http",
- "httparse",
- "log",
- "native-tls",
- "rand 0.8.5",
- "sha1",
- "thiserror 1.0.69",
- "url",
- "utf-8",
-]
-
-[[package]]
-name = "tungstenite"
 version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4793cb5e56680ecbb1d843515b23b6de9a75eb04b66643e256a396d43be33c13"
@@ -4724,6 +4610,7 @@ dependencies = [
  "http",
  "httparse",
  "log",
+ "native-tls",
  "rand 0.9.1",
  "sha1",
  "thiserror 2.0.12",

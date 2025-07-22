@@ -11,9 +11,9 @@ leptos.workspace = true
 axum = { workspace = true, optional = true }
 leptos_axum = { workspace = true, optional = true }
 sqlx = { workspace = true, optional = true } 
-convex = { workspace = true, optional = true }
+convex-client = { path = "../convex-client", optional = true }
 uploadthing = { path = "../uploadthing", optional = true}
 
 [features]
 hydrate = []
-ssr = ["dep:sqlx", "dep:axum", "dep:leptos_axum", "dep:convex", "uploadthing/ssr"]
+ssr = ["dep:sqlx", "dep:axum", "dep:leptos_axum", "convex-client/ssr", "uploadthing/ssr"]

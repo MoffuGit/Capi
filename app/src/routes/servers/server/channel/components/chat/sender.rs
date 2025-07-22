@@ -4,11 +4,12 @@ use crate::components::icons::{IconCirclePlus, IconSend, IconSticker, IconTrash}
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::uploadthing::input::FileInput;
 use crate::routes::server::channel::components::chat::ChatContext;
-use api::convex::mutations::messages::{send_message_attachments, SendMessage};
 use common::convex::{Channel, Member};
+use convex_client::leptos::{Mutation, UseMutation};
 use gloo_file::Blob;
 use leptos::html::Div;
 use leptos::prelude::*;
+use serde::Serialize;
 use uploadthing::{FileData, FileType, UploadthingFile};
 use web_sys::{FormData, Url};
 
@@ -68,9 +69,24 @@ pub fn Attachment(
     }
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct SendMessage {
+    channel: String,
+    message: String,
+    member: String,
+}
+
+impl Mutation for SendMessage {
+    type Output = String;
+
+    fn name(&self) -> String {
+        "messages:createMessage".into()
+    }
+}
+
 #[component]
 pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) -> impl IntoView {
-    let send: ServerAction<SendMessage> = ServerAction::new();
+    let send = UseMutation::new();
     let message = RwSignal::new(String::default());
     let content_ref: NodeRef<Div> = NodeRef::new();
     let on_input = move |_| {
@@ -79,10 +95,10 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
         }
     };
 
-    let send_attachments = Action::new_local(|data: &FormData| {
-        let data = data.clone();
-        send_message_attachments(data.into())
-    });
+    // let send_attachments = Action::new_local(|data: &FormData| {
+    //     let data = data.clone();
+    //     send_message_attachments(data.into())
+    // });
 
     let context: ChatContext = use_context().expect("should acces the chat context");
 
