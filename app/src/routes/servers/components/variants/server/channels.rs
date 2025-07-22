@@ -84,7 +84,7 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
                         class=tw_merge!(
                             "text-sidebar-foreground/70 inline-flex flex-col items-start font-normal",
                             "group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground",
-                            "transition-[color,font-weight] duration-200 ease-out",
+                            "transition-[color,font-weight] duration-150 ease-out",
                             "after:content-[attr(data-text)] after:h-0 after:hidden after:overflow-hidden after:select-none after:pointer-events-none after:font-bold"
                         )
                          data-text={name.get_value()}

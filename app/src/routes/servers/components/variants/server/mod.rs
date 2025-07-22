@@ -9,10 +9,10 @@ use leptos_router::hooks::use_location;
 use serde::Serialize;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::IconLoaderCircle;
+use crate::components::icons::{IconBox, IconLink, IconLoaderCircle, IconPlus};
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::context::{
-    ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
+    ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger,
 };
 use crate::components::ui::dialog::{Dialog, DialogFooter, DialogHeader, DialogPopup, DialogTitle};
 use crate::components::ui::input::Input;
@@ -173,11 +173,19 @@ pub fn SideBarContextMenu(
         <ContextMenu>
             <ContextMenuTrigger class="w-full h-full"/>
             <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                    {move || {
+                        server.get().map(|server| view!{
+                            <ContextMenuLabel class="capitalize">
+                                {server.name}
+                            </ContextMenuLabel>
+                        })
+                    }}
                 <ContextMenuItem {..}
                     on:click=move |_| {
                         create_channel_open.set(true)
                     }
                 >
+                    <IconPlus/>
                     "Create Channel"
                 </ContextMenuItem>
                 <ContextMenuItem {..}
@@ -185,6 +193,7 @@ pub fn SideBarContextMenu(
                         create_category_open.set(true)
                     }
                 >
+                    <IconBox/>
                     "Create Category"
                 </ContextMenuItem>
                 <ContextMenuItem {..}
@@ -192,6 +201,7 @@ pub fn SideBarContextMenu(
                         invitation_open.set(true)
                     }
                 >
+                    <IconLink />
                     "Invitate People"
                 </ContextMenuItem>
             </ContextMenuContent>

@@ -9,7 +9,7 @@ use crate::components::icons::{
 };
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::context::{
-    ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger,
+    ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger,
 };
 use crate::components::ui::dialog::{
     Dialog, DialogDescription, DialogFooter, DialogHeader, DialogPopup, DialogTitle,
@@ -182,6 +182,9 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                     </ContextMenuTrigger>
                 </A>
                 <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                    <ContextMenuLabel>
+                        "Servers"
+                    </ContextMenuLabel>
                     <ContextMenuItem
                         {..}
                         on:click=move |_| {

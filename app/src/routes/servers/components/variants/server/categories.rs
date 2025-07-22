@@ -2,6 +2,7 @@ use api::category::{preload_categories, GetCategories};
 use common::convex::Server;
 use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
+use tailwind_fuse::tw_merge;
 
 use crate::components::icons::{IconChevronDown, IconPlus};
 use crate::components::ui::sidebar::{
@@ -26,6 +27,7 @@ pub fn CategoriesItems(server: Memo<Option<Server>>) -> impl IntoView {
                                 .map(|server| GetCategories { server: server.id })
                         }, categories.clone());
                         let categories = Signal::derive(move || categories.get().and_then(|res| res.ok()));
+                        let is_open = RwSignal::new(false);
                         view!{
                             <Show when=move || categories.get().is_some()>
                                 <For
@@ -36,8 +38,22 @@ pub fn CategoriesItems(server: Memo<Option<Server>>) -> impl IntoView {
                                         view!{
                                             <SidebarGroup>
                                                 <SidebarGroupLabel
-                                                    class="px-1 hover:text-sidebar-foreground transition-[color] select-none cursor-pointer">
-                                                    <IconChevronDown class="mr-1"/>
+                                                    class="px-1 hover:text-sidebar-foreground transition-[color] select-none cursor-pointer"
+                                                    on:click=move |_| {
+                                                        is_open.update(|open| *open = !*open);
+                                                    }
+                                                >
+                                                    <IconChevronDown class=Signal::derive(
+                                                        move || {
+                                                            tw_merge!("mr-1", if is_open.get() {
+                                                                    "rotate-0"
+                                                                } else {
+                                                                    "-rotate-90"
+                                                                },
+                                                                "transition-transform ease-in-out-quad duration-150"
+                                                            )
+                                                        }
+                                                    )/>
                                                     {name.get_value()}
                                                 </SidebarGroupLabel>
                                                 <SidebarGroupAction>
