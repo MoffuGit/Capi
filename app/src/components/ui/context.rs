@@ -109,10 +109,10 @@ pub fn ContextMenuContent(
     // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
     #[prop(optional)] arrow: bool,
 ) -> impl IntoView {
-    let base_class = "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-[var(--radix-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md";
+    let base_class = "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-[var(--radix-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md duration-180 ease-out-cubic";
     let children = StoredValue::new(children);
     view! {
-        <ContextMenuPortal close_duration=50>
+        <ContextMenuPortal open_duration=180 close_duration=170>
             <ContextMenuContentPrimitive
                 class=Signal::derive(move || tw_merge!(base_class, class.get()))
                 side=side

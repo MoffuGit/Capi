@@ -14,7 +14,7 @@ use crate::components::ui::sidebar::SidebarTrigger;
 #[component]
 pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) -> impl IntoView {
     view! {
-        <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 p-4">
+        <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 p-3 border-b">
             <SidebarTrigger class="-ml-1" />
             <Separator
                 orientation=Orientation::Vertical
@@ -64,7 +64,7 @@ pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) ->
                             size=ButtonSizes::Icon
                             class="size-7"
                         >
-                            <IconSearch/>
+                            <IconSearch class="size-4"/>
                         </Button>
                     </SheetTrigger>
                     <SheetPopup side=Side::Right>

@@ -52,7 +52,7 @@ pub fn MembersSideBar(
     });
     let offline = UseQuery::new(move || server.get().map(|server| GetOfflineMembers { server }));
     view! {
-        <Sidebar class="mt-[61px] h-auto" side=Side::Right>
+        <Sidebar class="mt-[54px] h-auto" side=Side::Right>
             <SidebarHeader>
                 <div/>
             </SidebarHeader>
