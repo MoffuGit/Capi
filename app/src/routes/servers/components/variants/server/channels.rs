@@ -4,6 +4,7 @@ use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_location;
+use tailwind_fuse::tw_merge;
 
 use crate::components::icons::IconEllipsis;
 use crate::components::ui::sidebar::{
@@ -80,7 +81,12 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
                     )
                     class="group/button">
                     <span
-                        class="text-sidebar-foreground/70 w-full inline-flex flex-col items-start font-normal group-data-[active=true]/button:font-bold group-hover/button:font-bold transition-[font-weight] duration-[150ms] ease-out after:content-[attr(data-text)] after:h-0 after:hidden after:overflow-hidden after:select-none after:pointer-events-none after:font-bold"
+                        class=tw_merge!(
+                            "text-sidebar-foreground/70 inline-flex flex-col items-start font-normal",
+                            "group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground",
+                            "transition-[color,font-weight] duration-200 ease-out",
+                            "after:content-[attr(data-text)] after:h-0 after:hidden after:overflow-hidden after:select-none after:pointer-events-none after:font-bold"
+                        )
                          data-text={name.get_value()}
                     >
                         {name.get_value()}

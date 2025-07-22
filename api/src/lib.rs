@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod category;
 pub mod channel;
 pub mod convex;
 pub mod server;
