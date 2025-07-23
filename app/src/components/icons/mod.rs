@@ -202,6 +202,15 @@ pub fn IconSettings(#[prop(into, optional)] class: Signal<String>) -> impl IntoV
 }
 
 #[component]
+pub fn IconSettings2(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconSearch(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>
@@ -276,6 +285,15 @@ pub fn IconPin(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
         <Icon class=class>
             <path d="M12 17v5"/>
             <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconCircleUser(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
         </Icon>
     }
 }

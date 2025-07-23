@@ -8,16 +8,12 @@ use crate::components::auth::use_auth;
 use crate::components::icons::{IconMic, IconSettings};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::ui::dialog::{
-    Dialog, DialogDescription, DialogFooter, DialogHeader, DialogPopup, DialogTitle,
-};
 use crate::components::ui::sidebar::{
-    SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarContent, SidebarGroup,
-    SidebarGroupContent, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
-    SidebarProvider, SidebarRail,
+    SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarRail,
 };
 use crate::routes::servers::components::collapsible::SidebarCollapsible;
 use crate::routes::servers::components::icons::SidebarIcons;
+use crate::routes::servers::components::settings::DialogUserSettings;
 use crate::routes::use_profile;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -114,38 +110,5 @@ pub fn SideBar() -> impl IntoView {
             <SidebarRail/>
         </Sidebar>
         <DialogUserSettings open=open_user_settings />
-    }
-}
-
-#[component]
-pub fn DialogUserSettings(open: RwSignal<bool>) -> impl IntoView {
-    view! {
-        <Dialog open=open>
-            <DialogPopup class="max-h-[715px] h-[calc(-100px+100vh)] max-w-[calc(-100px+80vw)] w-1/2 p-0 rounded-xl">
-                <SidebarProvider style="--sidebar-width: 240px" main=false class="h-full min-h-full">
-                    <Sidebar collapsible=SideBarCollapsibleType::None class="rounded-l-xl">
-                        <SidebarContent>
-                            <SidebarGroup>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton
-                                                size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
-                                            >
-                                                "Preferences"
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </SidebarContent>
-                    </Sidebar>
-                    <SidebarInset class="rounded-r-xl py-9 px-12">
-                        <div/>
-                    </SidebarInset>
-                </SidebarProvider>
-            </DialogPopup>
-        </Dialog>
-
     }
 }
