@@ -32,7 +32,7 @@ pub enum ButtonSizes {
     Sm,
     #[tw(class = "h-10 rounded-md px-6 has-[>svg]:px-4")]
     Lg,
-    #[tw(class = "size-9")]
+    #[tw(class = "size-8")]
     Icon,
 }
 

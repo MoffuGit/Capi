@@ -65,7 +65,7 @@ pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
                                         <IconSettings/>
-                                        "Invite People"
+                                        "Settings"
                                     </DropdownMenuItem>
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>

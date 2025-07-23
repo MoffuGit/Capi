@@ -6,6 +6,7 @@ use crate::components::primitives::dialog::DialogTrigger as DialogTriggerPrimiti
 use leptos::prelude::*;
 use leptos_node_ref::AnyNodeRef;
 use send_wrapper::SendWrapper;
+use tailwind_fuse::tw_merge;
 
 #[component]
 pub fn Dialog(
@@ -44,11 +45,11 @@ pub fn DialogPortal(
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
-        <DialogPortalPrimitive open_duration=300 close_duration=300 container=container container_ref=container_ref as_child=as_child node_ref=node_ref children=children/>
+        <DialogPortalPrimitive open_duration=200 close_duration=200 container=container container_ref=container_ref as_child=as_child node_ref=node_ref children=children/>
     }
 }
 
-const DIALOG_POPUP: &str = "bg-background data-[state=undefined]:opacity-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-300 ease-out-circ sm:max-w-lg";
+const DIALOG_POPUP: &str = "bg-background data-[state=undefined]:opacity-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 ease-out-cubic";
 
 #[component]
 pub fn DialogPopup(
@@ -62,14 +63,14 @@ pub fn DialogPopup(
         <DialogPortal>
             <DialogOverlay/>
             <DialogPopupPrimitive as_child=as_child node_ref=node_ref
-                class=Signal::derive(move || format!("{} {}",DIALOG_POPUP, class.get()))>
+                class=Signal::derive(move || tw_merge!(DIALOG_POPUP, class.get()))>
                 {children.get_value().map(|children| children())}
             </DialogPopupPrimitive>
         </DialogPortal>
     }
 }
 
-const DIALOG_OVERLAY: &str = "data-[state=open]:animate-in data-[state=undefined]:opacity-0 data-[modal=true]:cursor-pointer-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 duration-300 ease-out-circ";
+const DIALOG_OVERLAY: &str = "data-[state=open]:animate-in data-[state=undefined]:opacity-0 data-[modal=true]:cursor-pointer-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 duration-200 ease-out-cubic";
 
 #[component]
 pub fn DialogOverlay(
@@ -80,7 +81,7 @@ pub fn DialogOverlay(
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
-        <DialogOverlayPrimitive as_child=as_child node_ref=node_ref class=Signal::derive(move || format!("{} {}", DIALOG_OVERLAY, class.get()))>
+        <DialogOverlayPrimitive as_child=as_child node_ref=node_ref class=Signal::derive(move || tw_merge!(DIALOG_OVERLAY, class.get()))>
             {children.get_value().map(|children| children())}
         </DialogOverlayPrimitive>
     }

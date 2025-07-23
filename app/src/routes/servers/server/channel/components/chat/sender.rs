@@ -71,9 +71,11 @@ pub fn Attachment(
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SendMessage {
+    #[serde(rename = "channelId")]
     channel: String,
-    message: String,
-    member: String,
+    content: String,
+    #[serde(rename = "senderId")]
+    sender: String,
 }
 
 impl Mutation for SendMessage {
@@ -189,7 +191,7 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
                         on:click=move |_| {
                             if let Some(channel) = channel.get() {
                                 if let Some(member) = member.get() {
-                                    send.dispatch(SendMessage {  channel: channel.id, message: message.get(), member: member.id });
+                                    send.dispatch(SendMessage {  channel: channel.id, content: message.get(), sender: member.id });
                                 }
                             }
                         }

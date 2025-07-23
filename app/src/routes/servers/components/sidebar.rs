@@ -5,11 +5,20 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 
 use crate::components::auth::use_auth;
+use crate::components::icons::{IconMic, IconSettings};
+use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
+use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
+use crate::components::ui::dialog::{
+    Dialog, DialogDescription, DialogFooter, DialogHeader, DialogPopup, DialogTitle,
+};
 use crate::components::ui::sidebar::{
-    SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarRail,
+    SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarContent, SidebarGroup,
+    SidebarGroupContent, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+    SidebarProvider, SidebarRail,
 };
 use crate::routes::servers::components::collapsible::SidebarCollapsible;
 use crate::routes::servers::components::icons::SidebarIcons;
+use crate::routes::use_profile;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarRoute {
@@ -50,6 +59,10 @@ pub fn SideBar() -> impl IntoView {
 
     let preloaded_data = Resource::new(move || (), move |_| preload_server_data());
 
+    let user = use_profile();
+
+    let open_user_settings = RwSignal::new(false);
+
     view! {
         <Sidebar collapsible=SideBarCollapsibleType::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
             <Transition>
@@ -71,7 +84,68 @@ pub fn SideBar() -> impl IntoView {
                     }
                 }
             </Transition>
+            <div class="bg-background h-8 shadow-md border rounded-lg flex items-center bottom-2 left-2 absolute group-data-[state=collapsed]:w-8 group-data-[state=expanded]:p-2 group-data-[state=expanded]:w-[calc(var(--sidebar-width)-18px)] group-data-[state=expanded]:h-12 transition-all ease-in-out-cubic duration-200 overflow-hidden">
+                {
+                    move || {
+                        user.get().map(|user| {
+                            let name = StoredValue::new(user.name);
+                            view!{
+                                <Avatar class="flex bg-accent aspect-square size-8 items-center justify-center rounded-lg group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
+                                    <AvatarImage url=user.image_url/>
+                                    <AvatarFallback class="rounded-lg select-none bg-transparent">
+                                        {name.get_value().chars().next()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div class="flex justify-center items-center ml-auto gap-2">
+                                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
+                                        <IconMic/>
+                                    </Button>
+                                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost on:click=move |_| {
+                                        open_user_settings.set(true);
+                                    }>
+                                        <IconSettings/>
+                                    </Button>
+                                </div>
+                            }
+                        })
+                    }
+                        }
+            </div>
             <SidebarRail/>
         </Sidebar>
+        <DialogUserSettings open=open_user_settings />
+    }
+}
+
+#[component]
+pub fn DialogUserSettings(open: RwSignal<bool>) -> impl IntoView {
+    view! {
+        <Dialog open=open>
+            <DialogPopup class="max-h-[715px] h-[calc(-100px+100vh)] max-w-[calc(-100px+80vw)] w-1/2 p-0 rounded-xl">
+                <SidebarProvider style="--sidebar-width: 240px" main=false class="h-full min-h-full">
+                    <Sidebar collapsible=SideBarCollapsibleType::None class="rounded-l-xl">
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton
+                                                size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
+                                            >
+                                                "Preferences"
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                    </Sidebar>
+                    <SidebarInset class="rounded-r-xl py-9 px-12">
+                        <div/>
+                    </SidebarInset>
+                </SidebarProvider>
+            </DialogPopup>
+        </Dialog>
+
     }
 }

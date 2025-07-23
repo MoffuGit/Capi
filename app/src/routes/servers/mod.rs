@@ -1,11 +1,10 @@
 mod components;
 pub mod server;
 
-use api::user::{preload_user, GetUser};
+use api::user::GetUser;
 use common::convex::User;
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
 use leptos::prelude::*;
-use leptos_dom::error;
 use leptos_router::components::Outlet;
 use leptos_use::use_interval_fn;
 use serde::Serialize;

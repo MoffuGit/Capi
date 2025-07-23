@@ -269,7 +269,7 @@ pub fn Sidebar(
     let children = StoredValue::new(children);
 
     let sidebar_gap_class = Memo::new(move |_| {
-        tw_merge!("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-out-cubic",  "group-data-[collapsible=offcanvas]:w-0", &tw_merge!("group-data-[side={side}]"), if variant == SideBarVariant::Floating|| variant == SideBarVariant::Inset{
+        tw_merge!("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-in-out-cubic",  "group-data-[collapsible=offcanvas]:w-0", &tw_merge!("group-data-[side={side}]"), if variant == SideBarVariant::Floating|| variant == SideBarVariant::Inset{
             "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
         } else {
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
@@ -277,7 +277,7 @@ pub fn Sidebar(
     });
 
     let sidebar_container_class = Memo::new(move |_| {
-        tw_merge!("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-out-cubic md:flex", if side == Side::Left {
+        tw_merge!("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-in-out-cubic md:flex", if side == Side::Left {
             "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
         } else {
             "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]"

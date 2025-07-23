@@ -70,9 +70,6 @@ pub fn SidebarIcons(
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
-                <Navbar/>
-            </SidebarFooter>
         </Sidebar>
     }
 }

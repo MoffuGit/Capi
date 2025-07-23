@@ -38,7 +38,7 @@ pub fn CategoriesItems(server: Memo<Option<Server>>) -> impl IntoView {
                                         view!{
                                             <SidebarGroup>
                                                 <SidebarGroupLabel
-                                                    class="px-1 hover:text-sidebar-foreground transition-[color] select-none cursor-pointer"
+                                                    class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer"
                                                     on:click=move |_| {
                                                         is_open.update(|open| *open = !*open);
                                                     }
