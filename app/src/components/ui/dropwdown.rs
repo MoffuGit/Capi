@@ -112,7 +112,7 @@ pub fn DropdownMenuContent(
     // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
     #[prop(optional)] arrow: bool,
 ) -> impl IntoView {
-    let base_class = "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[8rem] origin-[var(--radix-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md";
+    let base_class = "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[12rem] origin-[var(--radix-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md";
     let children = StoredValue::new(children);
     view! {
         <DropdownMenuPortal close_duration=50>
@@ -167,9 +167,17 @@ pub fn DropdownMenuItem(
 }
 
 #[component]
-pub fn DropdownMenuLabel(children: Children) -> impl IntoView {
+pub fn DropdownMenuLabel(
+    children: Children,
+    #[prop(into, optional)] class: Signal<String>,
+) -> impl IntoView {
     view! {
         <DropdownMenuLabelPrimitive
+            class=Signal::derive(move || tw_merge!(
+                "text-sidebar-foreground/70 ring-sidebar-ring flex h-auto shrink-0 items-center rounded-md px-2 py-1 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+                "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+                class.get()
+            ))
             {..}
             data-slot="dropdown-menu-label"
         >

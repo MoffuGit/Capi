@@ -47,6 +47,11 @@ pub fn MenuContent(
             }
         }
     });
+    on_cleanup(move || {
+        if let Some(app) = document().get_element_by_id("app") {
+            let _ = app.class_list().remove_1("pointer-events-none");
+        }
+    });
     #[cfg(feature = "hydrate")]
     {
         use leptos_use::{on_click_outside_with_options, OnClickOutsideOptions};

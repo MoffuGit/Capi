@@ -6,7 +6,12 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::IconEllipsis;
+use crate::components::icons::{IconEllipsis, IconTrash};
+use crate::components::primitives::menu::{MenuAlign, MenuSide};
+use crate::components::ui::dropwdown::{
+    DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
+    DropdownMenuTrigger,
+};
 use crate::components::ui::sidebar::{
     SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem,
 };
@@ -45,16 +50,13 @@ pub fn ChannelsItems(
                             }, channels.clone());
                             let channels = Signal::derive(move || channels.get().and_then(|res| res.ok()));
                             view!{
-                                {
-                                    move || {
-                                        channels.get().map(|channels| {
-                                            channels.into_iter().map(|channel| view!{
-                                                    <ChannelItem channel=channel current_channel=current_channel/>
-                                                }
-                                            ).collect_view()
-                                        })
-                                    }
-                                }
+                                <For
+                                    each=move || channels.get().unwrap_or_default()
+                                    key=|channel| channel.id.clone()
+                                    let:channel
+                                >
+                                    <ChannelItem channel=channel current_channel=current_channel />
+                                </For>
                             }
                         })
                     }
@@ -69,8 +71,8 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
     let name = StoredValue::new(channel.name);
     let id = StoredValue::new(channel.id);
     view! {
-        <A href=move || format!("/servers/{}/{}", channel.server,  id.get_value())>
-            <SidebarMenuItem>
+        <SidebarMenuItem>
+            <A href=move || format!("/servers/{}/{}", channel.server,  id.get_value())>
                 <SidebarMenuButton
                     is_active=Signal::derive(
                         move || {
@@ -92,12 +94,27 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
                         {name.get_value()}
                     </span>
                 </SidebarMenuButton>
-                <SidebarMenuAction show_on_hover=true>
-                    <IconEllipsis />
-                    <span class="sr-only">More</span>
-                </SidebarMenuAction>
-            </SidebarMenuItem>
-        </A>
+            </A>
+            <DropdownMenu>
+                    <SidebarMenuAction show_on_hover=true>
+                        <DropdownMenuTrigger class="size-4">
+                            <IconEllipsis class="size-4"/>
+                            <span class="sr-only">More</span>
+                        </DropdownMenuTrigger>
+                    </SidebarMenuAction>
+                <DropdownMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                    <DropdownMenuGroup>
+                        <DropdownMenuLabel>
+                            {name.get_value()}
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem class="hover:text-destructive/70 group">
+                            <IconTrash class="group-hover:text-destructive/70"/>
+                            "Delete Channel"
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </SidebarMenuItem>
 
     }
 }
