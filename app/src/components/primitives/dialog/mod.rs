@@ -5,8 +5,6 @@ mod portal;
 mod root;
 mod trigger;
 
-use std::rc::Rc;
-
 use leptos::prelude::*;
 pub use overlay::DialogOverlay;
 pub use popup::DialogPopup;

@@ -4,9 +4,10 @@ pub mod status;
 
 use leptos::prelude::*;
 
-#[derive(Clone, strum_macros::Display)]
+#[derive(Clone, strum_macros::Display, Default, Debug, Copy)]
 pub enum Orientation {
     #[strum(to_string = "horizontal")]
+    #[default]
     Horizontal,
     #[strum(to_string = "vertical")]
     Vertical,

@@ -1,10 +1,12 @@
 mod preferences;
+mod profiles;
 
 use leptos::prelude::*;
 
 use crate::components::ui::sidebar::SidebarInset;
 
 use self::preferences::Preferences;
+use self::profiles::Profiles;
 
 use super::Settings;
 
@@ -17,7 +19,7 @@ pub fn Content(setting: RwSignal<Settings>) -> impl IntoView {
                     match setting.get() {
                         Settings::Account => view!{}.into_any(),
                         Settings::Preferences => view!{<Preferences/>}.into_any(),
-                        Settings::Profiles => view!{}.into_any(),
+                        Settings::Profiles => view!{<Profiles/>}.into_any(),
                     }
                 }
             }

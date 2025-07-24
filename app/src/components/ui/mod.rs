@@ -13,5 +13,6 @@ pub mod markdown;
 pub mod sheet;
 pub mod sidebar;
 pub mod skeleton;
+pub mod tabs;
 pub mod theme;
 pub mod tooltip;

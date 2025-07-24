@@ -9,4 +9,5 @@ pub mod menu;
 pub mod portal;
 pub mod primitive;
 pub mod separator;
+pub mod tabs;
 pub mod tooltip;

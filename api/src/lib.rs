@@ -2,6 +2,7 @@ pub mod auth;
 pub mod category;
 pub mod channel;
 pub mod convex;
+pub mod files;
 pub mod server;
 pub mod sidebar;
 pub mod theme;
