@@ -3,6 +3,9 @@ use leptos::prelude::*;
 
 use crate::components::icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
+use crate::components::roles::{
+    CanCreateInvitation, CanManageCategories, CanManageChannels, CanManageServerSettings,
+};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::dropwdown::{
     DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
@@ -51,22 +54,30 @@ pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
                                     <DropdownMenuLabel>
                                         {name.get_value()}
                                     </DropdownMenuLabel>
-                                    <DropdownMenuItem>
-                                        <IconPlus/>
-                                        "Create Channel"
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <IconBox/>
-                                        "Create Category"
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <IconUsers/>
-                                        "Invite People"
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <IconSettings/>
-                                        "Settings"
-                                    </DropdownMenuItem>
+                                    <CanManageChannels>
+                                        <DropdownMenuItem>
+                                            <IconPlus/>
+                                            "Create Channel"
+                                        </DropdownMenuItem>
+                                    </CanManageChannels>
+                                    <CanManageCategories>
+                                        <DropdownMenuItem>
+                                            <IconBox/>
+                                            "Create Category"
+                                        </DropdownMenuItem>
+                                    </CanManageCategories>
+                                    <CanCreateInvitation>
+                                        <DropdownMenuItem>
+                                            <IconUsers/>
+                                            "Invite People"
+                                        </DropdownMenuItem>
+                                    </CanCreateInvitation>
+                                    <CanManageServerSettings>
+                                        <DropdownMenuItem>
+                                            <IconSettings/>
+                                            "Settings"
+                                        </DropdownMenuItem>
+                                    </CanManageServerSettings>
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>

@@ -65,12 +65,12 @@ pub fn DialogUserSettings(open: RwSignal<bool>) -> impl IntoView {
     let setting = RwSignal::new(Settings::Preferences);
     view! {
         <Dialog open=open>
-            <DialogPopup class="max-h-[715px] h-[calc(-100px+100vh)] rounded-xl overflow-hidden p-0 w-[1150px] md:max-w-[700px] lg:max-w-[800px] xl:max-w-[1150px]">
-                <SidebarProvider style="--sidebar-width: 240px" main=false class="h-full min-h-full">
-                    <SideBar setting=setting/>
-                    <Content setting=setting/>
-                </SidebarProvider>
-            </DialogPopup>
+                <DialogPopup class="max-h-[715px] h-[calc(-100px+100vh)] rounded-xl overflow-hidden p-0 w-[1150px] md:max-w-[700px] lg:max-w-[800px] xl:max-w-[1150px]">
+                    <SidebarProvider style="--sidebar-width: 240px" main=false class="h-full min-h-full">
+                        <SideBar setting=setting/>
+                        <Content setting=setting/>
+                    </SidebarProvider>
+                </DialogPopup>
         </Dialog>
 
     }

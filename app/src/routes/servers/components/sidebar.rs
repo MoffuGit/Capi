@@ -108,7 +108,7 @@ pub fn SideBar() -> impl IntoView {
                         }
             </div>
             <SidebarRail/>
+            <DialogUserSettings open=open_user_settings />
         </Sidebar>
-        <DialogUserSettings open=open_user_settings />
     }
 }

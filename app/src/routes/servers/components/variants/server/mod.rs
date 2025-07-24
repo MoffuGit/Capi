@@ -9,10 +9,11 @@ use leptos_router::hooks::use_location;
 use serde::Serialize;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconBox, IconLink, IconLoaderCircle, IconPlus};
+use crate::components::icons::{IconBox, IconLink, IconLoaderCircle, IconPlus, IconSettings};
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::roles::{
-    CanCreateInvitation, CanManageCategories, CanManageChannels, RolesProvider,
+    CanCreateInvitation, CanManageCategories, CanManageChannels, CanManageServerSettings,
+    RolesProvider,
 };
 use crate::components::ui::context::{
     ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger,
@@ -228,6 +229,12 @@ pub fn ServerContextMenuData(
                     "Invitate People"
                 </ContextMenuItem>
             </CanCreateInvitation>
+            <CanManageServerSettings>
+                <ContextMenuItem >
+                    <IconSettings />
+                    "Settings"
+                </ContextMenuItem>
+            </CanManageServerSettings>
         </ContextMenuContent>
         <InvitationDialog open=invitation_open server=server member=member/>
         <CreateChannelDialog open=create_channel_open server=server create_channel=create_channel/>

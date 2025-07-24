@@ -156,11 +156,14 @@ pub fn SidebarProvider(
                     event.prevent_default();
                     toggle_sidebar.run(());
                 }
-            } else if event.key() == SIDEBAR_KEYBOARD_SHORTCUT
-                && (event.meta_key() || event.ctrl_key())
-            {
-                event.prevent_default();
-                toggle_sidebar.run(());
+            }
+            if main {
+                if event.key() == SIDEBAR_KEYBOARD_SHORTCUT
+                    && (event.meta_key() || event.ctrl_key())
+                {
+                    event.prevent_default();
+                    toggle_sidebar.run(());
+                }
             }
         }) as Box<dyn FnMut(web_sys::KeyboardEvent)>)
         .into_js_value();
