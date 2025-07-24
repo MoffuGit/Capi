@@ -18,14 +18,14 @@ export const create = mutation({
       throw new ConvexError("User not found");
     }
 
-    const server = await db.insert("servers", {
+    const serverId = await db.insert("servers", {
       name: name,
       image_url: image_url,
     });
 
     // Create the owner role for the new server
     const ownerRole = await db.insert("roles", {
-      server: server,
+      server: serverId,
       name: "Owner",
       isOwner: true,
       canBeDeleted: false,
@@ -40,17 +40,37 @@ export const create = mutation({
       },
     });
 
+    // Create the default 'Member' role
+    const defaultMemberRole = await db.insert("roles", {
+      server: serverId,
+      name: "Member",
+      isOwner: false,
+      canBeDeleted: false, // Should not be deleted
+      level: 100, // Lower priority than owner
+      actions: {
+        canManageChannels: false,
+        canManageCategories: false,
+        canManageRoles: false,
+        canManageMembers: false,
+        canManageServerSettings: false,
+        canCreateInvitation: true, // Only this capability
+      },
+    });
+
+    // Update the server to link the default role
+    await db.patch(serverId, { defaultRole: defaultMemberRole });
+
     await db.insert("members", {
       user: user._id,
-      server: server,
+      server: serverId,
       name: user.name,
       image_url: user.image_url,
-      roles: [ownerRole],
-      mostImportantRole: ownerRole,
+      roles: [ownerRole, defaultMemberRole], // Owner gets both roles
+      mostImportantRole: ownerRole, // Owner role is still the most important
       online: true,
     });
 
-    return server;
+    return serverId;
   },
 });
 

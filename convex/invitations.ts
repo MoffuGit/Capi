@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel.js";
 
 export const createInvitation = mutation({
   args: {
@@ -147,14 +148,30 @@ export const joinServerWithInvitation = mutation({
       return existingMember._id;
     }
 
+    // Get the server to find its default role
+    const serverDoc = await ctx.db.get(invitation.server);
+    if (!serverDoc) {
+      throw new Error("Server not found for invitation.");
+    }
+
+    let defaultRoleForNewMember: Id<"roles">[] = [];
+    let mostImportantRoleForNewMember: Id<"roles"> | undefined = undefined;
+
+    if (serverDoc.defaultRole) {
+      defaultRoleForNewMember.push(serverDoc.defaultRole);
+      // If there's a default role, it's initially the most important for a new member
+      mostImportantRoleForNewMember = serverDoc.defaultRole;
+    }
+
     const newMemberId = await ctx.db.insert("members", {
       user: userId,
       server: invitation.server,
-      roles: [],
+      roles: defaultRoleForNewMember,
       name: user.name,
       image_url: user.image_url,
       lastVisitedChannel: undefined,
       online: true,
+      mostImportantRole: mostImportantRoleForNewMember,
     });
 
     await ctx.db.delete(invitation._id);

@@ -17,11 +17,10 @@ use crate::components::ui::dialog::{
 use crate::components::ui::input::Input;
 use crate::components::ui::label::Label;
 use crate::components::ui::sidebar::{
-    SideBarCollapsible, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-    SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator,
+    SideBarCollapsible, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu,
+    SidebarMenuButton, SidebarMenuItem, SidebarSeparator,
 };
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
-use crate::routes::servers::components::navbar::Navbar;
 use crate::routes::servers::components::servers::ServersItems;
 use crate::routes::use_profile;
 

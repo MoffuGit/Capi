@@ -11,6 +11,9 @@ use serde::Serialize;
 use crate::components::auth::use_auth;
 use crate::components::icons::{IconBox, IconLink, IconLoaderCircle, IconPlus};
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
+use crate::components::roles::{
+    CanCreateInvitation, CanManageCategories, CanManageChannels, RolesProvider,
+};
 use crate::components::ui::context::{
     ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger,
 };
@@ -95,19 +98,36 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
         })
     });
 
+    let roles = Memo::new(move |_| {
+        let id = path
+            .get()
+            .split('/')
+            .nth(2)
+            .map(|server| server.to_string())
+            .unwrap_or_default();
+        data.get().and_then(|data| {
+            data.iter()
+                .find(|SideBarData { server, .. }| server.id == id)
+                .map(|data| data.roles.clone())
+        })
+    });
+
     view! {
-        <ServerHeader server=server />
-        <SidebarContent>
-            <SidebarGroup>
-                <SidebarGroupContent>
-                    <PendingChannelItem create_channel=create_channel/>
-                    <ChannelsItems server=server/>
-                </SidebarGroupContent>
-                <PendingCategoryItem create_category=create_category/>
-            </SidebarGroup>
-            <CategoriesItems server=server />
-            <SideBarContextMenu create_channel=create_channel create_category=create_category server=server member=member/>
-        </SidebarContent>
+        <RolesProvider roles=Signal::derive(move || roles.get().unwrap_or_default())>
+            <ServerHeader server=server />
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupContent>
+                        <PendingChannelItem create_channel=create_channel/>
+                        <ChannelsItems server=server/>
+                    </SidebarGroupContent>
+                    <PendingCategoryItem create_category=create_category/>
+                </SidebarGroup>
+                <CategoriesItems server=server />
+                <PendingChannelItem create_channel=create_channel/>
+                <SideBarContextMenu create_channel=create_channel create_category=create_category server=server member=member/>
+            </SidebarContent>
+        </RolesProvider>
     }
 }
 
@@ -160,9 +180,9 @@ pub fn PendingChannelItem(
 }
 
 #[component]
-pub fn SideBarContextMenu(
-    server: Memo<Option<Server>>,
-    member: Memo<Option<Member>>,
+pub fn ServerContextMenuData(
+    #[prop(into)] server: Signal<Option<Server>>,
+    #[prop(into)] member: Signal<Option<Member>>,
     create_channel: Action<CreateChannel, Result<(), String>>,
     create_category: Action<CreateCategory, Result<(), String>>,
 ) -> impl IntoView {
@@ -170,16 +190,15 @@ pub fn SideBarContextMenu(
     let create_category_open = RwSignal::new(false);
     let invitation_open = RwSignal::new(false);
     view! {
-        <ContextMenu>
-            <ContextMenuTrigger class="w-full h-full"/>
-            <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
-                    {move || {
-                        server.get().map(|server| view!{
-                            <ContextMenuLabel class="capitalize">
-                                {server.name}
-                            </ContextMenuLabel>
-                        })
-                    }}
+        <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                {move || {
+                    server.get().map(|server| view!{
+                        <ContextMenuLabel class="capitalize">
+                            {server.name}
+                        </ContextMenuLabel>
+                    })
+                }}
+            <CanManageChannels>
                 <ContextMenuItem {..}
                     on:click=move |_| {
                         create_channel_open.set(true)
@@ -188,6 +207,8 @@ pub fn SideBarContextMenu(
                     <IconPlus/>
                     "Create Channel"
                 </ContextMenuItem>
+            </CanManageChannels>
+            <CanManageCategories>
                 <ContextMenuItem {..}
                     on:click=move |_| {
                         create_category_open.set(true)
@@ -196,6 +217,8 @@ pub fn SideBarContextMenu(
                     <IconBox/>
                     "Create Category"
                 </ContextMenuItem>
+            </CanManageCategories>
+            <CanCreateInvitation>
                 <ContextMenuItem {..}
                     on:click=move |_| {
                         invitation_open.set(true)
@@ -204,11 +227,31 @@ pub fn SideBarContextMenu(
                     <IconLink />
                     "Invitate People"
                 </ContextMenuItem>
-            </ContextMenuContent>
-        </ContextMenu>
+            </CanCreateInvitation>
+        </ContextMenuContent>
         <InvitationDialog open=invitation_open server=server member=member/>
         <CreateChannelDialog open=create_channel_open server=server create_channel=create_channel/>
         <CreateCategoryDialog open=create_category_open server=server create_category=create_category/>
+    }
+}
+
+#[component]
+pub fn SideBarContextMenu(
+    #[prop(into)] server: Signal<Option<Server>>,
+    #[prop(into)] member: Signal<Option<Member>>,
+    create_channel: Action<CreateChannel, Result<(), String>>,
+    create_category: Action<CreateCategory, Result<(), String>>,
+) -> impl IntoView {
+    view! {
+        <ContextMenu>
+            <ContextMenuTrigger class="w-full h-full"/>
+            <ServerContextMenuData
+                server=server
+                member=member
+                create_channel=create_channel
+                create_category=create_category
+            />
+        </ContextMenu>
     }
 }
 
@@ -231,8 +274,8 @@ impl Mutation for CreateInvitation {
 #[component]
 pub fn InvitationDialog(
     open: RwSignal<bool>,
-    server: Memo<Option<Server>>,
-    member: Memo<Option<Member>>,
+    server: Signal<Option<Server>>,
+    member: Signal<Option<Member>>,
 ) -> impl IntoView {
     let invitation = UseMutation::new();
 
@@ -280,7 +323,7 @@ pub fn InvitationDialog(
 pub fn CreateChannelDialog(
     open: RwSignal<bool>,
     create_channel: Action<CreateChannel, Result<(), String>>,
-    server: Memo<Option<Server>>,
+    server: Signal<Option<Server>>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());
     let pending = create_channel.pending();
@@ -336,7 +379,7 @@ pub fn CreateChannelDialog(
 #[component]
 pub fn CreateCategoryDialog(
     open: RwSignal<bool>,
-    server: Memo<Option<Server>>,
+    server: Signal<Option<Server>>,
     create_category: Action<CreateCategory, Result<(), String>>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());

@@ -9,6 +9,8 @@ pub struct Server {
     pub creation_time: f64,
     pub name: String,
     pub image_url: Option<String>,
+    #[serde(rename = "defaultRole")]
+    pub default_role: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

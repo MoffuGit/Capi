@@ -58,6 +58,7 @@ export default defineSchema({
   servers: defineTable({
     name: v.string(),
     image_url: v.optional(v.string()),
+    defaultRole: v.optional(v.id("roles")),
   }),
   users: defineTable({
     authId: v.int64(),

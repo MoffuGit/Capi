@@ -1,4 +1,4 @@
-use common::convex::{Member, Server};
+use common::convex::{Member, Role, Server};
 use convex_client::leptos::Query;
 use leptos::server;
 use serde::{Deserialize, Serialize};
@@ -8,6 +8,7 @@ use server_fn::ServerFnError;
 pub struct SideBarData {
     pub server: Server,
     pub member: Member,
+    pub roles: Vec<Role>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -38,79 +39,3 @@ pub async fn preload_server_data() -> Result<Vec<SideBarData>, ServerFnError> {
         Ok(vec![])
     }
 }
-
-// #[server]
-// pub async fn create_server(name: String) -> Result<(), ServerFnError> {
-//     use auth::auth;
-//     use common::state::convex;
-//     let mut client = convex()?;
-//     let user = auth()
-//         .await?
-//         .current_user
-//         .ok_or(ServerFnError::new("You need to be auth"))?;
-//     let resutl = client
-//         .mutation(
-//,
-//             btreemap! {
-//                 "auth".into() => user.user().id.into(),
-//                 "name".into() => name.into(),
-//             },
-//         )
-//         .await
-//         .or(Err(ServerFnError::new("something go wrong")))?;
-//     log!("{resutl:?}");
-//     Ok(())
-// }
-//
-// #[server]
-// pub async fn create_category(name: String, server: String) -> Result<(), ServerFnError> {
-//     use auth::auth;
-//     use common::state::convex;
-//     let mut client = convex()?;
-//     let auth = auth()
-//         .await?
-//         .current_user
-//         .ok_or(ServerFnError::new("You need to be auth"))?;
-//     let resutl = client
-//         .mutation(
-//             "category:create",
-//             btreemap! {
-//                 "auth".into() => auth.user().id.into(),
-//                 "server".into() => server.into(),
-//                 "name".into() => name.into(),
-//             },
-//         )
-//         .await
-//         .or(Err(ServerFnError::new("something go wrong")))?;
-//     log!("{resutl:?}");
-//     Ok(())
-// }
-//
-// #[server]
-// pub async fn create_channel(
-//     name: String,
-//     server: String,
-//     category: Option<String>,
-// ) -> Result<(), ServerFnError> {
-//     use auth::auth;
-//     use common::state::convex;
-//     let mut client = convex()?;
-//     let auth = auth()
-//         .await?
-//         .current_user
-//         .ok_or(ServerFnError::new("You need to be auth"))?;
-//     let resutl = client
-//         .mutation(
-//,
-//             btreemap! {
-//                 "auth".into() => auth.user().id.into(),
-//                 "server".into() => server.into(),
-//                 "name".into() => name.into(),
-//                 // "category".into() => category.into()
-//             },
-//         )
-//         .await
-//         .or(Err(ServerFnError::new("something go wrong")))?;
-//     log!("{resutl:?}");
-//     Ok(())
-// }

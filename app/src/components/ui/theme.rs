@@ -4,8 +4,9 @@ use leptos_meta::{Body, Html};
 
 #[derive(Clone)]
 pub struct ThemeContext {
-    pub toggle_theme: ServerAction<ToggleTheme>,
+    toggle_theme: ServerAction<ToggleTheme>,
     pub prefers_theme: Signal<bool>,
+    pub select_theme: Callback<&'static bool>,
 }
 
 pub fn use_theme() -> ThemeContext {
@@ -46,7 +47,11 @@ pub fn ThemeProvider(children: ChildrenFn) -> impl IntoView {
         (_, Some(Ok(value))) => value,
         _ => initial,
     });
+    let select_theme = Callback::new(move |theme: &bool| {
+        toggle_theme.dispatch(ToggleTheme { theme: *theme });
+    });
     provide_context(ThemeContext {
+        select_theme,
         toggle_theme,
         prefers_theme,
     });
@@ -63,27 +68,3 @@ pub fn ThemeProvider(children: ChildrenFn) -> impl IntoView {
         {children()}
     }
 }
-
-// #[component]
-// pub fn ThemeToggle(
-//     class: &'static str,
-//     // #[prop(optional)] icons: Option<ThemeIcons>,
-// ) -> impl IntoView {
-//     let theme_context = use_theme();
-//     let toggle_theme = theme_context.toggle_theme;
-//     let prefers_theme = theme_context.prefers_theme;
-//
-//     view! {
-//         <ActionForm action=toggle_theme>
-//             <input type="hidden" name="theme" value=move || (!prefers_theme.get()).to_string() />
-//             <button type="submit" class="w-10 h-10 flex items-center justify-center bg-primary">
-//                 // {icons
-//                 //     .clone()
-//                 //     .map(|icons| move || match prefers_theme.get() {
-//                 //         true => view! { <Icon icon=icons.dark /> },
-//                 //         false => view! { <Icon icon=icons.light /> },
-//                 //     })}
-//             </button>
-//         </ActionForm>
-//     }
-// }

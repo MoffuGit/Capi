@@ -1,6 +1,5 @@
 use leptos::prelude::*;
 
-use crate::components::icons::IconSettings2;
 use crate::components::ui::sidebar::{
     SideBarCollapsible, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
     SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -27,7 +26,7 @@ impl Group {
 pub fn SideBar(setting: RwSignal<Settings>) -> impl IntoView {
     let groups = StoredValue::new(vec![Group::new(
         "Account",
-        vec![Settings::Preferences, Settings::Profiles],
+        vec![Settings::Account, Settings::Preferences, Settings::Profiles],
     )]);
     view! {
         <Sidebar collapsible=SideBarCollapsible::None class="rounded-l-xl">

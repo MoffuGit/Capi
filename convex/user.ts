@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
 
 export const getServers = query({
   args: {
@@ -21,7 +22,14 @@ export const getServers = query({
     const results = await Promise.all(
       members.map(async (member) => {
         const server = await ctx.db.get(member.server);
-        return { member, server };
+        const roles: Doc<"roles">[] = [];
+        for (const roleId of member.roles) {
+          const role = await ctx.db.get(roleId);
+          if (role) {
+            roles.push(role);
+          }
+        }
+        return { member, server, roles };
       }),
     );
 
@@ -43,18 +51,40 @@ export const getUser = query({
 
 export const getMemberForServerByUser = query({
   args: {
-    user: v.id("users"),
+    auth: v.int64(), // Changed from user to auth
     serverId: v.id("servers"),
   },
-  handler: async (ctx, { user, serverId }) => {
+  handler: async (ctx, { auth, serverId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (user === null) {
+      return null; // User not found for auth ID
+    }
+
     const member = await ctx.db
       .query("members")
-      .withIndex("by_server_and_user", (q) =>
-        q.eq("server", serverId).eq("user", user),
+      .withIndex(
+        "by_server_and_user",
+        (q) => q.eq("server", serverId).eq("user", user._id), // Use user._id here
       )
       .unique();
 
-    return member;
+    if (!member) {
+      return null; // Member not found
+    }
+
+    const roles: Doc<"roles">[] = [];
+    for (const roleId of member.roles) {
+      const role = await ctx.db.get(roleId);
+      if (role) {
+        roles.push(role);
+      }
+    }
+
+    return { member, roles }; // Return member and its roles
   },
 });
 
