@@ -1,6 +1,7 @@
 use leptos::context::Provider;
 use leptos::html;
 use leptos::{leptos_dom::helpers::TimeoutHandle, prelude::*};
+use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 use std::time::Duration;
 use tailwind_fuse::tw_merge;
 use web_sys::{HtmlDivElement, PointerEvent};
@@ -165,35 +166,34 @@ pub enum ToolTipSide {
 }
 
 pub fn get_tooltip_position(
-    trigger: HtmlDivElement,
-    content: HtmlDivElement,
+    trigger_x: f64,
+    trigger_y: f64,
+    trigger_width: f64,
+    trigger_height: f64,
+    content_width: f64,
+    content_height: f64,
     tooltip_side: ToolTipSide,
     tooltip_of_side: f64,
 ) -> (String, String) {
-    let trigger_values = trigger.get_bounding_client_rect();
-    let content_height = content.offset_height();
-    let content_width = content.offset_width();
-    let (y, height) = (trigger_values.y(), trigger.offset_height());
-    let (x, width) = (trigger_values.x(), trigger.offset_width());
     match tooltip_side {
         ToolTipSide::Bottom => {
-            let y = y + f64::from(height) + tooltip_of_side;
-            let x = x + (f64::from(width) / 2.0) - (f64::from(content_width) / 2.0);
+            let y = trigger_y + trigger_height + tooltip_of_side;
+            let x = trigger_x + (trigger_width / 2.0) - (content_width / 2.0);
             (x.to_string(), y.to_string())
         }
         ToolTipSide::Left => {
-            let y = y + (f64::from(height) / 2.0) - (f64::from(content_height) / 2.0);
-            let x = x - f64::from(content_width) - tooltip_of_side;
+            let y = trigger_y + (trigger_height / 2.0) - (content_height / 2.0);
+            let x = trigger_x - content_width - tooltip_of_side;
             (x.to_string(), y.to_string())
         }
         ToolTipSide::Right => {
-            let y = y + (f64::from(height) / 2.0) - (f64::from(content_height) / 2.0);
-            let x = x + f64::from(width) + tooltip_of_side;
+            let y = trigger_y + (trigger_height / 2.0) - (content_height / 2.0);
+            let x = trigger_x + trigger_width + tooltip_of_side;
             (x.to_string(), y.to_string())
         }
         ToolTipSide::Top => {
-            let y = y - f64::from(content_height) - tooltip_of_side;
-            let x = x + (f64::from(width) / 2.0) - (f64::from(content_width) / 2.0);
+            let y = trigger_y - content_height - tooltip_of_side;
+            let x = trigger_x + (trigger_width / 2.0) - (content_width / 2.0);
             (x.to_string(), y.to_string())
         }
     }
@@ -243,39 +243,38 @@ pub fn ToolTipContent(
     let content_ref = NodeRef::<html::Div>::new();
 
     let position = RwSignal::new(("".to_string(), "".to_string()));
-    let position_timer_ref: RwSignal<Option<TimeoutHandle>> = RwSignal::new(None);
 
     let transition_status =
         use_context::<TransitionStatusState>().expect("should acces the transition context");
 
+    let UseElementBoundingReturn {
+        width: trigger_width,
+        height: trigger_height,
+        x: trigger_x,
+        y: trigger_y,
+        ..
+    } = use_element_bounding(trigger_ref);
+
+    let UseElementBoundingReturn {
+        width: content_width,
+        height: content_height,
+        ..
+    } = use_element_bounding(content_ref);
+
     Effect::new(move |_| {
-        if let (Some(trigger), Some(content), true) = (
-            trigger_ref.get(),
-            content_ref.get(),
-            transition_status.mounted.get(),
-        ) {
-            if let Some(timer) = position_timer_ref.get_untracked() {
-                timer.clear();
-            }
-            position_timer_ref.set(
-                set_timeout_with_handle(
-                    move || {
-                        position.set(get_tooltip_position(
-                            trigger,
-                            content,
-                            tooltip_side,
-                            tooltip_of_side,
-                        ))
-                    },
-                    Duration::new(0, 5),
-                )
-                .ok(),
-            );
+        if transition_status.mounted.get() {
+            position.set(get_tooltip_position(
+                trigger_x.get(),
+                trigger_y.get(),
+                trigger_width.get(),
+                trigger_height.get(),
+                content_width.get(),
+                content_height.get(),
+                tooltip_side,
+                tooltip_of_side,
+            ));
         } else {
-            if let Some(timer) = position_timer_ref.get_untracked() {
-                timer.clear();
-            }
-            position.set(("".to_string(), "".to_string()))
+            position.set(("".to_string(), "".to_string()));
         }
     });
 

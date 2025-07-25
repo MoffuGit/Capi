@@ -27,7 +27,7 @@ pub fn AvatarImage(
     view! {
         <AvatarImagePrimitive
             image_url=url
-            class=MaybeProp::derive(move || Some(tw_merge!("aspect-square size-full", class.get())))
+            class=MaybeProp::derive(move || Some(tw_merge!("aspect-square size-full object-cover", class.get())))
         />
     }
 }

@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow.workspace = true
 leptos.workspace = true
 leptos_axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }

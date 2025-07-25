@@ -103,6 +103,8 @@ pub struct Member {
     pub roles: Vec<String>,
     pub name: String,
     pub image_url: Option<String>,
+    #[serde(rename = "bannerUrl")]
+    pub banner_url: Option<String>,
     #[serde(rename = "lastVisitedChannel")]
     pub last_visited_channel: Option<String>,
     pub online: bool,

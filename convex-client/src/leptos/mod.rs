@@ -4,6 +4,7 @@ mod subscription;
 mod worker;
 
 use crate::leptos::worker::worker;
+use async_trait::async_trait;
 use leptos::prelude::*;
 use leptos::task::spawn_local_scoped_with_cancellation;
 use std::sync::Arc;
@@ -456,37 +457,69 @@ impl UseMutation {
     where
         M: Mutation + Clone,
     {
-        let client = use_context::<ConvexClient>();
-        Action::new(move |mutation: &M| {
+        UseMutation::with_fn(move |(mutation, client): (&M, &mut ConvexClient)| {
             let mutation = mutation.to_owned();
+            let mut client = client.to_owned();
+            async move { mutation.run(&mut client).await }
+        })
+    }
+
+    pub fn with_fn<I, O, F, Fu>(action_fn: F) -> Action<I, O>
+    where
+        F: Fn((&I, &mut ConvexClient)) -> Fu + Send + Sync + 'static,
+        Fu: Future<Output = O> + Send + 'static,
+        I: Send + Sync + 'static,
+        O: Send + Sync + 'static,
+    {
+        let client = use_context::<ConvexClient>();
+        Action::new(move |input: &I| {
             let mut client = client.clone().unwrap();
-            async move {
-                match client
-                    .mutation(&mutation.name(), mutation.args().unwrap_or_default())
-                    .await
-                {
-                    Ok(FunctionResult::Value(value)) => {
-                        match serde_json::from_value::<M::Output>(value) {
-                            Err(err) => Err(format!("{err}")),
-                            Ok(value) => Ok(value),
-                        }
-                    }
-                    Ok(FunctionResult::ErrorMessage(err)) => Err(err),
-                    Ok(FunctionResult::ConvexError(convex_error)) => {
-                        Err(format!("{convex_error:?}"))
-                    }
-                    Err(e) => Err(format!("Mutation failed: {e}")),
-                }
-            }
+            action_fn((input, &mut client))
+        })
+    }
+
+    pub fn with_local_fn<I, O, F, Fu>(action_fn: F) -> Action<I, O>
+    where
+        F: Fn((&I, &mut ConvexClient)) -> Fu + 'static,
+        Fu: Future<Output = O> + 'static,
+        I: 'static,
+        O: 'static,
+    {
+        let client = use_context::<ConvexClient>();
+        Action::new_local(move |input: &I| {
+            let mut client = client.clone().unwrap();
+            action_fn((input, &mut client))
         })
     }
 }
 
+#[async_trait]
 pub trait Mutation: Serialize + Send + Sync + 'static {
     type Output: DeserializeOwned + Send + Sync + 'static;
     fn name(&self) -> String;
-    fn args(&self) -> anyhow::Result<Value> {
-        Ok(serde_json::to_value(self)?)
+    fn args(&self) -> anyhow::Result<Value>
+    where
+        Self: serde::Serialize,
+    {
+        let mut value = serde_json::to_value(self)?;
+        convex_json(&mut value);
+        Ok(value)
+    }
+    async fn run(&self, client: &mut ConvexClient) -> Result<Self::Output, String> {
+        match client
+            .mutation(&self.name(), self.args().unwrap_or_default())
+            .await
+        {
+            Ok(FunctionResult::Value(value)) => {
+                match serde_json::from_value::<Self::Output>(value) {
+                    Err(err) => Err(format!("{err}")),
+                    Ok(value) => Ok(value),
+                }
+            }
+            Ok(FunctionResult::ErrorMessage(err)) => Err(err),
+            Ok(FunctionResult::ConvexError(convex_error)) => Err(format!("{convex_error:?}")),
+            Err(e) => Err(format!("Mutation failed: {e}")),
+        }
     }
 }
 

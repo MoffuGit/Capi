@@ -2,7 +2,6 @@ use std::str::FromStr;
 
 use crate::components::icons::{IconCirclePlus, IconSend, IconSticker, IconTrash};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::uploadthing::input::FileInput;
 use crate::routes::server::channel::components::chat::ChatContext;
 use common::convex::{Channel, Member};
 use convex_client::leptos::{Mutation, UseMutation};
@@ -156,7 +155,7 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
 
                 <div class="flex items-center justify-center">
                     <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="relative">
-                        <FileInput class="absolute inset-0 opacity-0" files=context.attachments/>
+                        // <FileInput class="absolute inset-0 opacity-0" files=context.attachments/>
                         <IconCirclePlus/>
                     </Button>
                 </div>
