@@ -26,7 +26,7 @@ impl Group {
 pub fn SideBar(setting: RwSignal<Settings>) -> impl IntoView {
     let groups = StoredValue::new(vec![Group::new(
         "Account",
-        vec![Settings::Account, Settings::Preferences, Settings::Profiles],
+        vec![Settings::Account, Settings::Profiles, Settings::Preferences],
     )]);
     view! {
         <Sidebar collapsible=SideBarCollapsible::None class="rounded-l-xl">
@@ -48,6 +48,9 @@ pub fn SideBar(setting: RwSignal<Settings>) -> impl IntoView {
                                                             <SidebarMenuButton on:click=move |_| {
                                                                     setting.set(set)
                                                                 }
+                                                                is_active=Signal::derive(move || {
+                                                                    setting.get() == set
+                                                                })
                                                                 class="select-none"
                                                             >
                                                                 {set.view()}

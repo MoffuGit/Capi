@@ -64,6 +64,8 @@ export default defineSchema({
     authId: v.int64(),
     name: v.string(),
     image_url: v.optional(v.string()),
+    about: v.optional(v.string()),
+    bannerUrl: v.optional(v.string()),
   }).index("by_auth", ["authId"]),
   tasks: defineTable({
     text: v.string(),

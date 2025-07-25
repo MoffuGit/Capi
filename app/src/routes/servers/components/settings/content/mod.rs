@@ -39,7 +39,7 @@ pub fn Title(children: Children) -> impl IntoView {
 #[component]
 pub fn Setting(children: Children) -> impl IntoView {
     view! {
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between my-2">
             {children()}
         </div>
     }

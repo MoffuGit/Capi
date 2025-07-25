@@ -86,7 +86,7 @@ pub fn SideBar() -> impl IntoView {
                         user.get().map(|user| {
                             let name = StoredValue::new(user.name);
                             view!{
-                                <Avatar class="flex bg-accent aspect-square size-8 items-center justify-center rounded-lg group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
+                                <Avatar class="flex bg-accent aspect-square size-8 items-center justify-center rounded-lg">
                                     <AvatarImage url=user.image_url/>
                                     <AvatarFallback class="rounded-lg select-none bg-transparent">
                                         {name.get_value().chars().next()}

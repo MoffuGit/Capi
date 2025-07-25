@@ -21,6 +21,9 @@ pub struct User {
     pub creation_time: f64,
     pub name: String,
     pub image_url: Option<String>,
+    pub about: Option<String>,
+    #[serde(rename = "bannerUrl")]
+    pub banner_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

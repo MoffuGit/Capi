@@ -11,7 +11,7 @@ use leptos::prelude::*;
 use self::content::Content;
 use self::sidebar::SideBar;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Settings {
     Account,
     Preferences,
@@ -62,7 +62,7 @@ impl Settings {
 
 #[component]
 pub fn DialogUserSettings(open: RwSignal<bool>) -> impl IntoView {
-    let setting = RwSignal::new(Settings::Preferences);
+    let setting = RwSignal::new(Settings::Profiles);
     view! {
         <Dialog open=open>
                 <DialogPopup class="max-h-[715px] h-[calc(-100px+100vh)] rounded-xl overflow-hidden p-0 w-[1150px] md:max-w-[700px] lg:max-w-[800px] xl:max-w-[1150px]">
