@@ -2,6 +2,7 @@ mod preferences;
 mod profiles;
 
 use leptos::prelude::*;
+use tailwind_fuse::tw_merge;
 
 use crate::components::ui::sidebar::SidebarInset;
 
@@ -37,9 +38,9 @@ pub fn Title(children: Children) -> impl IntoView {
 }
 
 #[component]
-pub fn Setting(children: Children) -> impl IntoView {
+pub fn Setting(children: Children, #[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
-        <div class="flex items-center justify-between my-2">
+        <div class=move || tw_merge!("flex items-center justify-between my-2", class.get())>
             {children()}
         </div>
     }
