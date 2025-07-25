@@ -306,7 +306,12 @@ pub fn ToolTipContent(
             style:position="absolute"
             style:left=move || format!("{}px", position().0)
             style:top=move || format!("{}px",  position().1)
-            style=move || format!("--radix-tooltip-content-transform-origin: {}px {}px", position().0, position().1)
+            style=move || format!("--radix-tooltip-content-transform-origin: {}", match tooltip_side {
+                ToolTipSide::Bottom => "bottom",
+                ToolTipSide::Left => "left",
+                ToolTipSide::Right => "right",
+                ToolTipSide::Top => "top",
+            })
             class=format!("absolute z-50 left-0 top-0 font-normal")
         >
             <div
