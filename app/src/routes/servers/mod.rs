@@ -6,6 +6,7 @@ use common::convex::User;
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
 use leptos::prelude::*;
 use leptos_router::components::Outlet;
+use leptos_router::hooks::use_location;
 use leptos_use::use_interval_fn;
 use serde::Serialize;
 use uuid::Uuid;
@@ -14,6 +15,22 @@ use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{SidebarInset, SidebarProvider};
 
 use self::components::sidebar::SideBar;
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub enum SideBarRoute {
+    Server,
+    Discover,
+    Servers,
+    Private,
+}
+fn get_route_from_path(path: &str) -> SideBarRoute {
+    match path.split('/').nth(2) {
+        None | Some("") => SideBarRoute::Servers, // Covers /servers and /servers/
+        Some("discover") => SideBarRoute::Discover,
+        Some("me") => SideBarRoute::Private,
+        _ => SideBarRoute::Server, // Covers /servers/{id} or anything else
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 struct HeartBeat {
@@ -62,10 +79,26 @@ pub fn Servers() -> impl IntoView {
             10000,
         );
     }
+
+    let location = use_location();
+
+    let route = Memo::new(move |_| {
+        let path = location.pathname.get();
+        get_route_from_path(&path)
+    });
+
+    let shortcut = MaybeProp::derive(move || {
+        if route.get() == SideBarRoute::Servers {
+            None
+        } else {
+            Some("b".to_string())
+        }
+    });
+
     provide_context(user);
     view! {
-        <SidebarProvider style="--sidebar-width: 300px">
-            <SideBar/>
+        <SidebarProvider shortcut=shortcut style="--sidebar-width: 300px">
+            <SideBar route=route/>
             <SidebarInset class="max-h-screen" >
                 <Outlet/>
             </SidebarInset>

@@ -6,7 +6,6 @@ use web_sys::MouseEvent;
 const SIDEBAR_WIDTH: &str = "16rem";
 const SIDEBAR_WIDTH_MOBILE: &str = "18rem";
 const SIDEBAR_WIDTH_ICON: &str = "3rem";
-const SIDEBAR_KEYBOARD_SHORTCUT: &str = "b";
 
 use crate::components::icons::IconPanelLeft;
 use crate::components::primitives::common::{is_mobile, Side};
@@ -109,7 +108,7 @@ pub fn SidebarProvider(
     #[prop(optional, into)] class: String,
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into, default = true)] main: bool,
-    #[prop(optional, into)] shortcut: Option<String>,
+    #[prop(optional, into)] shortcut: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     let state = Memo::new(move |_| {
@@ -151,16 +150,8 @@ pub fn SidebarProvider(
         use wasm_bindgen::prelude::Closure;
         use wasm_bindgen::JsCast;
         let handle_key_down = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
-            if let Some(key) = shortcut.clone() {
+            if let Some(key) = shortcut.get_untracked() {
                 if event.key() == key && (event.meta_key() || event.ctrl_key()) {
-                    event.prevent_default();
-                    toggle_sidebar.run(());
-                }
-            }
-            if main {
-                if event.key() == SIDEBAR_KEYBOARD_SHORTCUT
-                    && (event.meta_key() || event.ctrl_key())
-                {
                     event.prevent_default();
                     toggle_sidebar.run(());
                 }
@@ -251,11 +242,18 @@ pub fn Sidebar(
     collapsible: SideBarCollapsible,
     #[prop(optional, into)] class: Signal<String>,
     children: ChildrenFn,
+    #[prop(optional, into)] state: MaybeProp<SideBarState>,
 ) -> impl IntoView {
     let sidebar_context = use_sidebar();
     let is_mobile = sidebar_context.is_mobile;
     let open_mobile = sidebar_context.open_mobile;
-    let state = sidebar_context.state;
+    let state = Signal::derive(move || {
+        if let Some(state) = state.get() {
+            state
+        } else {
+            sidebar_context.state.get()
+        }
+    });
 
     if collapsible == SideBarCollapsible::None {
         return view! {

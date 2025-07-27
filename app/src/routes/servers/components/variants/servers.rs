@@ -7,8 +7,8 @@ use crate::components::ui::sidebar::{
 #[component]
 pub fn ServersSideBar() -> impl IntoView {
     view! {
-        <SidebarHeader class="gap-3.5 border-b p-4">
-            <div class="flex w-full items-center justify-between">
+        <SidebarHeader>
+            <div class="flex w-full items-center">
                 <div class="text-foreground text-base font-medium">
                     "Servers"
                 </div>

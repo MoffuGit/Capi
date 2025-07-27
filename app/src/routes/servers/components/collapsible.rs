@@ -5,8 +5,9 @@ use crate::routes::servers::components::sidebar::SideBarOption;
 use crate::routes::servers::components::variants::{
     DiscoverSideBar, InboxSideBar, PrivateSideBar, SearchSideBar, ServerSideBar, ServersSideBar,
 };
+use crate::routes::SideBarRoute;
 
-use super::sidebar::{SideBarData, SideBarRoute};
+use super::sidebar::SideBarData;
 
 #[component]
 pub fn SidebarCollapsible(
