@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 pub mod avatar;
+pub mod badge;
 pub mod breadcrumb;
 pub mod button;
 pub mod card;
