@@ -1,13 +1,20 @@
+use api::presence::GetUserStatus;
+use api::server::GetServers;
 pub use api::server::SideBarData;
-use api::server::{preload_server_data, GetServers};
 use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconMic, IconSettings};
+use crate::components::icons::{IconHeadphones, IconMic, IconSettings};
+use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
+use crate::components::ui::badge::{Badge, BadgeVariant};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
+use crate::components::ui::dropwdown::{
+    DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
+    DropdownMenuTrigger,
+};
 use crate::components::ui::sidebar::{
     SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarRail,
 };
@@ -53,62 +60,88 @@ pub fn SideBar() -> impl IntoView {
 
     let auth = use_auth().auth();
 
-    let preloaded_data = Resource::new(move || (), move |_| preload_server_data());
-
-    let user = use_profile();
-
-    let open_user_settings = RwSignal::new(false);
+    let data = UseQuery::new(move || {
+        auth.get()
+            .and_then(|res| res.ok())
+            .flatten()
+            .map(|auth| GetServers { auth: auth.id })
+    });
+    let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
 
     view! {
         <Sidebar collapsible=SideBarCollapsibleType::Icon class="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
-            <Transition>
-                {
-                    move || {
-                        preloaded_data.and_then(|data| {
-                            let data = UseQuery::with_preloaded(move || {
-                                auth.get()
-                                    .and_then(|res| res.ok())
-                                    .flatten()
-                                    .map(|auth| GetServers { auth: auth.id })
-                            }, data.clone());
-                            let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
-                            view!{
-                                <SidebarIcons data=data option=option/>
-                                <SidebarCollapsible data=data route=route option=option/>
-                            }
-                        })
-                    }
-                }
-            </Transition>
-            <div class="bg-background h-8 shadow-md border rounded-lg flex items-center bottom-2 left-2 absolute group-data-[state=collapsed]:w-8 group-data-[state=expanded]:p-2 group-data-[state=expanded]:w-[calc(var(--sidebar-width)-18px)] group-data-[state=expanded]:h-12 transition-all ease-in-out-cubic duration-200 overflow-hidden">
-                {
-                    move || {
-                        user.get().map(|user| {
-                            let name = StoredValue::new(user.name);
-                            view!{
-                                <Avatar class="flex bg-accent aspect-square size-8 items-center justify-center rounded-lg">
-                                    <AvatarImage url=user.image_url/>
-                                    <AvatarFallback class="rounded-lg select-none bg-transparent">
-                                        {name.get_value().chars().next()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div class="flex justify-center items-center ml-auto gap-2">
-                                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
-                                        <IconMic/>
-                                    </Button>
-                                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost on:click=move |_| {
-                                        open_user_settings.set(true);
-                                    }>
-                                        <IconSettings/>
-                                    </Button>
-                                </div>
-                            }
-                        })
-                    }
-                        }
-            </div>
+            <SidebarIcons data=data option=option/>
+            <SidebarCollapsible data=data route=route option=option/>
+            <Profile/>
             <SidebarRail/>
-            <DialogUserSettings open=open_user_settings />
         </Sidebar>
+    }
+}
+
+#[component]
+pub fn Profile() -> impl IntoView {
+    let user = use_profile();
+
+    let status = UseQuery::new(move || user.get().map(|user| GetUserStatus { user: user.id }));
+
+    let open_user_settings = RwSignal::new(false);
+    view! {
+        <div class="bg-background h-8 shadow-md border rounded-lg flex items-center bottom-2 left-2 absolute group-data-[state=collapsed]:w-8 group-data-[state=expanded]:p-1 group-data-[state=expanded]:w-[calc(var(--sidebar-width)-18px)] group-data-[state=expanded]:h-13 transition-all ease-in-out-cubic duration-200 overflow-hidden">
+            <DropdownMenu>
+                <DropdownMenuTrigger class="h-full flex items-center hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-lg group-data-[state=expanded]:p-1 min-w-0">
+                    <Avatar class="flex relative bg-accent aspect-square size-8 items-center justify-center rounded-lg overflow-visible">
+                        {
+                            move || {
+                                user.get().map(|user| {
+                                    let name = StoredValue::new(user.name);
+                                    view!{
+                                                    <AvatarImage url=user.image_url class="rounded-lg"/>
+                                                    <AvatarFallback class="rounded-lg select-none bg-transparent">
+                                                        {name.get_value().chars().next()}
+                                                    </AvatarFallback>
+                                    }
+                                })
+                            }
+                        }
+                    </Avatar>
+                    <div class="flex justify-between flex-col h-full px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expqnded]:opacity-100 min-w-0">
+                        <div class="text-sm truncate font-light">
+                            {move || user.get().map(|user| user.name)}
+                        </div>
+                        <Badge class="h-4 rounded-sm px-1.5" variant=BadgeVariant::Outline>
+                            {move || status.get().and_then(|res| res.ok()).flatten().map(|status| {
+                                status.to_string()
+                            })}
+                        </Badge>
+                    </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side=MenuSide::Top align=MenuAlign::Start side_of_set=-10.0>
+                    <DropdownMenuGroup>
+                        <DropdownMenuLabel>
+                            {move || {
+                                user.get().map(|user| user.name)
+                            }}
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem
+                            on:click=move |_| {
+                                open_user_settings.set(true);
+                            }
+                        >
+                            <IconSettings/>
+                            "Settings"
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <div class="flex justify-center w-auto group-data-[state=expanded]:shrink-0 group-data-[state=collapsed]:w-0 items-center ml-auto gap-2 overflow-hidden px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expqnded]:opacity-100 transition-opacity ease-out">
+                <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
+                    <IconMic/>
+                </Button>
+                <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
+                    <IconHeadphones/>
+                </Button>
+            </div>
+        </div>
+        <DialogUserSettings open=open_user_settings />
     }
 }

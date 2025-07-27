@@ -30,12 +30,7 @@ impl Mutation for HeartBeat {
 }
 
 pub fn use_profile() -> Signal<Option<User>> {
-    Signal::derive(move || {});
-    if let Some(signal) = use_context() {
-        signal
-    } else {
-        Signal::derive(move || None)
-    }
+    use_context().expect("should acces to the use profile context")
 }
 
 #[component]

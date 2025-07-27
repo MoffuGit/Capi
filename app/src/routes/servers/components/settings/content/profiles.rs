@@ -12,14 +12,14 @@ use crate::routes::servers::components::settings::content::{
     Setting, SettingAction, SettingData, SettingDescription, SettingTitle,
 };
 use crate::routes::use_profile;
-use convex_client::leptos::{ConvexClient, Mutation};
+use convex_client::leptos::Mutation;
 use gloo_file::File;
 use web_sys::HtmlInputElement;
 
 use super::Title;
 use api::files::{GenerateUploadUrl, RemoveUserBanner, RemoveUserImage, SetBannerUrl, SetImageUrl};
 use convex_client::leptos::UseMutation;
-use leptos::{html, prelude::*};
+use leptos::prelude::*;
 
 #[component]
 pub fn Profiles() -> impl IntoView {
@@ -185,7 +185,6 @@ pub fn ProfileBanner(
                                 view! {
                                     <Button class="absolute right-2 top-2" size=ButtonSizes::Sm variant=ButtonVariants::Outline
                                         on:click=move |_| { if let Some(input) = input_ref.get() { input.click(); } }
-                                        on:pointerenter=move |_| { tooltip_text.set("Add a cover image"); }
                                     >
                                         <IconImage />
                                         "Add cover image"
