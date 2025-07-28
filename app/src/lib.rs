@@ -3,9 +3,11 @@ mod routes;
 
 use convex_client::leptos::ConvexProvider;
 use leptos::prelude::*;
+use leptos_dom::{log, warn};
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
     components::{Outlet, ParentRoute, ProtectedParentRoute, Route, Router, Routes},
+    hooks::use_location,
     ParamSegment, StaticSegment,
 };
 use routes::Home;
@@ -71,11 +73,9 @@ pub fn App() -> impl IntoView {
                                 >
                                     <Route
                                         path=StaticSegment("")
-                                        view=move || view! { <div>"servers"</div> }
-                                    />
-                                    <Route
-                                        path=StaticSegment("discover")
-                                        view=move || view! { <div>"discover servers"</div> }
+                                        view=move || {
+                                            view! { <div>"servers"</div> }
+                                        }
                                     />
                                     <Route
                                         path=StaticSegment("me")

@@ -30,9 +30,10 @@ pub enum SideBarOption {
 }
 
 #[component]
-pub fn SideBar(route: Memo<SideBarRoute>) -> impl IntoView {
-    let option: RwSignal<Option<SideBarOption>> = RwSignal::new(None);
-
+pub fn SideBar(
+    route: Memo<SideBarRoute>,
+    option: RwSignal<Option<SideBarOption>>,
+) -> impl IntoView {
     let auth = use_auth().auth();
 
     let data = UseQuery::new(move || {
@@ -44,7 +45,9 @@ pub fn SideBar(route: Memo<SideBarRoute>) -> impl IntoView {
     let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
 
     let state = MaybeProp::derive(move || {
-        if route.get() == SideBarRoute::Servers {
+        if option.get().is_none()
+            && (route.get() == SideBarRoute::Servers || route.get() == SideBarRoute::Discover)
+        {
             Some(SideBarState::Collapsed)
         } else {
             None

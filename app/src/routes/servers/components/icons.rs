@@ -201,6 +201,9 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                     </ContextMenuItem>
                     <A
                         href="/servers/discover"
+                        on:click=move |_| {
+                            set_option.run(())
+                        }
                     >
                         <ContextMenuItem close_on_click=true>
                             <IconCompass />

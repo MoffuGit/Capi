@@ -2,8 +2,9 @@ mod categories;
 mod channels;
 mod header;
 
-use common::convex::{Member, Server};
-use convex_client::leptos::{Mutation, UseMutation};
+use api::category::GetCategories;
+use common::convex::{Category, Member, Server};
+use convex_client::leptos::{Mutation, UseMutation, UseQuery};
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
@@ -15,6 +16,8 @@ use crate::components::roles::{
     CanCreateInvitation, CanManageCategories, CanManageChannels, CanManageServerSettings,
     RolesProvider,
 };
+use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
+use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::context::{
     ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger,
 };
@@ -113,6 +116,14 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
         })
     });
 
+    let categories = UseQuery::new(move || {
+        server
+            .get()
+            .map(|server| GetCategories { server: server.id })
+    });
+
+    let categories = Signal::derive(move || categories.get().and_then(|res| res.ok()));
+
     view! {
         <RolesProvider roles=Signal::derive(move || roles.get().unwrap_or_default())>
             <ServerHeader server=server />
@@ -124,9 +135,9 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
                     </SidebarGroupContent>
                     <PendingCategoryItem create_category=create_category/>
                 </SidebarGroup>
-                <CategoriesItems server=server />
+                <CategoriesItems server=server categories=categories />
                 <PendingChannelItem create_channel=create_channel/>
-                <SideBarContextMenu create_channel=create_channel create_category=create_category server=server member=member/>
+                <SideBarContextMenu categories=categories create_channel=create_channel create_category=create_category server=server member=member/>
             </SidebarContent>
         </RolesProvider>
     }
@@ -186,6 +197,8 @@ pub fn ServerContextMenuData(
     #[prop(into)] member: Signal<Option<Member>>,
     create_channel: Action<CreateChannel, Result<(), String>>,
     create_category: Action<CreateCategory, Result<(), String>>,
+    categories: Signal<Option<Vec<Category>>>,
+    #[prop(optional)] category: Option<Category>,
 ) -> impl IntoView {
     let create_channel_open = RwSignal::new(false);
     let create_category_open = RwSignal::new(false);
@@ -237,7 +250,7 @@ pub fn ServerContextMenuData(
             </CanManageServerSettings>
         </ContextMenuContent>
         <InvitationDialog open=invitation_open server=server member=member/>
-        <CreateChannelDialog open=create_channel_open server=server create_channel=create_channel/>
+        <CreateChannelDialog category=category categories=categories open=create_channel_open server=server create_channel=create_channel/>
         <CreateCategoryDialog open=create_category_open server=server create_category=create_category/>
     }
 }
@@ -248,11 +261,13 @@ pub fn SideBarContextMenu(
     #[prop(into)] member: Signal<Option<Member>>,
     create_channel: Action<CreateChannel, Result<(), String>>,
     create_category: Action<CreateCategory, Result<(), String>>,
+    categories: Signal<Option<Vec<Category>>>,
 ) -> impl IntoView {
     view! {
         <ContextMenu>
             <ContextMenuTrigger class="w-full h-full"/>
             <ServerContextMenuData
+                categories=categories
                 server=server
                 member=member
                 create_channel=create_channel
@@ -331,8 +346,11 @@ pub fn CreateChannelDialog(
     open: RwSignal<bool>,
     create_channel: Action<CreateChannel, Result<(), String>>,
     server: Signal<Option<Server>>,
+    categories: Signal<Option<Vec<Category>>>,
+    category: Option<Category>,
 ) -> impl IntoView {
     let (name, set_name) = signal(String::default());
+    let selected_category = RwSignal::new(category);
     let pending = create_channel.pending();
     let auth = use_auth().auth();
     view! {
@@ -341,25 +359,65 @@ pub fn CreateChannelDialog(
         >
             <DialogPopup>
                 <DialogHeader>
-                    <DialogTitle>"Create New Channel"</DialogTitle>
-                    // <DialogDescription>
-                    //     "Give your new server a personality with a name and an icon. You can always change it later."
-                    // </DialogDescription>
+                    <div class="text-sm flex h-8 items-center px-2">
+                        <span class="text-foreground/70">
+                            "Add channel to"
+                        </span>
+                            <Show when=move || selected_category.get().is_some()>
+                                {
+                                    move || {
+                                        selected_category.get().map(|category| {
+                                            view!{
+                                                <span class="capitalize font-medium">
+                                                    {category.name}
+                                                </span>
+                                            }
+                                        })
+                                    }
+                                }
+                            </Show>
+                            <Show when=move || selected_category.get().is_none()>
+                                {
+                                    move || {
+                                        server.get().map(|server| {
+                                            view!{
+                                                <Avatar class="flex bg-accent aspect-square size-5 mx-1 items-center justify-center rounded-lg group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
+                                                    <AvatarImage url=server.image_url/>
+                                                    <AvatarFallback class="rounded-lg select-none bg-transparent">
+                                                        {server.name.chars().next()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+
+                                            }
+                                        })
+                                    }
+                                }
+                                <span class="capitalize font-medium">
+                                    {move || {
+                                        server.get().map(|server| {
+                                            server.name
+                                        })
+                                    }}
+                                </span>
+                            </Show>
+                    </div>
                 </DialogHeader>
                     <div class="grid gap-2">
-                        <Label {..} for="channel-name">Channel Name</Label>
+                        <Label class="px-2" {..} for="channel-name">Channel Name</Label>
                         <Input
                             {..}
                             id="channel-name"
                             type="text"
-                            placeholder="My Awesome Channel"
+                            placeholder="New Channel"
                             required=true
                             value=name
                             on:input=move |ev| set_name(event_target_value(&ev))
                         />
                     </div>
                 <DialogFooter>
-                    <button
+                    <Button
+                        variant=ButtonVariants::Secondary
+                        size=ButtonSizes::Sm
                         on:click=move |_| {
                             if !name.get().is_empty() {
                                 if let Some(server) = server.get() {
@@ -371,11 +429,10 @@ pub fn CreateChannelDialog(
                                 }
                             }
                         }
-                        disabled=move || pending.get() | server.get().is_none()
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                        disabled=Signal::derive(move || pending.get() | server.get().is_none())
                     >
                         "Create"
-                    </button>
+                    </Button>
                 </DialogFooter>
             </DialogPopup>
         </Dialog>
@@ -398,25 +455,50 @@ pub fn CreateCategoryDialog(
         >
             <DialogPopup>
                 <DialogHeader>
-                    <DialogTitle>"Create New Category"</DialogTitle>
-                    // <DialogDescription>
-                    //     "Give your new server a personality with a name and an icon. You can always change it later."
-                    // </DialogDescription>
-                </DialogHeader>
-                    <div class="grid gap-2">
-                        <Label {..} for="channel-name">Category Name</Label>
-                        <Input
-                            {..}
-                            id="channel-name"
-                            type="text"
-                            placeholder="My Awesome Category"
-                            required=true
-                            value=name
-                            on:input=move |ev| set_name(event_target_value(&ev))
-                        />
+                    <div class="text-sm flex h-8 items-center px-2">
+                        <span class="text-foreground/70">
+                            "Add category to"
+                        </span>
+                            {
+                                move || {
+                                    server.get().map(|server| {
+                                        view!{
+                                            <Avatar class="flex bg-accent aspect-square size-5 mx-1 items-center justify-center rounded-lg group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
+                                                <AvatarImage url=server.image_url/>
+                                                <AvatarFallback class="rounded-lg select-none bg-transparent">
+                                                    {server.name.chars().next()}
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                        }
+                                    })
+                                }
+                            }
+                        <span class="capitalize font-medium">
+                            {move || {
+                                server.get().map(|server| {
+                                    server.name
+                                })
+                            }}
+                        </span>
                     </div>
+                </DialogHeader>
+                <div class="grid gap-2">
+                    <Label class="px-2" {..} for="channel-name">Category Name</Label>
+                    <Input
+                        {..}
+                        id="channel-name"
+                        type="text"
+                        placeholder="New Category"
+                        required=true
+                        value=name
+                        on:input=move |ev| set_name(event_target_value(&ev))
+                    />
+                </div>
                 <DialogFooter>
-                    <button
+                    <Button
+                        variant=ButtonVariants::Secondary
+                        size=ButtonSizes::Sm
                         on:click=move |_| {
                             if !name.get().is_empty() {
                                 if let Some(server) = server.get() {
@@ -428,11 +510,10 @@ pub fn CreateCategoryDialog(
                                 }
                             }
                         }
-                        disabled=move || pending.get() | server.get().is_none()
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                        disabled=Signal::derive(move || pending.get() | server.get().is_none())
                     >
                         "Create"
-                    </button>
+                    </Button>
                 </DialogFooter>
             </DialogPopup>
         </Dialog>

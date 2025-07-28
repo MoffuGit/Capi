@@ -1,4 +1,5 @@
-use convex_client::leptos::UseMutation;
+use api::category::GetCategories;
+use convex_client::leptos::{UseMutation, UseQuery};
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_params_map;
@@ -22,6 +23,7 @@ pub fn ServersItems(
     let params = use_params_map();
     let create_channel = UseMutation::new::<CreateChannel>();
     let create_category = UseMutation::new::<CreateCategory>();
+
     view! {
         <For
             each=move || data.get().unwrap_or_default()
@@ -29,6 +31,11 @@ pub fn ServersItems(
             children=move |data| {
                 let server = Signal::derive(move || data.server.clone());
                 let member = Signal::derive(move || data.member.clone());
+                let categories = UseQuery::new(move || {
+                    Some(GetCategories { server: server.get().id })
+                });
+
+                let categories = Signal::derive(move || categories.get().and_then(|res| res.ok()));
                 let is_active = Signal::derive(move || {
                     params
                         .get()
@@ -73,6 +80,7 @@ pub fn ServersItems(
                                         </ToolTip>
                                     </ContextMenuTrigger>
                                     <ServerContextMenuData
+                                        categories=categories
                                         server=server
                                         member=member
                                         create_channel=create_channel

@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::components::ui::sidebar::{SideBarCollapsible, Sidebar};
 use crate::routes::servers::components::sidebar::SideBarOption;
 use crate::routes::servers::components::variants::{
-    DiscoverSideBar, InboxSideBar, PrivateSideBar, SearchSideBar, ServerSideBar, ServersSideBar,
+    InboxSideBar, PrivateSideBar, SearchSideBar, ServerSideBar,
 };
 use crate::routes::SideBarRoute;
 
@@ -38,10 +38,10 @@ pub fn SidebarCollapsible(
             }
             {
                 move || match route.get() {
-                    SideBarRoute::Server  => view!{<ServerSideBar data=data/>}.into_any(),
-                    SideBarRoute::Discover  => view!{<DiscoverSideBar/>}.into_any(),
-                    SideBarRoute::Servers  => view!{<ServersSideBar/>}.into_any(),
                     SideBarRoute::Private  => view!{<PrivateSideBar/>}.into_any(),
+                    _ => view!{
+                        <ServerSideBar data=data/>
+                    }.into_any()
                 }
 
             }

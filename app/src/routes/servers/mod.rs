@@ -4,6 +4,7 @@ pub mod server;
 use api::user::GetUser;
 use common::convex::User;
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
+use leptos::html::option;
 use leptos::prelude::*;
 use leptos_router::components::Outlet;
 use leptos_router::hooks::use_location;
@@ -14,7 +15,7 @@ use uuid::Uuid;
 use crate::components::auth::use_auth;
 use crate::components::ui::sidebar::{SidebarInset, SidebarProvider};
 
-use self::components::sidebar::SideBar;
+use self::components::sidebar::{SideBar, SideBarOption};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarRoute {
@@ -87,8 +88,12 @@ pub fn Servers() -> impl IntoView {
         get_route_from_path(&path)
     });
 
+    let option: RwSignal<Option<SideBarOption>> = RwSignal::new(None);
+
     let shortcut = MaybeProp::derive(move || {
-        if route.get() == SideBarRoute::Servers {
+        if option.get().is_none()
+            && (route.get() == SideBarRoute::Servers || route.get() == SideBarRoute::Discover)
+        {
             None
         } else {
             Some("b".to_string())
@@ -98,7 +103,7 @@ pub fn Servers() -> impl IntoView {
     provide_context(user);
     view! {
         <SidebarProvider shortcut=shortcut style="--sidebar-width: 300px">
-            <SideBar route=route/>
+            <SideBar route=route option=option/>
             <SidebarInset class="max-h-screen" >
                 <Outlet/>
             </SidebarInset>
