@@ -1,37 +1,147 @@
+use leptos::context::Provider;
+use leptos::html::Div;
 use leptos::prelude::*;
 use leptos::*;
 use std::rc::Rc;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
 
-#[derive(Clone, Copy)]
-pub struct AnimationFrame;
+use super::common::status::{AnimationFrame, TransitionStatus};
 
-impl AnimationFrame {
-    pub fn create() -> Self {
-        Self {}
-    }
+#[derive(Clone)]
+pub struct CollapsibleContext {
+    open: RwSignal<bool>,
+    state: TransitionStatusState,
+    dimensions: RwSignal<Dimensions>,
+    trigger_ref: NodeRef<Div>,
+    content_ref: NodeRef<Div>,
+}
 
-    pub fn request(f: Rc<Closure<dyn Fn()>>) -> impl Fn() + 'static {
-        let handle = window()
-            .request_animation_frame((*f).as_ref().unchecked_ref())
-            .unwrap();
-        // Return a cleanup function for manual cancellation
-        move || {
-            if let Some(window) = web_sys::window() {
-                window.cancel_animation_frame(handle).unwrap_or_default();
-            }
-        }
+fn use_collapsible_context() -> CollapsibleContext {
+    use_context().expect("should acces to teh collapsible context")
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)] // Derive PartialEq for comparison in Effect
+pub struct Dimensions {
+    width: Option<i32>,
+    height: Option<i32>,
+}
+
+#[component]
+pub fn CollapsibleRoot(
+    #[prop(into, optional, default = RwSignal::new(false))] open: RwSignal<bool>,
+    children: Children,
+    #[prop(optional, into)] class: Signal<String>,
+    #[prop(optional, default = 150)] open_duration: u64,
+    #[prop(optional, default = 150)] close_duration: u64,
+) -> impl IntoView {
+    let state = use_transition_status(open.read_only(), true, true, open_duration, close_duration);
+
+    let dimensions = RwSignal::new(Dimensions {
+        width: None,
+        height: None,
+    });
+
+    let trigger_ref = NodeRef::new();
+    let content_ref = NodeRef::new();
+    view! {
+        <Provider value=CollapsibleContext {
+            open,
+            state,
+            dimensions,
+            trigger_ref,
+            content_ref
+        }>
+            <div class=class>
+                {
+                    children()
+                }
+            </div>
+        </Provider>
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum TransitionStatus {
-    Starting,
-    Ending,
-    Idle,
-    #[doc(hidden)] // Hidden to avoid exposing implementation detail
-    Undefined,
+#[component]
+pub fn CollapsibleTrigger(
+    #[prop(optional, into)] class: Signal<String>,
+    children: Children,
+) -> impl IntoView {
+    let CollapsibleContext {
+        trigger_ref, open, ..
+    } = use_collapsible_context();
+    view! {
+        <div class=class node_ref=trigger_ref data-panel-open=move || open.get() on:click=move |_| {
+            open.update(|open| *open = !*open);
+        } >
+            {children()}
+        </div>
+    }
+}
+
+#[component]
+pub fn CollapsiblePanel(
+    #[prop(optional, into)] class: Signal<String>,
+    children: ChildrenFn,
+) -> impl IntoView {
+    let CollapsibleContext {
+        content_ref,
+        state,
+        open, // Keep `open` here if needed for other logic, though `state.mounted` and `state.transition_status` are primary for animation
+        dimensions,
+        ..
+    } = use_collapsible_context();
+
+    // Effect to always capture the content's actual dimensions when mounted.
+    // This value will be used by CSS for the 'fully open' state.
+    Effect::new(move |_| {
+        if state.mounted.get() {
+            // Only measure if the panel is in the DOM
+            if let Some(content) = content_ref.get() {
+                let current_height = Some(content.scroll_height());
+                let current_width = Some(content.scroll_width());
+                let current_dims = Dimensions {
+                    width: current_width,
+                    height: current_height,
+                };
+
+                // Only update the signal if dimensions have actually changed to prevent unnecessary re-renders
+                if dimensions.get_untracked() != current_dims {
+                    dimensions.set(current_dims);
+                }
+            }
+        }
+    });
+
+    view! {
+        <Show when=move || state.mounted.get()>
+            <div class=class node_ref=content_ref
+                data-open=move || open.get()
+                data-state=move || {
+                    // Provide more semantic states for CSS styling
+                    match state.transition_status.get() {
+                        TransitionStatus::Starting => "opening",
+                        TransitionStatus::Ending => "closing",
+                        TransitionStatus::Idle => "open",
+                        TransitionStatus::Undefined => "closed", // Conceptual state when unmounted
+                    }
+                }
+                style=move || {
+                    let Dimensions { width, height } = dimensions.get();
+
+                    // Expose the measured actual height/width as CSS variables.
+                    // CSS rules will then consume these variables to animate.
+                    let height_val = height.map(|h| format!("{h}px")).unwrap_or("auto".into());
+                    let width_val = width.map(|w| format!("{w}px")).unwrap_or("auto".into());
+
+                    format!(
+                        "--collapsible-panel-height: {height_val}; --collapsible-panel-width: {width_val};"
+                    )
+                }
+            >
+                {children()}
+            </div>
+        </Show>
+    }
 }
 
 pub fn use_transition_status(
@@ -49,20 +159,18 @@ pub fn use_transition_status(
     let mounted: RwSignal<bool> = RwSignal::new(false);
 
     Effect::new(move |_| {
-        let current_status = transition_status.get();
         let current_open = open.get();
+        let current_status = transition_status.get();
 
-        match current_status {
-            TransitionStatus::Starting | TransitionStatus::Idle | TransitionStatus::Ending => {
-                if !mounted.get_untracked() {
-                    mounted.set(true);
-                }
+        if current_open || current_status == TransitionStatus::Ending {
+            if !mounted.get_untracked() {
+                mounted.set(true);
             }
-            TransitionStatus::Undefined => {
-                if !current_open && mounted.get_untracked() {
-                    mounted.set(false);
-                }
-            }
+        } else if !current_open
+            && current_status == TransitionStatus::Undefined
+            && mounted.get_untracked()
+        {
+            mounted.set(false);
         }
     });
 
