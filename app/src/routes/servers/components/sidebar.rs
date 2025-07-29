@@ -20,7 +20,7 @@ use crate::components::ui::sidebar::{
 };
 use crate::routes::servers::components::collapsible::SidebarCollapsible;
 use crate::routes::servers::components::icons::SidebarIcons;
-use crate::routes::servers::components::settings::DialogUserSettings;
+use crate::routes::servers::components::user_settings::DialogUserSettings;
 use crate::routes::{use_profile, SideBarRoute};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]

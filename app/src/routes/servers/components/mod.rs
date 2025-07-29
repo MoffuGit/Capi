@@ -1,7 +1,9 @@
 mod collapsible;
+mod dialogs;
 mod icons;
 mod navbar;
+mod server_settings;
 mod servers;
-mod settings;
 pub mod sidebar;
+mod user_settings;
 mod variants;

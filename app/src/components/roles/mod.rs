@@ -69,11 +69,9 @@ pub fn RolesProvider(
 pub fn CanManageChannels(children: ChildrenFn) -> impl IntoView {
     let user_roles = use_roles();
     view! {
-        <Transition>
-            <Show when=move || user_roles.get().can_manage_channels()>
-                {children()}
-            </Show>
-        </Transition>
+        <Show when=move || user_roles.get().can_manage_channels()>
+            {children()}
+        </Show>
     }
 }
 
@@ -81,11 +79,9 @@ pub fn CanManageChannels(children: ChildrenFn) -> impl IntoView {
 pub fn CanManageCategories(children: ChildrenFn) -> impl IntoView {
     let user_roles = use_roles();
     view! {
-        <Transition>
             <Show when=move || user_roles.get().can_manage_categories()>
                 {children()}
             </Show>
-        </Transition>
     }
 }
 
@@ -93,11 +89,9 @@ pub fn CanManageCategories(children: ChildrenFn) -> impl IntoView {
 pub fn CanManageRoles(children: ChildrenFn) -> impl IntoView {
     let user_roles = use_roles();
     view! {
-        <Transition>
             <Show when=move || user_roles.get().can_manage_roles()>
                 {children()}
             </Show>
-        </Transition>
     }
 }
 
@@ -105,11 +99,9 @@ pub fn CanManageRoles(children: ChildrenFn) -> impl IntoView {
 pub fn CanManageMembers(children: ChildrenFn) -> impl IntoView {
     let user_roles = use_roles();
     view! {
-        <Transition>
             <Show when=move || user_roles.get().can_manage_members()>
                 {children()}
             </Show>
-        </Transition>
     }
 }
 
@@ -117,11 +109,9 @@ pub fn CanManageMembers(children: ChildrenFn) -> impl IntoView {
 pub fn CanManageServerSettings(children: ChildrenFn) -> impl IntoView {
     let user_roles = use_roles();
     view! {
-        <Transition>
             <Show when=move || user_roles.get().can_manage_server_settings()>
                 {children()}
             </Show>
-        </Transition>
     }
 }
 
@@ -129,10 +119,8 @@ pub fn CanManageServerSettings(children: ChildrenFn) -> impl IntoView {
 pub fn CanCreateInvitation(children: ChildrenFn) -> impl IntoView {
     let user_roles = use_roles();
     view! {
-        <Transition>
             <Show when=move || user_roles.get().can_create_invitation()>
                 {children()}
             </Show>
-        </Transition>
     }
 }

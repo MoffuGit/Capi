@@ -1,5 +1,5 @@
 use api::category::GetCategories;
-use convex_client::leptos::{UseMutation, UseQuery};
+use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_params_map;
@@ -9,9 +9,7 @@ use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::context::{ContextMenu, ContextMenuTrigger};
 use crate::components::ui::sidebar::{SidebarMenuButton, SidebarMenuItem};
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
-use crate::routes::servers::components::variants::{
-    CreateCategory, CreateChannel, ServerContextMenuData,
-};
+use crate::routes::servers::components::variants::ServerContextMenuData;
 
 use super::sidebar::SideBarData;
 

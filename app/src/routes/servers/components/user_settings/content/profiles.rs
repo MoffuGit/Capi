@@ -4,11 +4,10 @@ use crate::components::primitives::tooltip::ToolTipSide;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::input::Input;
-// use crate::components::ui::input::Input;
 use crate::components::ui::tabs::{Tab, TabIndicator, TabPanel, Tabs, TabsList};
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::components::uploadthing::{upload_file, UploadResult};
-use crate::routes::servers::components::settings::content::{
+use crate::routes::servers::components::user_settings::content::{
     Setting, SettingAction, SettingData, SettingDescription, SettingTitle,
 };
 use crate::routes::use_profile;
