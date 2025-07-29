@@ -100,3 +100,313 @@ export const getCategories = query({
       .collect();
   },
 });
+
+export const setServerBannerUrl = mutation({
+  args: {
+    auth: v.int64(),
+    serverId: v.id("servers"),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, { auth, serverId, storageId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user._id),
+      )
+      .unique();
+
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+
+    const canManageServerSettings = memberRoles.some(
+      (role) => role?.actions.canManageServerSettings,
+    );
+
+    if (!canManageServerSettings) {
+      throw new ConvexError(
+        "You do not have permission to manage server settings.",
+      );
+    }
+
+    const server = await ctx.db.get(serverId);
+
+    if (!server) {
+      return null;
+    }
+
+    const oldServerBannerId = server.bannerId;
+
+    const newBannerUrl = await ctx.storage.getUrl(storageId);
+
+    if (!newBannerUrl) {
+      return null;
+    }
+
+    if (oldServerBannerId) {
+      await ctx.storage.delete(oldServerBannerId);
+    }
+
+    await ctx.db.patch(server._id, {
+      bannerUrl: newBannerUrl,
+      bannerId: storageId,
+    });
+
+    return newBannerUrl;
+  },
+});
+
+export const setServerImageUrl = mutation({
+  args: {
+    auth: v.int64(),
+    serverId: v.id("servers"),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, { auth, serverId, storageId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user._id),
+      )
+      .unique();
+
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+
+    const canManageServerSettings = memberRoles.some(
+      (role) => role?.actions.canManageServerSettings,
+    );
+
+    if (!canManageServerSettings) {
+      throw new ConvexError(
+        "You do not have permission to manage server settings.",
+      );
+    }
+
+    const server = await ctx.db.get(serverId);
+
+    if (!server) {
+      return null;
+    }
+
+    const oldServerImageId = server.imageId;
+
+    const newImageUrl = await ctx.storage.getUrl(storageId);
+
+    if (!newImageUrl) {
+      return null;
+    }
+
+    if (oldServerImageId) {
+      await ctx.storage.delete(oldServerImageId);
+    }
+
+    await ctx.db.patch(server._id, {
+      image_url: newImageUrl,
+      imageId: storageId,
+    });
+
+    return newImageUrl;
+  },
+});
+
+export const updateServerDescription = mutation({
+  args: {
+    auth: v.int64(),
+    serverId: v.id("servers"),
+    description: v.string(),
+  },
+  handler: async (ctx, { auth, serverId, description }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user._id),
+      )
+      .unique();
+
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+
+    const canManageServerSettings = memberRoles.some(
+      (role) => role?.actions.canManageServerSettings,
+    );
+
+    if (!canManageServerSettings) {
+      throw new ConvexError(
+        "You do not have permission to manage server settings.",
+      );
+    }
+
+    const server = await ctx.db.get(serverId);
+
+    if (!server) {
+      throw new ConvexError("Server not found");
+    }
+
+    await ctx.db.patch(server._id, { description });
+    return true;
+  },
+});
+
+export const removeServerImage = mutation({
+  args: {
+    auth: v.int64(),
+    serverId: v.id("servers"),
+  },
+  handler: async (ctx, { auth, serverId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user._id),
+      )
+      .unique();
+
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+
+    const canManageServerSettings = memberRoles.some(
+      (role) => role?.actions.canManageServerSettings,
+    );
+
+    if (!canManageServerSettings) {
+      throw new ConvexError(
+        "You do not have permission to manage server settings.",
+      );
+    }
+
+    const server = await ctx.db.get(serverId);
+
+    if (!server) {
+      return null;
+    }
+
+    const oldServerImageId = server.imageId;
+
+    if (oldServerImageId) {
+      await ctx.storage.delete(oldServerImageId);
+    }
+
+    await ctx.db.patch(server._id, {
+      image_url: undefined,
+      imageId: undefined,
+    });
+
+    return true;
+  },
+});
+
+export const removeServerBanner = mutation({
+  args: {
+    auth: v.int64(),
+    serverId: v.id("servers"),
+  },
+  handler: async (ctx, { auth, serverId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user._id),
+      )
+      .unique();
+
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+
+    const canManageServerSettings = memberRoles.some(
+      (role) => role?.actions.canManageServerSettings,
+    );
+
+    if (!canManageServerSettings) {
+      throw new ConvexError(
+        "You do not have permission to manage server settings.",
+      );
+    }
+
+    const server = await ctx.db.get(serverId);
+
+    if (!server) {
+      return null;
+    }
+
+    const oldServerBannerId = server.bannerId;
+
+    if (oldServerBannerId) {
+      await ctx.storage.delete(oldServerBannerId);
+    }
+
+    await ctx.db.patch(server._id, {
+      bannerUrl: undefined,
+      bannerId: undefined,
+    });
+
+    return true;
+  },
+});

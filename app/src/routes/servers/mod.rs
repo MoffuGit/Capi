@@ -4,7 +4,6 @@ pub mod server;
 use api::user::GetUser;
 use common::convex::User;
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
-use leptos::html::option;
 use leptos::prelude::*;
 use leptos_router::components::Outlet;
 use leptos_router::hooks::use_location;

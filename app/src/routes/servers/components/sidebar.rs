@@ -4,6 +4,7 @@ pub use api::server::SideBarData;
 use api::sidebar::SideBarState;
 use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
+use leptos_dom::warn;
 
 use crate::components::auth::use_auth;
 use crate::components::icons::{IconHeadphones, IconMic, IconSettings};
@@ -42,6 +43,11 @@ pub fn SideBar(
             .flatten()
             .map(|auth| GetServers { auth: auth.id })
     });
+
+    Effect::new(move |_| {
+        warn!("{:?}", data.get());
+    });
+
     let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
 
     let state = MaybeProp::derive(move || {

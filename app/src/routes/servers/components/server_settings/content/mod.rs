@@ -20,7 +20,7 @@ pub fn Content(setting: RwSignal<Settings>, server: Signal<Option<Server>>) -> i
             {
                 move || {
                     match setting.get() {
-                        Settings::Profile => view!{<Profile />}.into_any(),
+                        Settings::Profile => view!{<Profile server=server />}.into_any(),
                         Settings::Members => view!{}.into_any(),
                         Settings::Roles => view!{}.into_any(),
                         Settings::Invites => view!{}.into_any(),

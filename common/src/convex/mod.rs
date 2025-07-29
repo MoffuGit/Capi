@@ -11,6 +11,9 @@ pub struct Server {
     pub image_url: Option<String>,
     #[serde(rename = "defaultRole")]
     pub default_role: Option<String>,
+    pub description: Option<String>,
+    #[serde(rename = "bannerUrl")]
+    pub banner_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

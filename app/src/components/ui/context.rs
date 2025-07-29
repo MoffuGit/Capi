@@ -85,10 +85,10 @@ pub fn ContextMenuTrigger(
 ) -> impl IntoView {
     view! {
         <ContextMenuTriggerPrimitive
-            pointer=pointer
             class=class
-            // {..}
-            // data-slot="context-menu-trigger"
+            pointer={pointer}
+            {..}
+            data-slot="context-menu-trigger"
         >
             {children.map(|c| c())}
         </ContextMenuTriggerPrimitive>
