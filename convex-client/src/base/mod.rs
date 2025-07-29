@@ -30,7 +30,8 @@ struct LocalQuery {
     id: QueryId,
     canonicalized_udf_path: CanonicalizedUdfPath,
     args: Value,
-    num_subscribers: usize, // TODO: remove
+    num_subscribers: usize,            // TODO: remove
+    next_subscriber_id_counter: usize, // New: provides unique IDs for each subscription instance
 }
 
 #[derive(Clone, Debug)]
@@ -180,7 +181,11 @@ impl LocalSyncState {
         if let Some(existing_entry) = self.query_set.get_mut(&query_token) {
             existing_entry.num_subscribers += 1;
             let query_id = existing_entry.id;
-            let subscription = SubscriberId(query_id, existing_entry.num_subscribers - 1);
+            // Use the unique counter for this specific query
+            let subscriber_counter = existing_entry.next_subscriber_id_counter;
+            existing_entry.next_subscriber_id_counter += 1;
+
+            let subscription = SubscriberId(query_id, subscriber_counter);
             let prev = self.latest_results.subscribers.insert(subscription);
             assert!(prev.is_none(), "INTERNAL BUG: Subscriber ID already taken.");
             return (None, subscription);
@@ -191,8 +196,6 @@ impl LocalSyncState {
         let base_version = self.query_set_version;
         self.query_set_version += 1;
         let new_version = self.query_set_version;
-
-        // let json_args = Value::Array(vec![args.clone()]);
 
         let add = QuerySetModification::Add(convex_sync_types::Query {
             query_id,
@@ -207,16 +210,18 @@ impl LocalSyncState {
             modifications: vec![add],
         };
 
+        // For a new query, the first subscriber gets ID 0, and the counter is set to 1 for the next one.
         let query = LocalQuery {
             id: query_id,
             canonicalized_udf_path,
             args,
             num_subscribers: 1,
+            next_subscriber_id_counter: 1, // Start counter at 1 for the next subscriber
         };
 
         self.query_set.insert(query_token.clone(), query);
         self.query_id_to_token.insert(query_id, query_token.clone());
-        let subscription = SubscriberId(query_id, 0);
+        let subscription = SubscriberId(query_id, 0); // The very first subscriber for this query_id
         let prev = self.latest_results.subscribers.insert(subscription);
         assert!(prev.is_none(), "INTERNAL BUG: Subscriber ID already taken.");
         (Some(message), subscription)
