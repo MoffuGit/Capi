@@ -32,10 +32,7 @@ pub fn CollapsiblePanel(children: ChildrenFn) -> impl IntoView {
             "transition-[height]", // Animate the height property
             "ease-out-quad",        // Easing function for the transition
             "duration-150",       // Duration of the transition (e.g., 300ms)
-            "data-[state=opening]:h-[var(--collapsible-panel-height)]", // Expand to measured height when open
-            "data-[state=open]:h-[var(--collapsible-panel-height)]", // Expand to measured height when open
-            "data-[state=closing]:h-0", // Collapse to height 0 when closing
-            "data-[state=closed]:h-0", // Collapse to height 0 when closing
+            "h-[var(--collapsible-panel-height)]", // Expand to measured height when open
         )>
             {children()}
         </CollapsiblePanelPrimitive>

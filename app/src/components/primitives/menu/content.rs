@@ -107,9 +107,13 @@ pub fn MenuContent(
 
     let helper = Signal::derive(move || {
         format!(
-            "--radix-menu-content-transform-origin: {}px {}px",
-            x.get(),
-            y_position()
+            "--radix-menu-content-transform-origin: {}",
+            match side.get() {
+                MenuSide::Bottom => "bottom",
+                MenuSide::Left => "left",
+                MenuSide::Right => "right",
+                MenuSide::Top => "top",
+            }
         )
     });
 

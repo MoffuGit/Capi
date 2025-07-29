@@ -1,3 +1,4 @@
+use api::channel::preload_channels;
 use common::convex::{Category, Server};
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
@@ -23,9 +24,13 @@ pub fn CategoriesItems(
                     let name = StoredValue::new(category.name);
                     let is_open = RwSignal::new(false);
                     let category_id = StoredValue::new(category.id);
+                    let preloaded_channels = Resource::new(
+                        move || (server.get(), category_id.get_value()),
+                        move |(server, category)| preload_channels(server.map(|server| server.id), Some(category)),
+                    );
                     view!{
-                        <SidebarGroup>
-                            <Collapsible>
+                        <Collapsible>
+                            <SidebarGroup>
                                 <CollapsibleTrigger>
                                     <SidebarGroupLabel
                                         class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer"
@@ -51,13 +56,28 @@ pub fn CategoriesItems(
                                     <IconPlus class="text-sidebar-foreground/70"/>
                                     <span class="sr-only">Add channel</span>
                                 </SidebarGroupAction>
-                                <CollapsiblePanel>
-                                    <SidebarGroupContent>
-                                        <ChannelsItems server=server category=category_id.get_value() />
-                                    </SidebarGroupContent>
-                                </CollapsiblePanel>
-                            </Collapsible>
-                        </SidebarGroup>
+                                <Transition>
+                                    {
+                                        move || {
+                                            preloaded_channels.and_then(|channels| {
+                                                let channels = StoredValue::new(channels.clone());
+                                                view!{
+                                                    <CollapsiblePanel>
+                                                        // <div class="w-full h-8 bg-red-500"/>
+                                                        // <div class="w-full h-8 bg-red-500"/>
+                                                        // <div class="w-full h-8 bg-red-500"/>
+                                                        // <div class="w-full h-8 bg-red-500"/>
+                                                        <SidebarGroupContent>
+                                                            <ChannelsItems preloaded_channels=channels.get_value() server=server category=category_id.get_value() />
+                                                        </SidebarGroupContent>
+                                                    </CollapsiblePanel>
+                                                }
+                                            })
+                                        }
+                                    }
+                                </Transition>
+                            </SidebarGroup>
+                        </Collapsible>
                     }
                 }
             />

@@ -20,6 +20,7 @@ use crate::components::ui::sidebar::{
 pub fn ChannelsItems(
     server: Memo<Option<Server>>,
     #[prop(into, optional)] category: Option<String>,
+    #[prop(into, optional)] preloaded_channels: Vec<Channel>,
 ) -> impl IntoView {
     let location = use_location();
     let path = location.pathname;
@@ -30,38 +31,25 @@ pub fn ChannelsItems(
             .map(|channel| channel.to_string())
     });
     let category = StoredValue::new(category);
-    let preloaded_channels = Resource::new(
-        move || (server.get(), category.get_value()),
-        move |(server, category)| preload_channels(server.map(|server| server.id), category),
+    let channels = UseQuery::with_preloaded(
+        move || {
+            server.get().map(|server| GetChannels {
+                server: server.id,
+                category: category.get_value(),
+            })
+        },
+        preloaded_channels,
     );
+    let channels = Signal::derive(move || channels.get().and_then(|res| res.ok()));
     view! {
         <SidebarMenu>
-            <Transition>
-                {
-                    move || {
-                        preloaded_channels.and_then(|channels| {
-                            let channels = UseQuery::with_preloaded(move || {
-                                server.get().map(|server| {
-                                    GetChannels {
-                                        server: server.id,
-                                        category: category.get_value(),
-                                    }
-                                })
-                            }, channels.clone());
-                            let channels = Signal::derive(move || channels.get().and_then(|res| res.ok()));
-                            view!{
-                                <For
-                                    each=move || channels.get().unwrap_or_default()
-                                    key=|channel| channel.id.clone()
-                                    let:channel
-                                >
-                                    <ChannelItem channel=channel current_channel=current_channel />
-                                </For>
-                            }
-                        })
-                    }
-                }
-            </Transition>
+            <For
+                each=move || channels.get().unwrap_or_default()
+                key=|channel| channel.id.clone()
+                let:channel
+            >
+                <ChannelItem channel=channel current_channel=current_channel />
+            </For>
         </SidebarMenu>
     }
 }

@@ -1,7 +1,7 @@
 use leptos::context::Provider;
 use leptos::html::Div;
 use leptos::prelude::*;
-use leptos::*;
+use leptos_dom::error;
 use std::rc::Rc;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
@@ -86,30 +86,92 @@ pub fn CollapsiblePanel(
     let CollapsibleContext {
         content_ref,
         state,
-        open, // Keep `open` here if needed for other logic, though `state.mounted` and `state.transition_status` are primary for animation
-        dimensions,
+        open,
+        dimensions, // Keep dimensions for tracking actual scroll height
         ..
     } = use_collapsible_context();
 
-    // Effect to always capture the content's actual dimensions when mounted.
-    // This value will be used by CSS for the 'fully open' state.
-    Effect::new(move |_| {
-        if state.mounted.get() {
-            // Only measure if the panel is in the DOM
-            if let Some(content) = content_ref.get() {
-                let current_height = Some(content.scroll_height());
-                let current_width = Some(content.scroll_width());
-                let current_dims = Dimensions {
-                    width: current_width,
-                    height: current_height,
-                };
+    // New signal to control the explicit pixel height used in CSS for animation
+    // Starts at 0px conceptually when component is not mounted or fully closed.
+    let panel_height_for_css: RwSignal<Option<i32>> = RwSignal::new(Some(0));
 
-                // Only update the signal if dimensions have actually changed to prevent unnecessary re-renders
-                if dimensions.get_untracked() != current_dims {
-                    dimensions.set(current_dims);
+    Effect::new(move |_| {
+        let current_status = state.transition_status.get();
+        let current_open = open.get();
+
+        if let Some(content) = content_ref.get() {
+            let measured_height = content.scroll_height();
+            let measured_width = content.scroll_width();
+
+            let new_dims = Dimensions {
+                width: Some(measured_width),
+                height: Some(measured_height),
+            };
+
+            // Always update 'dimensions' with the actual scroll height when content is mounted.
+            // This ensures 'dimensions' always holds the latest 'from' height for closing.
+            if dimensions.get_untracked() != new_dims {
+                dimensions.set(new_dims);
+            }
+
+            match current_status {
+                TransitionStatus::Starting => {
+                    // When opening, set CSS height to measured height immediately.
+                    // The CSS transition will animate from 0 (Undefined) to this value.
+                    panel_height_for_css.set(Some(measured_height));
+                }
+                TransitionStatus::Idle => {
+                    // When fully open, set CSS height to 'auto' for content reflow.
+                    panel_height_for_css.set(None);
+                }
+                TransitionStatus::Ending => {
+                    // CRITICAL FOR CLOSING ANIMATION:
+                    // 1. Immediately set CSS height to the last measured height (from 'dimensions').
+                    //    This establishes the "from" point for the animation from 'auto'.
+                    // 2. In the next microtask/frame, set CSS height to 0 to trigger the animation.
+                    #[cfg(not(feature = "ssr"))]
+                    {
+                        if let Some(prev_height) = dimensions.get_untracked().height {
+                            panel_height_for_css.set(Some(prev_height)); // Step 1: Set to measured height
+                            let panel_height_setter = panel_height_for_css;
+                            let timeout_handle = set_timeout_with_handle(
+                                move || {
+                                    panel_height_setter.set(Some(0)); // Step 2: Animate to 0
+                                },
+                                std::time::Duration::from_millis(0), // Next event loop tick
+                            )
+                            .expect("Failed to set timeout for closing animation target");
+                            on_cleanup(move || {
+                                timeout_handle.clear();
+                            });
+                        } else {
+                            // Fallback if height somehow wasn't measured (e.g., content_ref was not ready)
+                            panel_height_for_css.set(Some(0));
+                        }
+                    }
+                }
+                TransitionStatus::Undefined => {
+                    // When fully closed or not yet opened, CSS height should be 0.
+                    panel_height_for_css.set(Some(0));
                 }
             }
+        } else {
+            // content_ref not available (e.g., not mounted), ensure height is 0.
+            panel_height_for_css.set(Some(0));
+            // Keep dimensions as 0 when not mounted/visible.
+            let new_dims = Dimensions {
+                width: Some(0),
+                height: Some(0),
+            };
+            if dimensions.get_untracked() != new_dims {
+                dimensions.set(new_dims);
+            }
         }
+    });
+
+    // Optional: Keep this effect for debugging if needed, otherwise it can be removed.
+    Effect::new(move |_| {
+        error!("{:?}", state.transition_status.get());
     });
 
     view! {
@@ -126,12 +188,15 @@ pub fn CollapsiblePanel(
                     }
                 }
                 style=move || {
-                    let Dimensions { width, height } = dimensions.get();
-
-                    // Expose the measured actual height/width as CSS variables.
-                    // CSS rules will then consume these variables to animate.
-                    let height_val = height.map(|h| format!("{h}px")).unwrap_or("auto".into());
+                    // Use dimensions for width, as it doesn't have the 'auto' to 'Xpx' issue for transitions
+                    let width = dimensions.get().width;
                     let width_val = width.map(|w| format!("{w}px")).unwrap_or("auto".into());
+
+                    // Use panel_height_for_css for the height variable
+                    let height_val = match panel_height_for_css.get() {
+                        Some(h) => format!("{h}px"),
+                        None => "auto".to_string(),
+                    };
 
                     format!(
                         "--collapsible-panel-height: {height_val}; --collapsible-panel-width: {width_val};"
@@ -179,7 +244,6 @@ pub fn use_transition_status(
     Effect::new(move |_| {
         let current_open = open.get();
         let current_status = transition_status.get();
-        let enable_idle_captured = enable_idle_state;
 
         // Condition for setting to Starting:
         // If open and not already in Starting or Idle (meaning it's closed or just mounted)
@@ -203,9 +267,19 @@ pub fn use_transition_status(
                     timeout_handle.clear();
                 });
             }
+        }
+    });
 
-            // If idle state is enabled, schedule transition to Idle after animation duration
-            if enable_idle_captured {
+    Effect::new(move |_| {
+        let current_open = open.get();
+        let current_status = transition_status.get();
+        let enable_idle_captured = enable_idle_state;
+
+        // Only transition to Idle if the component is currently opening (Starting)
+        // and the `open` signal is still true, and Idle state is enabled.
+        if current_open && current_status == TransitionStatus::Starting && enable_idle_captured {
+            #[cfg(not(feature = "ssr"))]
+            {
                 let transition_status_setter = transition_status;
                 let timeout_handle = set_timeout_with_handle(
                     move || {
@@ -276,7 +350,7 @@ pub fn use_transition_status(
                 move || {
                     transition_status_setter.set(TransitionStatus::Undefined);
                 },
-                std::time::Duration::from_millis(close_duration - 10),
+                std::time::Duration::from_millis(close_duration),
             )
             .expect("Failed to set timeout for Undefined transition");
             on_cleanup(move || {

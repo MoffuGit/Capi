@@ -10,7 +10,9 @@ use leptos_router::hooks::use_location;
 use serde::Serialize;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconBox, IconLink, IconLoaderCircle, IconPlus, IconSettings};
+use crate::components::icons::{
+    IconBox, IconChevronDown, IconLink, IconLoaderCircle, IconPlus, IconSettings,
+};
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::roles::{
     CanCreateInvitation, CanManageCategories, CanManageChannels, CanManageServerSettings,
@@ -22,6 +24,10 @@ use crate::components::ui::context::{
     ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger,
 };
 use crate::components::ui::dialog::{Dialog, DialogFooter, DialogHeader, DialogPopup, DialogTitle};
+use crate::components::ui::dropwdown::{
+    DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
+    DropdownMenuTrigger,
+};
 use crate::components::ui::input::Input;
 use crate::components::ui::label::Label;
 use crate::components::ui::sidebar::{
@@ -68,9 +74,6 @@ impl Mutation for CreateCategory {
 
 #[component]
 pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
-    let create_channel = UseMutation::new::<CreateChannel>();
-    let create_category = UseMutation::new::<CreateCategory>();
-
     let location = use_location();
     let path = location.pathname;
 
@@ -130,14 +133,11 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>
-                        <PendingChannelItem create_channel=create_channel/>
                         <ChannelsItems server=server/>
                     </SidebarGroupContent>
-                    <PendingCategoryItem create_category=create_category/>
                 </SidebarGroup>
                 <CategoriesItems server=server categories=categories />
-                <PendingChannelItem create_channel=create_channel/>
-                <SideBarContextMenu categories=categories create_channel=create_channel create_category=create_category server=server member=member/>
+                <SideBarContextMenu categories=categories server=server member=member/>
             </SidebarContent>
         </RolesProvider>
     }
@@ -195,11 +195,11 @@ pub fn PendingChannelItem(
 pub fn ServerContextMenuData(
     #[prop(into)] server: Signal<Option<Server>>,
     #[prop(into)] member: Signal<Option<Member>>,
-    create_channel: Action<CreateChannel, Result<(), String>>,
-    create_category: Action<CreateCategory, Result<(), String>>,
     categories: Signal<Option<Vec<Category>>>,
     #[prop(optional)] category: Option<Category>,
 ) -> impl IntoView {
+    let create_channel = UseMutation::new::<CreateChannel>();
+    let create_category = UseMutation::new::<CreateCategory>();
     let create_channel_open = RwSignal::new(false);
     let create_category_open = RwSignal::new(false);
     let invitation_open = RwSignal::new(false);
@@ -259,8 +259,6 @@ pub fn ServerContextMenuData(
 pub fn SideBarContextMenu(
     #[prop(into)] server: Signal<Option<Server>>,
     #[prop(into)] member: Signal<Option<Member>>,
-    create_channel: Action<CreateChannel, Result<(), String>>,
-    create_category: Action<CreateCategory, Result<(), String>>,
     categories: Signal<Option<Vec<Category>>>,
 ) -> impl IntoView {
     view! {
@@ -270,8 +268,6 @@ pub fn SideBarContextMenu(
                 categories=categories
                 server=server
                 member=member
-                create_channel=create_channel
-                create_category=create_category
             />
         </ContextMenu>
     }
@@ -363,43 +359,74 @@ pub fn CreateChannelDialog(
                         <span class="text-foreground/70">
                             "Add channel to"
                         </span>
-                            <Show when=move || selected_category.get().is_some()>
-                                {
-                                    move || {
-                                        selected_category.get().map(|category| {
-                                            view!{
-                                                <span class="capitalize font-medium">
-                                                    {category.name}
-                                                </span>
-                                            }
-                                        })
-                                    }
-                                }
-                            </Show>
-                            <Show when=move || selected_category.get().is_none()>
-                                {
-                                    move || {
-                                        server.get().map(|server| {
-                                            view!{
-                                                <Avatar class="flex bg-accent aspect-square size-5 mx-1 items-center justify-center rounded-lg group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
-                                                    <AvatarImage url=server.image_url/>
-                                                    <AvatarFallback class="rounded-lg select-none bg-transparent">
-                                                        {server.name.chars().next()}
-                                                    </AvatarFallback>
-                                                </Avatar>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Button variant=ButtonVariants::Ghost size=ButtonSizes::Sm class="gap-1 mx-1 !p-1">
+                                    {
+                                        move || {
+                                            server.get().map(|server| {
+                                                view!{
+                                                    <Avatar class="flex bg-accent aspect-square size-5 items-center justify-center rounded-lg group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
+                                                        <AvatarImage url=server.image_url/>
+                                                        <AvatarFallback class="rounded-lg select-none bg-transparent">
+                                                            {server.name.chars().next()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
 
-                                            }
-                                        })
+                                                }
+                                            })
+                                        }
                                     }
-                                }
-                                <span class="capitalize font-medium">
-                                    {move || {
-                                        server.get().map(|server| {
-                                            server.name
-                                        })
-                                    }}
-                                </span>
-                            </Show>
+                                    <Show when=move || selected_category.get().is_some()>
+                                        {
+                                            move || {
+                                                selected_category.get().map(|category| {
+                                                    view!{
+                                                        <span class="capitalize font-medium">
+                                                            {category.name}
+                                                        </span>
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    </Show>
+                                    <Show when=move || selected_category.get().is_none()>
+                                        <span class="capitalize font-medium">
+                                            {move || {
+                                                server.get().map(|server| {
+                                                    server.name
+                                                })
+                                            }}
+                                        </span>
+                                    </Show>
+                                    <IconChevronDown />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent side=MenuSide::Bottom align=MenuAlign::Center>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuLabel>
+                                        "Categories"
+                                    </DropdownMenuLabel>
+                                    <For
+                                        each=move || categories.get().unwrap_or_default()
+                                        key=|category| category.id.clone()
+                                        children=move |category| {
+                                            let name = StoredValue::new(category.name.clone());
+                                            view!{
+                                                <DropdownMenuItem
+                                                    close_on_click=true
+                                                    on:click=move |_| {
+                                                        selected_category.set(Some(category.clone()));
+                                                    }
+                                                >
+                                                    {name.get_value()}
+                                                </DropdownMenuItem>
+                                            }
+                                        }
+                                    />
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </DialogHeader>
                     <div class="grid gap-2">
@@ -415,24 +442,26 @@ pub fn CreateChannelDialog(
                         />
                     </div>
                 <DialogFooter>
-                    <Button
-                        variant=ButtonVariants::Secondary
-                        size=ButtonSizes::Sm
-                        on:click=move |_| {
-                            if !name.get().is_empty() {
-                                if let Some(server) = server.get() {
-                                    if let Some(user) = auth.get().and_then(|res|res.ok()).flatten() {
-                                        let input = CreateChannel { name: name.get(), server: server.id , category: None, auth: user.id };
-                                        create_channel.dispatch(input.clone());
-                                        open.set(false);
+                    <Transition>
+                        <Button
+                            variant=ButtonVariants::Secondary
+                            size=ButtonSizes::Sm
+                            on:click=move |_| {
+                                if !name.get().is_empty() {
+                                    if let Some(server) = server.get() {
+                                        if let Some(user) = auth.get().and_then(|res|res.ok()).flatten() {
+                                            let input = CreateChannel { name: name.get(), server: server.id , category: selected_category.get().map(|category| category.id), auth: user.id };
+                                            create_channel.dispatch(input);
+                                            open.set(false);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        disabled=Signal::derive(move || pending.get() | server.get().is_none())
-                    >
-                        "Create"
-                    </Button>
+                            disabled=Signal::derive(move || pending.get() | server.get().is_none())
+                        >
+                            "Create"
+                        </Button>
+                    </Transition>
                 </DialogFooter>
             </DialogPopup>
         </Dialog>

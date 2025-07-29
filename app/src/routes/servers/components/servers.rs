@@ -21,8 +21,6 @@ pub fn ServersItems(
     set_option: Callback<()>,
 ) -> impl IntoView {
     let params = use_params_map();
-    let create_channel = UseMutation::new::<CreateChannel>();
-    let create_category = UseMutation::new::<CreateCategory>();
 
     view! {
         <For
@@ -83,8 +81,6 @@ pub fn ServersItems(
                                         categories=categories
                                         server=server
                                         member=member
-                                        create_channel=create_channel
-                                        create_category=create_category
                                     />
                                 </A>
                             </ContextMenu>
