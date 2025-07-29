@@ -1,6 +1,7 @@
 mod auth;
 mod home;
-mod servers;
+mod landing;
+
 pub use auth::*;
 pub use home::*;
-pub use servers::*;
+pub use landing::*;

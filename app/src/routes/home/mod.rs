@@ -1,5 +1,6 @@
 mod components;
 pub mod server;
+pub mod servers;
 
 use api::user::GetUser;
 use common::convex::User;
@@ -51,7 +52,7 @@ pub fn use_profile() -> Signal<Option<User>> {
 }
 
 #[component]
-pub fn Servers() -> impl IntoView {
+pub fn Home() -> impl IntoView {
     let presence = UseMutation::new::<HeartBeat>();
     let auth = use_auth();
     let user = UseQuery::new(move || {

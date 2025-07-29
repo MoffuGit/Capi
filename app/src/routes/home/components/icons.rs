@@ -21,7 +21,7 @@ use crate::components::ui::sidebar::{
     SidebarMenuButton, SidebarMenuItem, SidebarSeparator,
 };
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
-use crate::routes::servers::components::servers::ServersItems;
+use crate::routes::home::components::servers::ServersItems;
 use crate::routes::use_profile;
 
 use super::sidebar::{SideBarData, SideBarOption};
@@ -200,7 +200,7 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                         "Join"
                     </ContextMenuItem>
                     <A
-                        href="/servers/discover"
+                        href="/servers/#discover"
                         on:click=move |_| {
                             set_option.run(())
                         }

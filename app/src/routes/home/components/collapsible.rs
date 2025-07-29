@@ -1,10 +1,8 @@
+use crate::routes::home::components::variants::*;
 use leptos::prelude::*;
 
 use crate::components::ui::sidebar::{SideBarCollapsible, Sidebar};
-use crate::routes::servers::components::sidebar::SideBarOption;
-use crate::routes::servers::components::variants::{
-    InboxSideBar, PrivateSideBar, SearchSideBar, ServerSideBar,
-};
+use crate::routes::home::components::sidebar::SideBarOption;
 use crate::routes::SideBarRoute;
 
 use super::sidebar::SideBarData;

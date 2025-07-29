@@ -10,7 +10,7 @@ use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::context::{ContextMenu, ContextMenuTrigger};
 use crate::components::ui::sidebar::{SidebarMenuButton, SidebarMenuItem};
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
-use crate::routes::servers::components::variants::ServerContextMenuData;
+use crate::routes::home::components::variants::ServerContextMenuData;
 
 use super::sidebar::SideBarData;
 

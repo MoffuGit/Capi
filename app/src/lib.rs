@@ -8,14 +8,14 @@ use leptos_router::{
     components::{Outlet, ParentRoute, ProtectedParentRoute, Route, Router, Routes},
     ParamSegment, StaticSegment,
 };
-use routes::Home;
+use routes::Landing;
 
 use self::{
     components::{
         auth::{use_auth, AuthProvider},
         ui::theme::ThemeProvider,
     },
-    routes::{server::channel::Channel, GoogleAuth, Login, Servers, SignUp},
+    routes::{server::channel::Channel, servers::Servers, GoogleAuth, Home, Login, SignUp},
 };
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -57,7 +57,7 @@ pub fn App() -> impl IntoView {
                     <Router>
                         <main id="app">
                             <Routes fallback=|| "Page not found.".into_view()>
-                                <Route path=StaticSegment("") view=Home/>
+                                <Route path=StaticSegment("") view=Landing/>
                                 <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
                                     <Route path=StaticSegment("login") view=Login />
                                     <Route path=StaticSegment("signup") view=SignUp />
@@ -67,13 +67,11 @@ pub fn App() -> impl IntoView {
                                     condition=move || use_auth().auth().get().and_then(|res| res.ok()).map(|res| res.is_some())
                                     path=StaticSegment("servers")
                                     redirect_path= || "/"
-                                    view=Servers
+                                    view=Home
                                 >
                                     <Route
                                         path=StaticSegment("")
-                                        view=move || {
-                                            view! { <div>"servers"</div> }
-                                        }
+                                        view=Servers
                                     />
                                     <Route
                                         path=StaticSegment("me")

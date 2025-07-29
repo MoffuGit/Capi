@@ -8,8 +8,8 @@ use crate::components::ui::collapsible::{Collapsible, CollapsiblePanel, Collapsi
 use crate::components::ui::sidebar::{
     SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel,
 };
-use crate::routes::servers::components::dialogs::create_channel::CreateChannelDialog;
-use crate::routes::servers::components::variants::server::channels::ChannelsItems;
+use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
+use crate::routes::home::components::variants::server::channels::ChannelsItems;
 
 #[component]
 pub fn CategoriesItems(

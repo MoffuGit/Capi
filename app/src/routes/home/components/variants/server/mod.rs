@@ -16,10 +16,10 @@ use crate::components::roles::*;
 use crate::components::ui::context::*;
 use crate::components::ui::dialog::*;
 use crate::components::ui::sidebar::*;
-use crate::routes::servers::components::dialogs::create_category::CreateCategoryDialog;
-use crate::routes::servers::components::dialogs::create_channel::CreateChannelDialog;
-use crate::routes::servers::components::server_settings::DialogServerSettings;
-use crate::routes::servers::components::sidebar::SideBarData;
+use crate::routes::home::components::dialogs::create_category::CreateCategoryDialog;
+use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
+use crate::routes::home::components::server_settings::DialogServerSettings;
+use crate::routes::home::components::sidebar::SideBarData;
 
 use self::categories::CategoriesItems;
 use self::channels::ChannelsItems;

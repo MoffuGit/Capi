@@ -19,9 +19,9 @@ use crate::components::ui::dropwdown::{
 use crate::components::ui::sidebar::{
     SideBarCollapsible as SideBarCollapsibleType, Sidebar, SidebarRail,
 };
-use crate::routes::servers::components::collapsible::SidebarCollapsible;
-use crate::routes::servers::components::icons::SidebarIcons;
-use crate::routes::servers::components::user_settings::DialogUserSettings;
+use crate::routes::home::components::collapsible::SidebarCollapsible;
+use crate::routes::home::components::icons::SidebarIcons;
+use crate::routes::home::components::user_settings::DialogUserSettings;
 use crate::routes::{use_profile, SideBarRoute};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
