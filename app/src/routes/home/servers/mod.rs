@@ -1,26 +1,29 @@
+mod content;
+mod header;
+
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum ServerRoute {
-    Servers,
-    Discover,
-}
+use crate::components::ui::tabs::*;
+
+use self::content::Content;
+use self::header::Header;
 
 #[component]
 pub fn Servers() -> impl IntoView {
     let hash = use_location().hash;
-    let route = Memo::new(move |_| {
+    let tab = RwSignal::new(String::default());
+    Effect::new(move |_| {
         if hash.get().contains("discover") {
-            ServerRoute::Discover
+            tab.set("discover".into())
         } else {
-            ServerRoute::Servers
+            tab.set("servers".into());
         }
     });
     view! {
-        <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 p-3 border-b">
-        </header>
-        <div class="bg-red-500">
-        </div>
+        <Tabs class="w-full h-full" tab=tab>
+            <Header />
+            <Content />
+        </Tabs>
     }
 }

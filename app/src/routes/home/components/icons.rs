@@ -24,7 +24,7 @@ use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::routes::home::components::servers::ServersItems;
 use crate::routes::use_profile;
 
-use super::sidebar::{SideBarData, SideBarOption};
+use super::sidebar::{ServerData, SideBarOption};
 
 #[derive(Debug, Serialize, Clone)]
 struct JoinWithInvitation {
@@ -42,7 +42,7 @@ impl Mutation for JoinWithInvitation {
 
 #[component]
 pub fn SidebarIcons(
-    data: Signal<Option<Vec<SideBarData>>>,
+    data: Signal<Option<Vec<ServerData>>>,
     option: RwSignal<Option<SideBarOption>>,
 ) -> impl IntoView {
     let set_option = Callback::new(move |_| {

@@ -1,6 +1,6 @@
 use api::presence::GetUserStatus;
 use api::server::GetServers;
-pub use api::server::SideBarData;
+pub use api::server::ServerData;
 use api::sidebar::SideBarState;
 use convex_client::leptos::UseQuery;
 use leptos::prelude::*;

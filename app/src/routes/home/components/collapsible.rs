@@ -5,13 +5,13 @@ use crate::components::ui::sidebar::{SideBarCollapsible, Sidebar};
 use crate::routes::home::components::sidebar::SideBarOption;
 use crate::routes::SideBarRoute;
 
-use super::sidebar::SideBarData;
+use super::sidebar::ServerData;
 
 #[component]
 pub fn SidebarCollapsible(
     route: Memo<SideBarRoute>,
     option: RwSignal<Option<SideBarOption>>,
-    data: Signal<Option<Vec<SideBarData>>>,
+    data: Signal<Option<Vec<ServerData>>>,
 ) -> impl IntoView {
     view! {
         <Sidebar collapsible=SideBarCollapsible::None class="flex-1 md:flex min-w-[250px] relative">

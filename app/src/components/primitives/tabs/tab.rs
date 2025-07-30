@@ -7,6 +7,7 @@ use crate::components::primitives::tabs::{use_tabs_context, TabsContext};
 pub fn Tab(
     value: String,
     #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(optional, into)] set_on_click: bool,
     children: Children,
 ) -> impl IntoView {
     let value = StoredValue::new(value);
@@ -24,7 +25,9 @@ pub fn Tab(
             node_ref=tab_ref
             class=class
             on:click=move |_| {
-                selected_tab.set(value.get_value());
+                if set_on_click {
+                    selected_tab.set(value.get_value());
+                }
             }
             data-state=move || selected_tab.with(|selected| if selected == &value.get_value() {
                 "active"

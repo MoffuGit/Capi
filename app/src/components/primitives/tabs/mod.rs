@@ -29,14 +29,13 @@ pub fn use_tabs_context() -> TabsContext {
 #[component]
 pub fn TabsRoot(
     #[prop(optional, into)] orientation: Orientation,
-    #[prop(optional, into)] default_tab: String,
+    #[prop(optional, into)] tab: RwSignal<String>,
     #[prop(optional, into)] class: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
-    let selected_tab: RwSignal<String> = RwSignal::new(default_tab);
     let tabs = RwSignal::new(HashMap::default());
     view! {
-        <Provider value=TabsContext {selected_tab, orientation, tabs }>
+        <Provider value=TabsContext {selected_tab: tab, orientation, tabs }>
             <div class=class data-orientation=orientation.to_string()>
                 {children()}
             </div>

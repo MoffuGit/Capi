@@ -26,7 +26,7 @@ pub fn Profiles() -> impl IntoView {
         <Title>
             "Profiles"
         </Title>
-        <Tabs default_tab="main">
+        <Tabs tab=RwSignal::new("main".to_string())>
             <TabsList>
                 <Tab value="main">
                     "Account"

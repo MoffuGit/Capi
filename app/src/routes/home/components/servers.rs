@@ -12,11 +12,11 @@ use crate::components::ui::sidebar::{SidebarMenuButton, SidebarMenuItem};
 use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
 use crate::routes::home::components::variants::ServerContextMenuData;
 
-use super::sidebar::SideBarData;
+use super::sidebar::ServerData;
 
 #[component]
 pub fn ServersItems(
-    data: Signal<Option<Vec<SideBarData>>>,
+    data: Signal<Option<Vec<ServerData>>>,
     set_option: Callback<()>,
 ) -> impl IntoView {
     view! {
@@ -24,7 +24,7 @@ pub fn ServersItems(
             each=move || data.get().unwrap_or_default()
             key=|data| data.server.id.clone()
             let(
-                SideBarData {
+                ServerData {
                     server,
                     member,
                     roles

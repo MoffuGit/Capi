@@ -10,14 +10,14 @@ use crate::components::primitives::tabs::{
 #[component]
 pub fn Tabs(
     #[prop(optional, into)] orientation: Orientation,
-    #[prop(optional, into)] default_tab: String,
+    #[prop(optional, into)] tab: RwSignal<String>,
     #[prop(optional, into)] class: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
     view! {
         <TabsRooutPrimitive
             orientation=orientation
-            default_tab=default_tab
+            tab=tab
             class=MaybeProp::derive(move || {
                 Some(tw_merge!(
                     "flex flex-col gap-2",
@@ -52,10 +52,12 @@ pub fn TabsList(
 pub fn Tab(
     #[prop(into)] value: String,
     #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(optional, into, default = true)] set_on_click: bool,
     children: Children,
 ) -> impl IntoView {
     view! {
         <TabPrimitive
+            set_on_click=set_on_click
             value=value
             class=MaybeProp::derive(move || {
                 Some(tw_merge!(

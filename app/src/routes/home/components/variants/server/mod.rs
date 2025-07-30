@@ -3,6 +3,7 @@ mod channels;
 mod header;
 
 use api::category::GetCategories;
+use api::server::ServerData;
 use common::convex::{Category, Member, Server};
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
 use leptos::prelude::*;
@@ -19,14 +20,13 @@ use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_category::CreateCategoryDialog;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::server_settings::DialogServerSettings;
-use crate::routes::home::components::sidebar::SideBarData;
 
 use self::categories::CategoriesItems;
 use self::channels::ChannelsItems;
 use self::header::ServerHeader;
 
 #[component]
-pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
+pub fn ServerSideBar(data: Signal<Option<Vec<ServerData>>>) -> impl IntoView {
     let location = use_location();
     let path = location.pathname;
 
@@ -39,7 +39,7 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
             .unwrap_or_default();
         data.get().and_then(|data| {
             data.iter()
-                .find(|SideBarData { server, .. }| server.id == id)
+                .find(|ServerData { server, .. }| server.id == id)
                 .map(|data| data.server.clone())
         })
     });
@@ -53,7 +53,7 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
             .unwrap_or_default();
         data.get().and_then(|data| {
             data.iter()
-                .find(|SideBarData { server, .. }| server.id == id)
+                .find(|ServerData { server, .. }| server.id == id)
                 .map(|data| data.member.clone())
         })
     });
@@ -67,7 +67,7 @@ pub fn ServerSideBar(data: Signal<Option<Vec<SideBarData>>>) -> impl IntoView {
             .unwrap_or_default();
         data.get().and_then(|data| {
             data.iter()
-                .find(|SideBarData { server, .. }| server.id == id)
+                .find(|ServerData { server, .. }| server.id == id)
                 .map(|data| data.roles.clone())
         })
     });
