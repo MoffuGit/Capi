@@ -32,7 +32,7 @@ enum MessageDisplayItem {
 #[component]
 fn DateSeparator(date_string: String) -> impl IntoView {
     view! {
-        <Separator class="flex items-center justify-center my-3">
+        <Separator class="flex items-center justify-center">
             <Label class="bg-background text-muted-foreground px-1 text-xs">{date_string}</Label>
         </Separator>
     }

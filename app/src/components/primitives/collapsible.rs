@@ -169,11 +169,6 @@ pub fn CollapsiblePanel(
         }
     });
 
-    // Optional: Keep this effect for debugging if needed, otherwise it can be removed.
-    Effect::new(move |_| {
-        error!("{:?}", state.transition_status.get());
-    });
-
     view! {
         <Show when=move || state.mounted.get()>
             <div class=class node_ref=content_ref

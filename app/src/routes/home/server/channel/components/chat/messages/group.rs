@@ -23,7 +23,7 @@ pub fn MessageGroup(
     let sender = StoredValue::new(group.author_id);
 
     view! {
-        <div class="flex items-start gap-2 p-2">
+        <div class="flex items-start p-3">
             <div>
                 {
                     move || {
@@ -37,7 +37,7 @@ pub fn MessageGroup(
                     }
                 }
             </div>
-            <div class="flex flex-col text-sm">
+            <div class="flex flex-col text-sm px-3">
                 {
                     move || {
                         cached_members.get()
