@@ -178,8 +178,8 @@ pub struct Reaction {
     #[serde(rename = "_creationTime")]
     pub creation_time: f64,
     pub message: String,
-    pub member: String,
-    pub name: String,
+    pub emoji: String,
+    pub count: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

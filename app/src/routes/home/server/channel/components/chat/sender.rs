@@ -137,9 +137,9 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
     );
 
     view! {
-        <div class="flex flex-col gap-2 p-5">
+        <div class="flex flex-col gap-2 p-5 pt-0">
             <Show when=move || !context.attachments.get().is_empty()>
-                <div class="relative w-full h-auto bg-base-300 border first:rounded-t-lg border-b-0 border-base-100 flex items-center p-2 text-sm">
+                <div class="relative w-full h-auto  border first:rounded-t-lg border-b-0 border-base-100 flex items-center p-2 text-sm">
                     {
                         move || {
                             context.attachments.get().iter().enumerate().map(|(idx, att)| {
@@ -151,7 +151,7 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
                     }
                 </div>
             </Show>
-            <div class="border-input dark:bg-input/30 flex w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs md:text-sm justify-between">
+            <div class="border-input  flex w-full rounded-md border  px-3 py-2 text-base shadow-xs md:text-sm justify-between">
 
                 <div class="flex items-center justify-center">
                     <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="relative">
@@ -159,7 +159,7 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
                         <IconCirclePlus/>
                     </Button>
                 </div>
-                <div class="relative self-center h-fit w-full" /* style=move || format!("height: {}px", height.get()) */>
+                <div class="relative self-center h-fit max-h-96 w-full overflow-y-auto overflow-x-hidden " /* style=move || format!("height: {}px", height.get()) */>
                     <div class="text-sm font-normal relative mx-2">
                         <div>
                             <Show when=move || message.get().is_empty()>

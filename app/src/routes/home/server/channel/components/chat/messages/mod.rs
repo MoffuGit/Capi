@@ -42,6 +42,8 @@ fn DateSeparator(date_string: String) -> impl IntoView {
 pub struct GetMessagesInChannel {
     #[serde(rename(serialize = "channelId"))]
     channel: String,
+    #[serde(rename(serialize = "memberId"))]
+    member: String,
 }
 
 impl Query<Vec<ChannelMessage>> for GetMessagesInChannel {
@@ -63,10 +65,13 @@ impl Query<Vec<Member>> for GetMembersById {
 }
 
 #[component]
-pub fn Messages(channel: Signal<Option<Channel>>) -> impl IntoView {
+pub fn Messages(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) -> impl IntoView {
     let messages = UseQuery::new(move || {
-        channel.get().map(|channel| GetMessagesInChannel {
-            channel: channel.id,
+        member.get().and_then(|member| {
+            channel.get().map(|channel| GetMessagesInChannel {
+                channel: channel.id,
+                member: member.id,
+            })
         })
     });
 

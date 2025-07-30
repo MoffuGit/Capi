@@ -112,7 +112,7 @@ pub fn Channel() -> impl IntoView {
             <SidebarInset class="flex-1 max-h-screen">
                 <Chat channel=current_channel member=current_member/>
             </SidebarInset>
-            // <MembersSideBar server=server member=current_member/>
+            <MembersSideBar server=server member=current_member/>
         </SidebarProvider>
     }
 }

@@ -28,15 +28,18 @@ export default defineSchema({
     mention_everyone: v.boolean(),
     mention_roles: v.array(v.id("roles")),
   }).index("by_channel", ["channel"]),
-  // embeds: defineTable({
-  //     message: v.id("messages"),
-  //     url: v.string(),
-  // }),
-  reactions: defineTable({
+  memberReactions: defineTable({
     message: v.id("messages"),
     member: v.id("members"),
-    name: v.string(),
-  }).index("by_message", ["message"]),
+    emoji: v.string(),
+  })
+    .index("by_message_member_emoji", ["message", "member", "emoji"])
+    .index("by_message_and_member", ["message", "member"]),
+  messageReactionCounts: defineTable({
+    message: v.id("messages"),
+    emoji: v.string(),
+    count: v.number(),
+  }).index("by_message_and_emoji", ["message", "emoji"]),
   mentions: defineTable({
     message: v.id("messages"),
     member: v.id("member"),
