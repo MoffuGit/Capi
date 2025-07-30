@@ -15,7 +15,11 @@ use self::{
         auth::{use_auth, AuthProvider},
         ui::theme::ThemeProvider,
     },
-    routes::{server::channel::Channel, servers::Servers, GoogleAuth, Home, Login, SignUp},
+    routes::{
+        server::{channel::Channel, Server},
+        servers::Servers,
+        GoogleAuth, Home, Login, SignUp,
+    },
 };
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -83,7 +87,7 @@ pub fn App() -> impl IntoView {
                                     >
                                         <Route
                                             path=StaticSegment("")
-                                            view=move || view!{<div>"server"</div>}
+                                            view=Server
                                         />
                                         <Route
                                             path=ParamSegment("channel")
