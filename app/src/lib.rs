@@ -79,11 +79,11 @@ pub fn App() -> impl IntoView {
                                     />
                                     <Route
                                         path=StaticSegment("me")
-                                        view=move || view! { <div>"Private conversations"</div> }
+                                        view=move || view! { <div class="bg-red-500">"Private conversations"</div> }
                                     />
                                     <ParentRoute
                                         path=ParamSegment("server")
-                                        view=move || view! {<Outlet/>}
+                                        view=Empty
                                     >
                                         <Route
                                             path=StaticSegment("")
@@ -91,7 +91,7 @@ pub fn App() -> impl IntoView {
                                         />
                                         <Route
                                             path=ParamSegment("channel")
-                                            view=move || view!{<Channel />}
+                                            view=Channel
                                         />
                                     </ParentRoute>
                                 </ProtectedParentRoute>
@@ -101,5 +101,12 @@ pub fn App() -> impl IntoView {
                 </ConvexProvider>
             </AuthProvider>
         </ThemeProvider>
+    }
+}
+
+#[component]
+pub fn Empty() -> impl IntoView {
+    view! {
+        <Outlet/>
     }
 }

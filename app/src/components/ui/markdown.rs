@@ -62,7 +62,7 @@ pub fn MarkdownParagraph(node: MarkdownNode) -> impl IntoView {
         }
         MarkdownElement::Code(code) => view! {<code class="bg-muted relative rounded px-[0.3rem] py-[0.2rem] text-sm font-semibold font-mono">{code}</code>}.into_any(),
         MarkdownElement::CodeBlock(_lang) => view! {
-            <pre class="my-2 bg-muted relative rounded px-[0.3rem] py-[0.2rem] text-sm font-semibold font-mono">
+            <pre class="my-2 w-fit bg-muted relative rounded px-[0.3rem] py-[0.2rem] text-sm font-semibold font-mono">
                 <code>{childrens}</code>
             </pre>
         }

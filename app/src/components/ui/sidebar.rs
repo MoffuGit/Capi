@@ -408,7 +408,7 @@ pub fn SidebarInset(
     children: Children,
 ) -> impl IntoView {
     view! {
-        <main
+        <div
             data-slot="sidebar-inset"
             class=move || tw_merge!(
                 "bg-background relative flex w-full flex-1 flex-col",
@@ -417,7 +417,7 @@ pub fn SidebarInset(
             )
         >
             {children()}
-        </main>
+        </div>
     }
 }
 
