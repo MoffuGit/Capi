@@ -173,7 +173,7 @@ pub fn SidebarProvider(
             let closure_js = closure.clone();
             move || {
                 let _ = window().remove_event_listener_with_callback(
-                    "resize",
+                    "keydown",
                     closure_js.as_ref().unchecked_ref(),
                 );
             }
