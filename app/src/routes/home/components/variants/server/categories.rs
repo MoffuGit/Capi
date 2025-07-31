@@ -65,11 +65,11 @@ pub fn CategoriesItems(
                                         preloaded_channels.and_then(|channels| {
                                             let channels = StoredValue::new(channels.clone());
                                             view!{
-                                                <CollapsiblePanel>
-                                                    <SidebarGroupContent>
+                                                <SidebarGroupContent>
+                                                    <CollapsiblePanel>
                                                         <ChannelsItems preloaded_channels=channels.get_value() server=server category=category_id.get_value() />
-                                                    </SidebarGroupContent>
-                                                </CollapsiblePanel>
+                                                    </CollapsiblePanel>
+                                                </SidebarGroupContent>
                                             }
                                         })
                                     }
