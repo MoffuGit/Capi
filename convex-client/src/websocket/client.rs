@@ -215,7 +215,6 @@ impl WebSocketWorker {
         loop {
             select_biased! {
                 _ = self.ping_ticker.next().fuse() => {
-                    log!("WebSocketWorker: Heartbeat check.");
                     let now = Instant::now();
                     if now - internal.last_server_response > Self::SERVER_INACTIVITY_THRESHOLD {
                         log!("WebSocketWorker: Server inactive, no response for {:?}", now - internal.last_server_response);
@@ -227,11 +226,8 @@ impl WebSocketWorker {
 
                     match server_msg {
                         Ok(Message::Text(t)) => {
-                            log!("WebSocketWorker: Received text message from server: {}", t);
                             let json: serde_json::Value = serde_json::from_str(&t).context("JsonDeserializeError")?;
                             let server_message = json.try_into()?;
-
-                            log!("WebSocketWorker: Deserialized server message: {:?}", server_message);
 
                             let resp = ProtocolResponse::ServerMessage(server_message);
                             let _ = self.on_response.send(resp).await;
@@ -249,11 +245,9 @@ impl WebSocketWorker {
                 request = self.internal_receiver.select_next_some() => {
                     match request {
                         WebSocketRequest::SendMessage(message, sender) => {
-                            log!("WebSocketWorker: Sending client message: {:?}", message);
                             let msg = Message::Text(serde_json::Value::try_from(*message).context("JsonSerializeError")?.to_string());
                             let _ = ws_tx.send(msg.clone()).await;
                             let _ = sender.send(());
-                            log!("WebSocketWorker: Client message sent.");
                         },
                         WebSocketRequest::Reconnect(reason) => {
                             log!("WebSocketWorker: Reconnect request received during 'work'. Reason: {}", reason.reason);

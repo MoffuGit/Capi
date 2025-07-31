@@ -104,7 +104,7 @@ pub fn Home() -> impl IntoView {
     view! {
         <SidebarProvider shortcut=shortcut style="--sidebar-width: 300px">
             <SideBar route=route option=option/>
-            <SidebarInset class="max-h-screen" >
+            <SidebarInset class="max-h-screen overflow-x-hidden" >
                 <Outlet/>
             </SidebarInset>
         </SidebarProvider>
