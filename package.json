@@ -5,6 +5,7 @@
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
+    "tailwind-scrollbar": "^4.0.2",
     "tw-animate-css": "^1.3.4"
   }
 }

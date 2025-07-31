@@ -77,11 +77,11 @@ pub fn MsgRefDisplay(
         <Show when=move || msg_ref.get().is_some()>
             <div class="relative w-full border-b px-3 py-2 text-sm flex items-center justify-between">
                 <div class="flex flex-col text-xs text-base-content/70 truncate">
-                    <div class="text-base-content text-xs">
-                        <span>
+                    <div class="text-xs">
+                        <span class="text-muted-foreground">
                              "Replying to "
                         </span>
-                        <span class="font-medium">
+                        <span class="font-medium text-base-content">
                             {move || {
                                 msg_ref.get().and_then(|msg| {
                                     cached_members.get().map(|members| {

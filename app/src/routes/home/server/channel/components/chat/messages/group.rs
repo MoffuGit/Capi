@@ -130,17 +130,19 @@ pub fn MessageItem(
     member: Signal<Option<Member>>,
 ) -> impl IntoView {
     let markdown = MarkdownParser::new(&msg.content).parse_tree();
+    let msg = StoredValue::new(msg);
 
     let context: ChatContext = use_context().expect("should return teh chat context");
     let msg_ref = context.msg_reference;
 
     view! {
         <div
-            data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.id) { "true" } else { "false" }
-            class="w-full h-auto data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 data-[response=true]:border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
+            data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.get_value().id) { "true" } else { "false" }
+            class="w-full h-auto transition-colors ease-in-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 data-[response=true]:border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
+            on:dblclick=move |_| msg_ref.set(Some(msg.get_value()))
         >
             <div class="absolute bg-popover text-popover-foreground flex items-center h-auto z-50 w-auto overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md group-hover:opacity-100 opacity-0 top-0 right-4 -translate-y-1/2">
-                <MessageReferenceButton msg=msg.clone() />
+                <MessageReferenceButton msg=msg.get_value() />
             </div>
             <Show when=move || idx == 0>
                 {
@@ -152,7 +154,7 @@ pub fn MessageItem(
             </Show>
 
             <Markdown markdown=markdown.into() />
-            <MessageAttachments attachments=msg.attachments.clone() />
+            <MessageAttachments attachments=msg.get_value().attachments />
         </div>
     }
 }
