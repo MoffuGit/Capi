@@ -23,6 +23,15 @@ pub fn Icon(children: Children, #[prop(into, optional)] class: Signal<String>) -
 }
 
 #[component]
+pub fn IconCornerUpLeft(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M20 20v-7a4 4 0 0 0-4-4H4"/><path d="M9 14 4 9l5-5"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconSend(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>
