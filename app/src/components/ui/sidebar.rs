@@ -317,13 +317,13 @@ pub fn Sidebar(
             <div
                 class="group peer text-sidebar-foreground hidden md:block"
                 data-state=move || state().to_string()
-                data-collapsible=Memo::new(move |_| {
+                data-collapsible=move || {
                     if state.get() == SideBarState::Collapsed {
                         collapsible.to_string()
                     } else {
                         "".to_string()
                     }
-                })
+                }
                 data-variant=variant.to_string()
                 data-side=side.to_string()
                 data-slot="sidebar"

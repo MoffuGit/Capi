@@ -9,7 +9,7 @@ use crate::components::primitives::collapsible::{
 #[component]
 pub fn Collapsible(children: Children) -> impl IntoView {
     view! {
-        <CollapsibleRootPrimitive>
+        <CollapsibleRootPrimitive open_duration=180 close_duration=180>
             {children()}
         </CollapsibleRootPrimitive>
     }
@@ -29,10 +29,12 @@ pub fn CollapsiblePanel(children: ChildrenFn) -> impl IntoView {
     view! {
         <CollapsiblePanelPrimitive class=tw_merge!(
             "overflow-hidden",
-            "transition-[height]", // Animate the height property
-            "ease-out-quad",        // Easing function for the transition
-            "duration-150",       // Duration of the transition (e.g., 300ms)
-            "h-[var(--collapsible-panel-height)]", // Expand to measured height when open
+            "transition-[height,opacity]",
+            "ease-out-quad",
+            "duration-180",
+            "data-[state=open]:opacity-100",
+            "data-[state=closed]:opacity-0",
+            "h-[var(--collapsible-panel-height)]",
         )>
             {children()}
         </CollapsiblePanelPrimitive>
