@@ -167,7 +167,7 @@ pub fn Messages(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>
     });
 
     view! {
-        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
+        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto pt-4">
                 {
                     move || {
                         display_items_memo.get().into_iter().map(|item| {

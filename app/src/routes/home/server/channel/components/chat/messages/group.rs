@@ -54,7 +54,7 @@ pub fn MessageItem(
 ) -> impl IntoView {
     let markdown = MarkdownParser::new(&msg.content).parse_tree();
     view! {
-        <div class="w-full h-auto hover:bg-accent/50 px-12 relative">
+        <div class="w-full h-auto hover:bg-accent/50 px-18 relative">
             {
                 move || {
                     if idx == 0 {
@@ -116,7 +116,7 @@ pub fn MessageItem(
 #[component]
 pub fn SenderAvatar(member: Member) -> impl IntoView {
     view! {
-        <Avatar class="h-8 w-8 rounded-lg absolute top-2 left-2">
+        <Avatar class="h-8 w-8 rounded-lg absolute top-1 left-6">
             <AvatarImage url=member.image_url/>
             <AvatarFallback class="rounded-lg select-none bg-transparent">
                 {member.name.clone()}

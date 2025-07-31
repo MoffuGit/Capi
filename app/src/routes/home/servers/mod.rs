@@ -21,7 +21,7 @@ pub fn Servers() -> impl IntoView {
         }
     });
     view! {
-        <Tabs class="w-full h-full" tab=tab>
+        <Tabs class="w-full h-full gap-0" tab=tab>
             <Header />
             <Content />
         </Tabs>

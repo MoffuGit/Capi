@@ -22,7 +22,7 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
     view! {
         <Provider value=ChatContext::default()>
             // <ChatDropZone/>
-            <div class="flex h-full w-full flex-col">
+            <div class="flex h-full w-full flex-col relative">
                 <Messages channel=channel member=member/>
                 <Sender channel=channel member=member/>
             </div>

@@ -7,7 +7,7 @@ use crate::components::ui::tabs::*;
 pub fn Header() -> impl IntoView {
     view! {
         <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 p-3 border-b">
-            <TabsList>
+            <TabsList class="gap-2">
                 <A
                     href="/servers"
                 >

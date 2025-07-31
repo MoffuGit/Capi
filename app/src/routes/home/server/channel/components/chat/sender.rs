@@ -137,7 +137,7 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
     );
 
     view! {
-        <div class="flex flex-col gap-2 p-5 pt-0">
+        <div class="w-full flex flex-col gap-2 p-5 pt-0 bg-background">
             <Show when=move || !context.attachments.get().is_empty()>
                 <div class="relative w-full h-auto  border first:rounded-t-lg border-b-0 border-base-100 flex items-center p-2 text-sm">
                     {
@@ -151,8 +151,7 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
                     }
                 </div>
             </Show>
-            <div class="border-input  flex w-full rounded-md border  px-3 py-2 text-base shadow-xs md:text-sm justify-between">
-
+            <div class="border-input  flex w-full rounded-md border bg-background px-3 py-2 text-base shadow-xs md:text-sm justify-between">
                 <div class="flex items-center justify-center">
                     <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="relative">
                         // <FileInput class="absolute inset-0 opacity-0" files=context.attachments/>
