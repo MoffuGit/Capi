@@ -8,17 +8,17 @@ use chrono::{DateTime, Local, NaiveDate};
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 
-use common::convex::{Channel, ChannelMessage, FileMetaData, Member};
+use common::convex::{Channel, ChannelMessage, Member};
 use leptos::context::Provider;
 use serde::Serialize;
 
 use self::messages::Messages;
-use self::sender::Sender;
+use self::sender::{ClientFileMetaData, Sender};
 
 #[derive(Debug, Clone)]
 pub struct ChatContext {
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
-    pub attachments: RwSignal<Vec<FileMetaData>>,
+    pub attachments: RwSignal<Vec<ClientFileMetaData>>,
     pub cached_members: Memo<Option<HashMap<String, Member>>>,
 }
 
