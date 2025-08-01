@@ -8,10 +8,9 @@ use chrono::{DateTime, Local, NaiveDate};
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 
-use common::convex::{Channel, ChannelMessage, Member};
+use common::convex::{Channel, ChannelMessage, FileMetaData, Member};
 use leptos::context::Provider;
 use serde::Serialize;
-use uploadthing::UploadthingFile;
 
 use self::messages::Messages;
 use self::sender::Sender;
@@ -19,7 +18,7 @@ use self::sender::Sender;
 #[derive(Debug, Clone)]
 pub struct ChatContext {
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
-    pub attachments: RwSignal<Vec<UploadthingFile>>,
+    pub attachments: RwSignal<Vec<FileMetaData>>,
     pub cached_members: Memo<Option<HashMap<String, Member>>>,
 }
 
@@ -168,6 +167,8 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
         })
     });
 
+    let sender_ref = NodeRef::new();
+
     view! {
         <Provider value=ChatContext {
             msg_reference: Default::default(),
@@ -175,8 +176,8 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
             cached_members
         }>
             <div class="flex h-full w-full flex-col relative">
-                <Messages messages=display_items_memo/>
-                <Sender channel=channel member=member/>
+                <Messages messages=display_items_memo sender_ref=sender_ref/>
+                <Sender channel=channel member=member sender_ref=sender_ref/>
             </div>
         </Provider>
     }

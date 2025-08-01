@@ -4,7 +4,7 @@ use leptos::{leptos_dom::helpers::TimeoutHandle, prelude::*};
 use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 use std::time::Duration;
 use tailwind_fuse::tw_merge;
-use web_sys::{HtmlDivElement, PointerEvent};
+use web_sys::PointerEvent;
 
 use crate::components::primitives::common::status::{
     use_transition_status, TransitionStatus, TransitionStatusState,

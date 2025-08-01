@@ -1,70 +1,51 @@
-use crate::components::icons::{IconPaperClip, IconSend, IconSticker, IconX};
+use crate::components::icons::{IconPaperClip, IconSend, IconSticker, IconTrash, IconX};
+use crate::components::primitives::collapsible::use_transition_status;
+use crate::components::primitives::common::status::TransitionStatus;
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::ui::markdown::{Markdown, MarkdownParser};
 use crate::routes::server::channel::components::chat::ChatContext;
-use common::convex::{Channel, ChannelMessage, Member};
+use common::convex::{Channel, ChannelMessage, FileMetaData, Member};
 use convex_client::leptos::{Mutation, UseMutation};
-use gloo_file::Blob;
-use leptos::html::Div;
+use gloo_file::File;
+use leptos::html::{Div, Input};
 use leptos::prelude::*;
 use serde::Serialize;
-use web_sys::{FormData, Url};
+use wasm_bindgen::JsCast as _;
+use web_sys::{Event, HtmlInputElement};
 
-// #[component]
-// pub fn Attachment(
-//     attachment: UploadthingFile,
-//     idx: usize,
-//     attachments: RwSignal<Vec<UploadthingFile>>,
-// ) -> impl IntoView {
-//     let FileData {
-//         name, file_type, ..
-//     } = attachment.data;
-//     let file_type = FileType::from_str(&file_type).unwrap();
-//     let url: RwSignal<Option<String>> = RwSignal::new(match file_type {
-//         FileType::Jpeg | FileType::Png => {
-//             Url::create_object_url_with_blob(&Blob::new(&*attachment.chunks).into()).ok()
-//         }
-//         _ => None,
-//     });
-//     view! {
-//         <div class="relative w-40 h-40 p-2 rounded-lg border border-base-100 flex flex-col items-center justify-around">
-//             <Button
-//                 size=ButtonSizes::Icon variant=ButtonVariants::Destructive
-//                 on:click=move |_| {
-//                     attachments.update(|attachments| {
-//                         attachments.remove(idx);
-//                     });
-//                 }
-//                 class="absolute top-1 right-1"
-//             >
-//                 <IconTrash
-//                 />
-//             </Button>
-//             {
-//                 match file_type {
-//                     FileType::Jpeg | FileType::Png =>  {
-//                         view! {
-//                             <img
-//                                 class="w-full mx-1 h-28 object-cover rounded-md"
-//                                 src=move || url.get().unwrap()
-//                                 on:load=move |_| {
-//                                     let _ = Url::revoke_object_url(&url.get().unwrap());
-//                                 }
-//                             />
-//                         }.into_any()
-//                     },
-//                     _ => {
-//                         ().into_any()
-//                     }
-//                 }
-//             }
-//             <div class="w-full text-start max-h-4 text-xs text-nowrap truncate inline-block">
-//                 {name}
-//             </div>
-//         </div>
-//
-//     }
-// }
+#[component]
+pub fn Attachment(
+    attachment: FileMetaData,
+    idx: usize,
+    attachments: RwSignal<Vec<FileMetaData>>,
+) -> impl IntoView {
+    let FileMetaData {
+        id,
+        creation_time,
+        content_type,
+        sha256,
+        size,
+    } = attachment;
+    view! {
+        <div class="relative w-40 h-40 p-2 rounded-lg border border-base-100 flex flex-col items-center justify-around">
+            <Button
+                size=ButtonSizes::Icon variant=ButtonVariants::Destructive
+                on:click=move |_| {
+                    attachments.update(|attachments| {
+                        attachments.remove(idx);
+                    });
+                }
+                class="absolute top-1 right-1"
+            >
+                <IconTrash
+                />
+            </Button>
+            <div class="w-full text-start max-h-4 text-xs text-nowrap truncate inline-block">
+                // {name}
+            </div>
+        </div>
+
+    }
+}
 
 #[component]
 pub fn MsgRefDisplay(
@@ -73,56 +54,69 @@ pub fn MsgRefDisplay(
 ) -> impl IntoView {
     let context: ChatContext = use_context().expect("should return teh chat context");
     let cached_members = context.cached_members;
+    let cached_member = Memo::new(move |prev| {
+        if let Some(msg) = msg_ref.get() {
+            cached_members
+                .get()
+                .and_then(|members| members.get(&msg.sender).map(|member| member.name.clone()))
+        } else {
+            prev.flatten().cloned()
+        }
+    });
+    let open = Signal::derive(move || msg_ref.get().is_some());
+    let state = use_transition_status(open, true, true, 150, 150);
     view! {
-        <Show when=move || msg_ref.get().is_some()>
-            <div class="relative w-full border-b px-3 py-2 text-sm flex items-center justify-between">
-                <div class="flex flex-col text-xs text-base-content/70 truncate">
-                    <div class="text-xs">
-                        <span class="text-muted-foreground">
-                             "Replying to "
-                        </span>
-                        <span class="font-medium text-base-content">
-                            {move || {
-                                msg_ref.get().and_then(|msg| {
-                                    cached_members.get().map(|members| {
-                                        members.get(&msg.sender).map(|member| {
-                                            member.name.clone()
-                                        })
-                                    })
-                                })
-                            }}
-                        </span>
+        <Show when=move || state.mounted.get()>
+            <div class="w-full h-auto overflow-hidden">
+                <div data-state=move || {
+                        match state.transition_status.get() {
+                            TransitionStatus::Starting => "opening",
+                            TransitionStatus::Ending => "closing",
+                            TransitionStatus::Idle => "open",
+                            TransitionStatus::Undefined => "closed",
+                        }
+                    }
+                    class="relative bg-background w-full px-3 py-2 text-sm flex items-center rounded-t-md border-t border-t-input border-l border-l-input border-r border-r-input transition-[opacity,translate] duration-150 ease-out-quad justify-between data-[state=open]:opacity-100 data-[state=closing]:opacity-0 data-[state=closed]:opacity-0 data-[state=closing]:translate-y-full data-[state=closed]:translate-y-full"
+                >
+                    <div class="flex flex-col text-xs text-base-content/70 truncate">
+                        <div class="text-xs">
+                            <span class="text-muted-foreground">
+                                 "Replying to "
+                            </span>
+                            <span class="font-medium text-base-content">
+                                {move || {
+                                    cached_member.get()
+                                }}
+                            </span>
+                        </div>
                     </div>
+                    <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="size-6" on:click=move |_| on_clear_ref.run(())>
+                        <IconX />
+                    </Button>
                 </div>
-                <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="size-6" on:click=move |_| on_clear_ref.run(())>
-                    <IconX />
-                </Button>
             </div>
         </Show>
     }
 }
 
-// #[component]
-// pub fn AttachmentPreviewList(
-//     attachments: RwSignal<Vec<UploadthingFile>>,
-// ) -> impl IntoView {
-//     view! {
-//         <Show when=move || !attachments.get().is_empty()>
-//             <div class="relative w-full h-auto  border first:rounded-t-lg border-b-0 border-base-100 flex items-center p-2 text-sm">
-//                 {
-//                     move || {
-//                         attachments.get().iter().enumerate().map(|(idx, att)| {
-//                             view!{
-//                                 <Attachment attachment=att.clone() idx=idx attachments=attachments/>
-//                             }
-//                         }).collect_view()
-//                     }
-//                 }
-//             </div>
-//         </Show>
-//     }
-// }
-//
+#[component]
+pub fn AttachmentPreviewList(attachments: RwSignal<Vec<FileMetaData>>) -> impl IntoView {
+    view! {
+        <Show when=move || !attachments.get().is_empty()>
+            <div class="relative w-full h-auto  border first:rounded-t-lg border-b-0 border-base-100 flex items-center p-2 text-sm">
+                {
+                    move || {
+                        attachments.get().iter().enumerate().map(|(idx, att)| {
+                            view!{
+                                <Attachment attachment=att.clone() idx=idx attachments=attachments/>
+                            }
+                        }).collect_view()
+                    }
+                }
+            </div>
+        </Show>
+    }
+}
 
 #[component]
 pub fn MessageInputArea(
@@ -161,10 +155,43 @@ pub fn MessageInputArea(
 }
 
 #[component]
-pub fn MessageActionButtons(on_send: Callback<()>) -> impl IntoView {
+pub fn MessageActionButtons(
+    on_send: Callback<()>,
+    attachments: RwSignal<Vec<FileMetaData>>,
+) -> impl IntoView {
+    let file_input_ref: NodeRef<Input> = NodeRef::new();
+
+    let on_file_selected = move |event: Event| {
+        let input = event.target().unwrap().unchecked_into::<HtmlInputElement>();
+        if let Some(files) = input.files() {
+            let mut new_attachments: Vec<FileMetaData> = Vec::new();
+            for i in 0..files.length() {
+                if let Some(file) = files.get(i) {
+                    let gloo_file = File::from(file);
+                    // new_attachments.push(FileMetaData {
+                    //     id: Ulid::new().to_string(), // Client-side unique ID
+                    //     file_type: gloo_file.raw_type(),
+                    //     size: gloo_file.size() as usize,
+                    //     url: None, // URL will be set after actual upload to a storage service
+                    // });
+                }
+            }
+            attachments.update(|current_attachments| {
+                current_attachments.extend(new_attachments);
+            });
+            input.set_value("");
+        }
+    };
     view! {
+        <input type="file" multiple=true class="hidden" node_ref=file_input_ref on:change=on_file_selected />
         <div class="flex items-center gap-3 p-1">
-            <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="size-6 text-muted-foreground hover:text-foreground">
+            <Button
+                on:click=move |_| {
+                    if let Some(input) = file_input_ref.get() {
+                        input.click();
+                    }
+                }
+                size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="size-6 text-muted-foreground hover:text-foreground">
                 <IconPaperClip/>
             </Button>
             <Button
@@ -204,7 +231,11 @@ impl Mutation for SendMessage {
 }
 
 #[component]
-pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) -> impl IntoView {
+pub fn Sender(
+    channel: Signal<Option<Channel>>,
+    member: Signal<Option<Member>>,
+    sender_ref: NodeRef<Div>,
+) -> impl IntoView {
     let send = UseMutation::new::<SendMessage>();
     let message = RwSignal::new(String::default());
     let content_ref: NodeRef<Div> = NodeRef::new();
@@ -214,7 +245,6 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
     let attachments = context.attachments;
     let msg_ref = context.msg_reference;
 
-    // Callback to clear the message reference
     let on_clear_msg_ref = Callback::new(move |_| {
         msg_ref.set(None);
     });
@@ -275,11 +305,11 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
     );
 
     view! {
-        <div class="w-full gap-2 p-5 pt-0 bg-background">
-            <div class="max-h-96 w-full border-input flex flex-col items-center justify-center rounded-md border text-base shadow-xs bg-transparent dark:bg-input/30 md:text-sm">
+        <div class="w-full absolute bottom-0 bg-transparent flex flex-col isolate" node_ref=sender_ref>
+            <div class="max-h-96 w-full flex flex-col items-center justify-center px-5 text-base shadow-xs md:text-sm">
                 <MsgRefDisplay msg_ref=msg_ref on_clear_ref=on_clear_msg_ref/>
                 // <AttachmentPreviewList attachments=attachments/>
-                <div class="flex w-full px-3 py-2 justify-between">
+                <div class="flex w-full px-3 py-2 justify-between border-input only:rounded-md rounded-b-md transition-all duration-150 ease-out border bg-background">
                     <MessageInputArea
                         message=message
                         content_ref=content_ref
@@ -287,10 +317,12 @@ pub fn Sender(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) 
                     />
                     <MessageActionButtons
                         on_send=on_send_message
-                        // attachments_signal=attachments
+                        attachments=attachments
                     />
                 </div>
             </div>
+            <div class="absolute inset-0 mb-5 bg-gradient-to-b -z-10 from-transparent to-background"/>
+            <div class="bg-background w-full h-5"/>
         </div>
     }
 }

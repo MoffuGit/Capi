@@ -50,9 +50,7 @@ export default defineSchema({
   }).index("by_message", ["message"]),
   attachments: defineTable({
     message: v.id("messages"),
-    name: v.string(),
-    type: v.string(),
-    url: v.string(),
+    storageId: v.id("_storage"),
   }).index("by_message", ["message"]),
   categories: defineTable({
     name: v.string(),

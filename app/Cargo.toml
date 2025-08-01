@@ -42,12 +42,11 @@ chrono.workspace = true
 pulldown-cmark.workspace = true
 regex.workspace = true
 gloo-file.workspace = true
-uploadthing = { path = "../uploadthing", optional = true }
 serde_with.workspace = true
 base64.workspace = true
 reqwest.workspace = true
 
 [features]
 default = []
-hydrate = ["leptos/hydrate", "api/hydrate", "dep:common", "dep:uploadthing",  "convex-client/hydrate"]
-ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:convex-client", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common", "dep:uploadthing"]
+hydrate = ["leptos/hydrate", "api/hydrate", "dep:common",  "convex-client/hydrate"]
+ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:convex-client", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common"]

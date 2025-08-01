@@ -1,9 +1,6 @@
-use std::str::FromStr;
-
 use chrono::{DateTime, Duration, Local};
 use common::convex::{ChannelMessage, Member};
 use leptos::prelude::*;
-use uploadthing::FileType;
 
 use crate::components::icons::IconCornerUpLeft;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
@@ -100,27 +97,27 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
     }
 }
 
-#[component]
-pub fn MessageAttachments(attachments: Vec<common::convex::Attachment>) -> impl IntoView {
-    view! {
-        {
-            attachments.into_iter().map(|att| {
-                let file_type = FileType::from_str(&att._type);
-                match file_type {
-                    Ok(FileType::Jpeg) => {
-                        view!{
-                            <img class="max-w-136 w-full h-auto flex rounded-lg mb-1" src=att.url.clone()/>
-                        }.into_any()
-                    },
-                    Ok(FileType::Png) => view!{
-                        <img class="max-w-136 w-full h-auto flex rounded-lg" src=att.url.clone()/>
-                    }.into_any(),
-                    _ => ().into_any()
-                }
-            }).collect_view()
-        }
-    }
-}
+// #[component]
+// pub fn MessageAttachments(attachments: Vec<common::convex::Attachment>) -> impl IntoView {
+//     view! {
+//         {
+//             attachments.into_iter().map(|att| {
+//                 let file_type = FileType::from_str(&att._type);
+//                 match file_type {
+//                     Ok(FileType::Jpeg) => {
+//                         view!{
+//                             <img class="max-w-136 w-full h-auto flex rounded-lg mb-1" src=att.url.clone()/>
+//                         }.into_any()
+//                     },
+//                     Ok(FileType::Png) => view!{
+//                         <img class="max-w-136 w-full h-auto flex rounded-lg" src=att.url.clone()/>
+//                     }.into_any(),
+//                     _ => ().into_any()
+//                 }
+//             }).collect_view()
+//         }
+//     }
+// }
 
 #[component]
 pub fn MessageItem(
@@ -138,10 +135,10 @@ pub fn MessageItem(
     view! {
         <div
             data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.get_value().id) { "true" } else { "false" }
-            class="w-full h-auto transition-colors ease-in-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 data-[response=true]:border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
+            class="w-full h-auto transition-colors ease-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 data-[response=true]:border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
             on:dblclick=move |_| msg_ref.set(Some(msg.get_value()))
         >
-            <div class="absolute bg-popover text-popover-foreground flex items-center h-auto z-50 w-auto overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md group-hover:opacity-100 opacity-0 top-0 right-4 -translate-y-1/2">
+            <div class="absolute bg-popover text-popover-foreground flex items-center h-auto z-10 w-auto overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md group-hover:opacity-100 opacity-0 top-0 right-4 -translate-y-1/2">
                 <MessageReferenceButton msg=msg.get_value() />
             </div>
             <Show when=move || idx == 0>
@@ -154,7 +151,7 @@ pub fn MessageItem(
             </Show>
 
             <Markdown markdown=markdown.into() />
-            <MessageAttachments attachments=msg.get_value().attachments />
+            // <MessageAttachments attachments=msg.get_value().attachments />
         </div>
     }
 }

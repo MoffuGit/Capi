@@ -1,5 +1,6 @@
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize};
+use strum_macros::{Display, EnumString};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Server {
@@ -209,10 +210,64 @@ pub struct Attachment {
     #[serde(rename = "_creationTime")]
     pub creation_time: f64,
     pub message: String,
-    #[serde(rename = "type")]
-    pub _type: String,
-    pub name: String,
+    #[serde(rename = "storageId")]
+    pub storage_id: String,
     pub url: String,
+    pub metadata: Option<FileMetaData>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct FileMetaData {
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
+    #[serde(rename = "contentType")]
+    pub content_type: FileType,
+    pub sha256: String,
+    pub size: i64,
+}
+
+#[derive(Debug, Display, EnumString, PartialEq, Default, Serialize, Deserialize, Clone, Copy)]
+pub enum FileType {
+    #[strum(serialize = "image/jpeg", serialize = "image/jpg")]
+    Jpeg,
+    #[strum(serialize = "image/png")]
+    Png,
+    #[strum(serialize = "image/gif")]
+    Gif,
+    #[strum(serialize = "image/webp")]
+    Webp,
+    #[strum(serialize = "application/pdf")]
+    Pdf,
+    #[strum(serialize = "text/plain")]
+    Text,
+    #[strum(serialize = "application/msword")]
+    Doc,
+    #[strum(serialize = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
+    Docx,
+    #[strum(serialize = "application/vnd.ms-excel")]
+    Xls,
+    #[strum(serialize = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    Xlsx,
+    #[strum(serialize = "application/zip")]
+    Zip,
+    #[strum(serialize = "audio/mpeg")]
+    Mp3,
+    #[strum(serialize = "audio/wav")]
+    Wav,
+    #[strum(serialize = "video/mp4")]
+    Mp4,
+    #[strum(serialize = "video/webm")]
+    Webm,
+    #[strum(serialize = "application/json")]
+    Json,
+    #[strum(serialize = "text/csv")]
+    Csv,
+    #[strum(serialize = "text/html")]
+    Html,
+    #[default]
+    Unknown,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

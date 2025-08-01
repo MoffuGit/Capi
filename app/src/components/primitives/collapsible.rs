@@ -35,7 +35,7 @@ pub fn CollapsibleRoot(
     #[prop(optional, default = 150)] open_duration: u64,
     #[prop(optional, default = 150)] close_duration: u64,
 ) -> impl IntoView {
-    let state = use_transition_status(open.read_only(), true, true, open_duration, close_duration);
+    let state = use_transition_status(open.into(), true, true, open_duration, close_duration);
 
     let dimensions = RwSignal::new(Dimensions {
         width: None,
@@ -205,7 +205,7 @@ pub fn CollapsiblePanel(
 }
 
 pub fn use_transition_status(
-    open: ReadSignal<bool>,
+    open: Signal<bool>,
     enable_idle_state: bool,
     defer_ending_state: bool,
     open_duration: u64,

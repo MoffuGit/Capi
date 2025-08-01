@@ -28,10 +28,9 @@ export const createMessage = mutation({
 export const getMessagesInChannel = query({
   args: {
     channelId: v.id("channels"),
-    memberId: v.id("members"), // Added memberId argument
+    memberId: v.id("members"),
   },
   handler: async (ctx, { channelId, memberId }) => {
-    // Destructure memberId
     const messages = await ctx.db
       .query("messages")
       .withIndex("by_channel", (q) => q.eq("channel", channelId))
@@ -39,7 +38,6 @@ export const getMessagesInChannel = query({
 
     const fullMessages = await Promise.all(
       messages.map(async (message) => {
-        // Fetch aggregated reaction counts for the message
         const [messageReactionCounts, mentions, roleMentions, attachments] =
           await Promise.all([
             ctx.db
@@ -59,10 +57,24 @@ export const getMessagesInChannel = query({
             ctx.db
               .query("attachments")
               .withIndex("by_message", (q) => q.eq("message", message._id))
-              .collect(),
+              .collect()
+              .then(async (atts) =>
+                Promise.all(
+                  atts.map(async (att) => {
+                    const url = await ctx.storage.getUrl(att.storageId);
+                    const metadata = await ctx.db.system.get(att.storageId);
+                    return {
+                      _id: att._id,
+                      message: att.message,
+                      storageId: att.storageId,
+                      url,
+                      metadata,
+                    };
+                  }),
+                ),
+              ),
           ]);
 
-        // For each reaction count, determine if the specified member has reacted
         const reactionsWithHasReacted = await Promise.all(
           messageReactionCounts.map(async (reactionCount) => {
             const memberReaction = await ctx.db
@@ -76,14 +88,14 @@ export const getMessagesInChannel = query({
               .first();
             return {
               ...reactionCount,
-              hasReacted: !!memberReaction, // true if memberReaction exists, false otherwise
+              hasReacted: !!memberReaction,
             };
           }),
         );
 
         return {
           ...message,
-          reactions: reactionsWithHasReacted, // Now includes hasReacted property
+          reactions: reactionsWithHasReacted,
           mentions,
           role_mentions: roleMentions,
           attachments,
@@ -98,16 +110,12 @@ export const getMessagesInChannel = query({
 export const addAttachmentToMessage = mutation({
   args: {
     messageId: v.id("messages"),
-    name: v.string(),
-    type: v.string(),
-    url: v.string(),
+    storageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
     const newAttachment = {
       message: args.messageId,
-      name: args.name,
-      type: args.type,
-      url: args.url,
+      storageId: args.storageId,
     };
     return await ctx.db.insert("attachments", newAttachment);
   },
@@ -118,14 +126,12 @@ export const deleteMessage = mutation({
     messageId: v.id("messages"),
   },
   handler: async (ctx, args) => {
-    // Delete individual member reactions associated with the message
     const memberReactionsToDelete = await ctx.db
       .query("memberReactions")
       .filter((q) => q.eq(q.field("message"), args.messageId))
       .collect();
     await Promise.all(memberReactionsToDelete.map((r) => ctx.db.delete(r._id)));
 
-    // Delete aggregated message reaction counts associated with the message
     const messageReactionCountsToDelete = await ctx.db
       .query("messageReactionCounts")
       .filter((q) => q.eq(q.field("message"), args.messageId))
@@ -134,7 +140,6 @@ export const deleteMessage = mutation({
       messageReactionCountsToDelete.map((r) => ctx.db.delete(r._id)),
     );
 
-    // Delete mentions, role_mentions, and attachments associated with the message
     const mentions = await ctx.db
       .query("mentions")
       .filter((q) => q.eq(q.field("message"), args.messageId))
@@ -151,7 +156,14 @@ export const deleteMessage = mutation({
       .query("attachments")
       .filter((q) => q.eq(q.field("message"), args.messageId))
       .collect();
-    await Promise.all(attachments.map((a) => ctx.db.delete(a._id)));
+    await Promise.all(
+      attachments.map(async (a) => {
+        if (a.storageId) {
+          await ctx.storage.delete(a.storageId);
+        }
+        await ctx.db.delete(a._id);
+      }),
+    );
 
     return await ctx.db.delete(args.messageId);
   },
@@ -161,7 +173,7 @@ export const updateMessage = mutation({
   args: {
     messageId: v.id("messages"),
     pinned: v.optional(v.boolean()),
-    content: v.optional(v.string()), // Allow updating content
+    content: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const updateFields: { pinned?: boolean; content?: string } = {};
@@ -182,7 +194,6 @@ export const addReaction = mutation({
     emoji: v.string(),
   },
   handler: async (ctx, { messageId, memberId, emoji }) => {
-    // Check if the member has already reacted with this emoji to this message
     const existingMemberReaction = await ctx.db
       .query("memberReactions")
       .withIndex("by_message_member_emoji", (q) =>
@@ -191,18 +202,15 @@ export const addReaction = mutation({
       .first();
 
     if (existingMemberReaction) {
-      // Member has already reacted with this emoji, do nothing
       return { success: false, reason: "Already reacted with this emoji" };
     }
 
-    // Add the member's individual reaction
     await ctx.db.insert("memberReactions", {
       message: messageId,
       member: memberId,
       emoji: emoji,
     });
 
-    // Update the aggregated reaction count for the message
     const existingReactionCount = await ctx.db
       .query("messageReactionCounts")
       .withIndex("by_message_and_emoji", (q) =>
@@ -211,12 +219,10 @@ export const addReaction = mutation({
       .first();
 
     if (existingReactionCount) {
-      // Increment existing count
       await ctx.db.patch(existingReactionCount._id, {
         count: existingReactionCount.count + 1,
       });
     } else {
-      // Create new count entry
       await ctx.db.insert("messageReactionCounts", {
         message: messageId,
         emoji: emoji,
@@ -235,7 +241,6 @@ export const removeReaction = mutation({
     emoji: v.string(),
   },
   handler: async (ctx, { messageId, memberId, emoji }) => {
-    // Find and delete the member's individual reaction
     const memberReactionToDelete = await ctx.db
       .query("memberReactions")
       .withIndex("by_message_member_emoji", (q) =>
@@ -244,13 +249,11 @@ export const removeReaction = mutation({
       .first();
 
     if (!memberReactionToDelete) {
-      // No such reaction found, nothing to remove
       return { success: false, reason: "Reaction not found" };
     }
 
     await ctx.db.delete(memberReactionToDelete._id);
 
-    // Update the aggregated reaction count for the message
     const existingReactionCount = await ctx.db
       .query("messageReactionCounts")
       .withIndex("by_message_and_emoji", (q) =>
@@ -260,17 +263,13 @@ export const removeReaction = mutation({
 
     if (existingReactionCount) {
       if (existingReactionCount.count - 1 <= 0) {
-        // If count becomes 0 or less, delete the aggregated entry
         await ctx.db.delete(existingReactionCount._id);
       } else {
-        // Decrement existing count
         await ctx.db.patch(existingReactionCount._id, {
           count: existingReactionCount.count - 1,
         });
       }
     }
-    // If somehow existingReactionCount doesn't exist but memberReaction did,
-    // we consider the individual reaction deletion successful and don't error out.
 
     return { success: true };
   },

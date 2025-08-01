@@ -33,6 +33,7 @@ pub fn CollapsiblePanel(children: ChildrenFn) -> impl IntoView {
             "ease-out-quad",
             "duration-180",
             "data-[state=open]:opacity-100",
+            "data-[state=closing]:opacity-0",
             "data-[state=closed]:opacity-0",
             "h-[var(--collapsible-panel-height)]",
         )>
