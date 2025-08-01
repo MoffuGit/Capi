@@ -305,7 +305,7 @@ pub fn Sender(
     );
 
     view! {
-        <div class="w-full absolute bottom-0 bg-transparent flex flex-col isolate" node_ref=sender_ref>
+        <div class="w-full absolute bottom-0 bg-transparent flex flex-col z-20 isolate" node_ref=sender_ref>
             <div class="max-h-96 w-full flex flex-col items-center justify-center px-5 text-base shadow-xs md:text-sm">
                 <MsgRefDisplay msg_ref=msg_ref on_clear_ref=on_clear_msg_ref/>
                 // <AttachmentPreviewList attachments=attachments/>

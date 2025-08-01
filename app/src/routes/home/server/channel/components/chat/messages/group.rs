@@ -136,7 +136,16 @@ pub fn MessageItem(
         <div
             data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.get_value().id) { "true" } else { "false" }
             class="w-full h-auto transition-colors ease-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 data-[response=true]:border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
-            on:dblclick=move |_| msg_ref.set(Some(msg.get_value()))
+            on:dblclick=move |_| {
+                msg_ref.update(|current| {
+                    let msg = Some(msg.get_value());
+                    if current == &msg {
+                        *current = None;
+                    } else {
+                        *current = msg;
+                    }
+                });
+            }
         >
             <div class="absolute bg-popover text-popover-foreground flex items-center h-auto z-10 w-auto overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md group-hover:opacity-100 opacity-0 top-0 right-4 -translate-y-1/2">
                 <MessageReferenceButton msg=msg.get_value() />
