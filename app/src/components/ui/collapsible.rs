@@ -7,9 +7,13 @@ use crate::components::primitives::collapsible::{
 };
 
 #[component]
-pub fn Collapsible(children: Children) -> impl IntoView {
+pub fn Collapsible(
+    children: Children,
+    #[prop(into, optional, default = RwSignal::new(false))] open: RwSignal<bool>,
+    #[prop(optional, into)] class: Signal<String>,
+) -> impl IntoView {
     view! {
-        <CollapsibleRootPrimitive open_duration=180 close_duration=180>
+        <CollapsibleRootPrimitive class=class open=open open_duration=180 close_duration=180>
             {children()}
         </CollapsibleRootPrimitive>
     }
@@ -25,18 +29,24 @@ pub fn CollapsibleTrigger(children: Children) -> impl IntoView {
 }
 
 #[component]
-pub fn CollapsiblePanel(children: ChildrenFn) -> impl IntoView {
+pub fn CollapsiblePanel(
+    children: ChildrenFn,
+    #[prop(into, optional)] class: Signal<String>,
+) -> impl IntoView {
     view! {
-        <CollapsiblePanelPrimitive class=tw_merge!(
-            "overflow-hidden",
-            "transition-[height,opacity]",
-            "ease-out-quad",
-            "duration-180",
-            "data-[state=open]:opacity-100",
-            "data-[state=closing]:opacity-0",
-            "data-[state=closed]:opacity-0",
-            "h-[var(--collapsible-panel-height)]",
-        )>
+        <CollapsiblePanelPrimitive class=Signal::derive(move || {
+            tw_merge!(
+                "overflow-hidden",
+                "transition-[height,opacity]",
+                "ease-out-quad",
+                "duration-180",
+                "data-[state=open]:opacity-100",
+                "data-[state=closing]:opacity-0",
+                "data-[state=closed]:opacity-0",
+                "h-[var(--collapsible-panel-height)]",
+                class.get()
+            )
+        })>
             {children()}
         </CollapsiblePanelPrimitive>
     }
