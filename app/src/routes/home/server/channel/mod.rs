@@ -51,7 +51,6 @@ impl Query<Option<Channel>> for GetChannel {
 #[component]
 pub fn Channel() -> impl IntoView {
     let auth = use_auth().auth();
-    // let set_last_visited: ServerAction<SetLastVisitedChannel> = ServerAction::new();
     let location = use_location();
     let path = location.pathname;
 
@@ -69,7 +68,7 @@ pub fn Channel() -> impl IntoView {
             .map(|channel| channel.to_string())
     });
 
-    let data = UseQuery::new(move || {
+    let member_with_role = UseQuery::new(move || {
         let auth = auth.get().and_then(|res| res.ok()).flatten()?;
 
         server.get().map(|server_id| GetMemberForServerByUser {
@@ -78,30 +77,31 @@ pub fn Channel() -> impl IntoView {
         })
     });
 
-    let channel_query_signal_result = UseQuery::new(move || {
-        let server = server.get()?;
-        let channel = channel.get()?;
-
-        let data = data.get().and_then(|res| res.ok()).flatten()?;
-
-        Some(GetChannel {
-            server,
-            channel,
-            member: data.member.id,
-        })
-    });
-
-    let current_member: Signal<Option<Member>> = Signal::derive(move || {
-        data.get()
+    let member: Signal<Option<Member>> = Signal::derive(move || {
+        member_with_role
+            .get()
             .and_then(|res| res.ok())
             .flatten()
             .map(|data| data.member)
     });
 
-    let current_channel: Signal<Option<Channel>> = Signal::derive(move || {
-        channel_query_signal_result.get().and_then(|query_res| {
-            query_res.ok().flatten() // Takes Option<Result<Option<Channel>, String>> -> Option<Option<Channel>> -> Option<Channel>
+    let channel_query_signal_result = UseQuery::new(move || {
+        let server = server.get()?;
+        let channel = channel.get()?;
+
+        let member = member.get()?;
+
+        Some(GetChannel {
+            server,
+            channel,
+            member: member.id,
         })
+    });
+
+    let current_channel: Signal<Option<Channel>> = Signal::derive(move || {
+        channel_query_signal_result
+            .get()
+            .and_then(|query_res| query_res.ok().flatten())
     });
 
     let open = RwSignal::new(false);
@@ -110,9 +110,9 @@ pub fn Channel() -> impl IntoView {
         <Header channel=current_channel members_open=open />
         <SidebarProvider class="flex-1 min-h-0 min-w-0" open=open main=false style="--sidebar-width: 250px" shortcut="u">
             <SidebarInset class="flex-1 max-h-screen">
-                <Chat channel=current_channel member=current_member/>
+                <Chat channel=current_channel member=member/>
             </SidebarInset>
-            <MembersSideBar server=server member=current_member/>
+            <MembersSideBar server=server member=member/>
         </SidebarProvider>
     }
 }

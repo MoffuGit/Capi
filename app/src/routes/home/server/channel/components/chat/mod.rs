@@ -8,12 +8,20 @@ use chrono::{DateTime, Local, NaiveDate};
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 
-use common::convex::{Channel, ChannelMessage, Member};
+use common::convex::{Channel, ChannelMessage, FileType, Member};
 use leptos::context::Provider;
 use serde::Serialize;
 
 use self::messages::Messages;
-use self::sender::{ClientFileMetaData, Sender};
+use self::sender::Sender;
+
+#[derive(Debug, Clone)]
+pub struct ClientFileMetaData {
+    pub name: String,
+    pub size: usize,
+    pub content_type: FileType,
+    pub chunks: Vec<u8>,
+}
 
 #[derive(Debug, Clone)]
 pub struct ChatContext {
@@ -69,11 +77,11 @@ pub fn get_naive_date_from_convex_timestamp(timestamp_f64: f64) -> Option<NaiveD
 #[component]
 pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) -> impl IntoView {
     let messages = UseQuery::new(move || {
-        member.get().and_then(|member| {
-            channel.get().map(|channel| GetMessagesInChannel {
-                channel: channel.id,
-                member: member.id,
-            })
+        let member = member.get()?;
+        let channel = channel.get()?;
+        Some(GetMessagesInChannel {
+            channel: channel.id,
+            member: member.id,
         })
     });
     let grouped_messages_data = Memo::new(move |_| {
@@ -170,9 +178,10 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
     let sender_ref = NodeRef::new();
 
     view! {
+        <div/>
         <Provider value=ChatContext {
-            msg_reference: Default::default(),
-            attachments: Default::default(),
+            msg_reference: RwSignal::new(None),
+            attachments: RwSignal::new(vec![]),
             cached_members
         }>
             <div class="flex h-full w-full flex-col relative">
