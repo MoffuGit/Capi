@@ -28,8 +28,8 @@ pub fn MsgRefDisplay(
     });
     view! {
         <Collapsible open=open>
-            <CollapsiblePanel class="w-full bg-transparent overflow-hidden">
-                <div class="flex items-center justify-between h-auto">
+            <CollapsiblePanel class="w-full bg-transparent overflow-hidden group">
+                <div class="flex items-center justify-between transition-[filter] ease-out-quad duration-180 h-auto group-data-[state=open]:blur-none group-data-[state=closing]:blur-xs group-data-[state=closed]:blur-xs">
                     <div class="flex text-xs text-base-content/70 truncate">
                         <div class="text-xs">
                             <span class="text-muted-foreground">

@@ -12,11 +12,11 @@ use web_sys::{Event, HtmlInputElement, Url};
 
 use crate::components::icons::{IconPaperClip, IconSend, IconSticker};
 use crate::components::ui::button::*;
-use crate::routes::server::channel::components::chat::ClientFileMetaData;
+use crate::routes::server::channel::components::chat::{ClientFile, FileMetaData};
 
 fn read_file<F>(file: File, callback: F)
 where
-    F: FnOnce(anyhow::Result<ClientFileMetaData>) + 'static,
+    F: FnOnce(anyhow::Result<ClientFile>) + 'static,
 {
     let name = file.name();
     let content_type = FileType::from_str(&file.raw_mime_type()).unwrap_or_default();
@@ -25,7 +25,7 @@ where
     let file_blob_clone = file_blob.clone(); // Clone for creating object URL
 
     spawn_local_scoped_with_cancellation(async move {
-        let result: Result<ClientFileMetaData, anyhow::Error> = async {
+        let result: Result<ClientFile, anyhow::Error> = async {
             let url = Url::create_object_url_with_blob(&file_blob_clone.into())
                 .map_err(|e| anyhow!("Failed to create object URL: {:?}", e))?;
 
@@ -33,12 +33,14 @@ where
                 .await
                 .map_err(|e| anyhow!("Failed to read file bytes: {:?}", e))?;
 
-            Ok(ClientFileMetaData {
-                name,
-                size,
-                content_type,
+            Ok(ClientFile {
                 chunks,
-                url,
+                metadata: FileMetaData {
+                    name,
+                    size,
+                    content_type,
+                    url,
+                },
             })
         }
         .await;
@@ -50,7 +52,7 @@ where
 #[component]
 pub fn MessageActionButtons(
     on_send: Callback<()>,
-    attachments: RwSignal<Vec<ClientFileMetaData>>,
+    attachments: RwSignal<Vec<ClientFile>>,
 ) -> impl IntoView {
     let file_input_ref: NodeRef<Input> = NodeRef::new();
 

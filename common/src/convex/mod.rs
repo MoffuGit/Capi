@@ -1,5 +1,7 @@
+use std::str::FromStr as _;
+
 use serde::de::Error;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use strum_macros::{Display, EnumString};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -207,8 +209,6 @@ pub struct RoleMention {
 pub struct Attachment {
     #[serde(rename = "_id")]
     pub id: String,
-    #[serde(rename = "_creationTime")]
-    pub creation_time: f64,
     pub message: String,
     #[serde(rename = "storageId")]
     pub storage_id: String,
@@ -225,10 +225,10 @@ pub struct FileMetaData {
     #[serde(rename = "contentType")]
     pub content_type: FileType,
     pub sha256: String,
-    pub size: i64,
+    pub size: f64,
 }
 
-#[derive(Debug, Display, EnumString, PartialEq, Default, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Display, EnumString, PartialEq, Default, Clone, Copy)]
 pub enum FileType {
     #[strum(serialize = "image/jpeg", serialize = "image/jpg")]
     Jpeg,
@@ -268,6 +268,27 @@ pub enum FileType {
     Html,
     #[default]
     Unknown,
+}
+
+// Implement Serialize for FileType using its Display trait
+impl Serialize for FileType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+// Implement Deserialize for FileType using its EnumString trait
+impl<'de> Deserialize<'de> for FileType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        FileType::from_str(&s).map_err(Error::custom)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

@@ -1,5 +1,5 @@
 use chrono::{DateTime, Duration, Local};
-use common::convex::{ChannelMessage, Member};
+use common::convex::{ChannelMessage, FileType, Member};
 use leptos::prelude::*;
 
 use crate::components::icons::IconCornerUpLeft;
@@ -97,27 +97,25 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
     }
 }
 
-// #[component]
-// pub fn MessageAttachments(attachments: Vec<common::convex::Attachment>) -> impl IntoView {
-//     view! {
-//         {
-//             attachments.into_iter().map(|att| {
-//                 let file_type = FileType::from_str(&att._type);
-//                 match file_type {
-//                     Ok(FileType::Jpeg) => {
-//                         view!{
-//                             <img class="max-w-136 w-full h-auto flex rounded-lg mb-1" src=att.url.clone()/>
-//                         }.into_any()
-//                     },
-//                     Ok(FileType::Png) => view!{
-//                         <img class="max-w-136 w-full h-auto flex rounded-lg" src=att.url.clone()/>
-//                     }.into_any(),
-//                     _ => ().into_any()
-//                 }
-//             }).collect_view()
-//         }
-//     }
-// }
+#[component]
+pub fn MessageAttachments(attachments: Vec<common::convex::Attachment>) -> impl IntoView {
+    view! {
+        {
+            attachments.into_iter().map(|att| {
+                att.metadata.map(|data| {
+                    match data.content_type {
+                        FileType::Jpeg | FileType::Png => {
+                            view!{
+                                <img class="max-w-136 w-full h-auto flex rounded-lg mb-1" src=att.url.clone()/>
+                            }.into_any()
+                        },
+                        _ => ().into_any()
+                    }
+                })
+            }).collect_view()
+        }
+    }
+}
 
 #[component]
 pub fn MessageItem(
@@ -135,7 +133,7 @@ pub fn MessageItem(
     view! {
         <div
             data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.get_value().id) { "true" } else { "false" }
-            class="w-full h-auto transition-colors ease-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 data-[response=true]:border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
+            class="w-full h-auto transition-colors ease-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 border-l hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
             on:dblclick=move |_| {
                 msg_ref.update(|current| {
                     let msg = Some(msg.get_value());
@@ -160,7 +158,7 @@ pub fn MessageItem(
             </Show>
 
             <Markdown markdown=markdown.into() />
-            // <MessageAttachments attachments=msg.get_value().attachments />
+            <MessageAttachments attachments=msg.get_value().attachments />
         </div>
     }
 }

@@ -16,18 +16,23 @@ use self::messages::Messages;
 use self::sender::Sender;
 
 #[derive(Debug, Clone)]
-pub struct ClientFileMetaData {
+pub struct ClientFile {
+    pub chunks: Vec<u8>,
+    pub metadata: FileMetaData,
+}
+
+#[derive(Debug, Clone)]
+pub struct FileMetaData {
     pub name: String,
     pub size: usize,
     pub content_type: FileType,
     pub url: String,
-    pub chunks: Vec<u8>,
 }
 
 #[derive(Debug, Clone)]
 pub struct ChatContext {
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
-    pub attachments: RwSignal<Vec<ClientFileMetaData>>,
+    pub attachments: RwSignal<Vec<ClientFile>>,
     pub cached_members: Memo<Option<HashMap<String, Member>>>,
 }
 

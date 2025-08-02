@@ -3,12 +3,17 @@ mod attachments;
 mod input;
 mod msg_ref;
 
+use api::files::GenerateUploadUrl;
+use chrono::Utc;
 use common::convex::{Channel, Member};
 use convex_client::leptos::{Mutation, UseMutation};
+use gloo_file::File;
 use leptos::html::Div;
 use leptos::prelude::*;
 use serde::Serialize;
 
+use crate::components::auth::use_auth;
+use crate::components::uploadthing::{upload_file, UploadResult};
 use crate::routes::server::channel::components::chat::ChatContext;
 
 use self::actions::MessageActionButtons;
@@ -23,6 +28,7 @@ pub struct SendMessage {
     content: String,
     #[serde(rename = "senderId")]
     sender: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "referenceId")]
     reference: Option<String>,
 }
@@ -35,6 +41,22 @@ impl Mutation for SendMessage {
     }
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct AddAttachment {
+    #[serde(rename = "messageId")]
+    message: String,
+    #[serde(rename = "storageId")]
+    storage: String,
+}
+
+impl Mutation for AddAttachment {
+    type Output = String;
+
+    fn name(&self) -> String {
+        "messages:addAttachmentToMessage".into()
+    }
+}
+
 #[component]
 pub fn Sender(
     channel: Signal<Option<Channel>>,
@@ -42,6 +64,32 @@ pub fn Sender(
     sender_ref: NodeRef<Div>,
 ) -> impl IntoView {
     let send = UseMutation::new::<SendMessage>();
+    let auth = use_auth().auth();
+    let add_attachment = UseMutation::with_local_fn::<(Vec<File>, String), _, _, _>(
+        move |((files, message), client)| {
+            let auth = auth.get();
+            let mut client_mut = client.to_owned();
+            let files = files.to_owned();
+            let message = message.to_owned();
+            async move {
+                if let Some(Ok(Some(auth_data))) = auth {
+                    for file in files {
+                        let upload_url = GenerateUploadUrl { auth: auth_data.id };
+                        let url = upload_url.run(&mut client_mut).await;
+                        if let Ok(Some(url)) = url {
+                            if let Ok(UploadResult { storage_id }) = upload_file(&file, url).await {
+                                let add_attachment = AddAttachment {
+                                    message: message.clone(),
+                                    storage: storage_id,
+                                };
+                                let _ = add_attachment.run(&mut client_mut).await;
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    );
 
     let message = RwSignal::new(String::default());
     let content_ref: NodeRef<Div> = NodeRef::new();
@@ -75,12 +123,29 @@ pub fn Sender(
     Effect::watch(
         move || send.value().get(),
         move |message_id_result, _, _| {
-            if let Some(Ok(_)) = message_id_result {
+            if let Some(Ok(message_id)) = message_id_result {
                 message.set(String::default());
                 if let Some(div) = content_ref.get() {
                     div.set_inner_text("");
                 }
                 msg_ref.set(None);
+                let current_attachments = attachments.get();
+                if !current_attachments.is_empty() {
+                    let gloo_files: Vec<File> = current_attachments
+                        .into_iter()
+                        .map(|file| {
+                            File::new_with_options(
+                                &file.metadata.name,
+                                &*file.chunks,
+                                Some(&file.metadata.content_type.to_string()),
+                                Some(Utc::now().into()),
+                            )
+                        })
+                        .collect();
+
+                    add_attachment.dispatch_local((gloo_files, message_id.into()));
+                    attachments.set(vec![]);
+                }
             }
         },
         false,
