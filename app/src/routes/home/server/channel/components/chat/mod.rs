@@ -20,6 +20,7 @@ pub struct ClientFileMetaData {
     pub name: String,
     pub size: usize,
     pub content_type: FileType,
+    pub url: String,
     pub chunks: Vec<u8>,
 }
 

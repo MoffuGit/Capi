@@ -1,6 +1,11 @@
+use common::convex::FileType;
 use leptos::prelude::*;
 
+use crate::components::icons::IconFile;
+use crate::components::icons::IconFileArchive;
+use crate::components::icons::IconFileAudio;
 use crate::components::icons::IconTrash;
+use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::collapsible::*;
 use crate::routes::server::channel::components::chat::ClientFileMetaData;
@@ -15,7 +20,7 @@ pub fn AttachmentPreviewList(attachments: RwSignal<Vec<ClientFileMetaData>>) -> 
     view! {
         <Collapsible open=open>
             <CollapsiblePanel
-                class="w-full p-1 peer duration-200 first:rounded-t-lg bg-background"
+                class="w-full duration-200 bg-transparent"
             >
                 <div class="h-20 gap-1 bg-background w-full flex items-center text-sm group">
                     {
@@ -41,12 +46,12 @@ pub fn Attachment(
 ) -> impl IntoView {
     let ClientFileMetaData {
         name,
-        size: _,
+        url,
         content_type,
         ..
     } = attachment;
     view! {
-        <div class="relative size-20 bg-muted h-full rounded-lg flex flex-col items-center justify-around isolate group/attachment">
+        <Avatar class="relative size-20 border-input shadow-xs rounded-md flex flex-col items-center justify-center isolate group/attachment">
             <Button
                 size=ButtonSizes::Icon
                 variant=ButtonVariants::Secondary
@@ -59,10 +64,23 @@ pub fn Attachment(
             >
                 <IconTrash/>
             </Button>
-            <div class="w-full text-start max-h-4 text-xs text-nowrap truncate inline-block">
-                {format!("{}-{}", name, content_type)}
-            </div>
-        </div>
-
+            {
+                match content_type {
+                    FileType::Jpeg | FileType::Png | FileType::Gif | FileType::Webp => {
+                        view! {
+                            <AvatarImage url=url/>
+                        }.into_any()
+                    }
+                    _ => {
+                        view! {
+                            <IconFile class="size-6 text-muted-foreground"/>
+                        }.into_any()
+                    }
+                }
+            }
+            <AvatarFallback class="w-full text-center max-h-4 text-xs text-nowrap truncate inline-block px-1">
+                {name.clone()}
+            </AvatarFallback >
+        </Avatar>
     }
 }

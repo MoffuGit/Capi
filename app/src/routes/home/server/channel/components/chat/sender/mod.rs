@@ -89,19 +89,21 @@ pub fn Sender(
     view! {
         <div class="w-full absolute bottom-0 bg-transparent flex flex-col z-20 isolate" node_ref=sender_ref>
             <div class="max-h-96 w-full px-5">
-                <div class="flex flex-col items-center justify-center shadow-xs text-base p-1 border border-input rounded-lg backdrop-blur-xs">
-                    <MsgRefDisplay msg_ref=msg_ref on_clear_ref=on_clear_msg_ref/>
-                    <AttachmentPreviewList attachments=attachments/>
-                    <div class="flex w-full p-1 justify-between peer-data-[state=open]:rounded-none peer-data-[state=open]:rounded-b-md rounded-md transition-all duration-150 ease-out bg-background">
-                        <MessageInputArea
-                            message=message
-                            content_ref=content_ref
-                            channel_name=Signal::derive(move || channel.get().map(|c| c.name))
-                        />
-                        <MessageActionButtons
-                            on_send=on_send_message
-                            attachments=attachments
-                        />
+                <div class="p-1 border border-input rounded-lg backdrop-blur-xs bg-muted/30">
+                    <div class="flex flex-col items-center justify-center shadow-xs bg-background text-base rounded-md gap-2 p-2">
+                        <MsgRefDisplay msg_ref=msg_ref on_clear_ref=on_clear_msg_ref/>
+                        <AttachmentPreviewList attachments=attachments/>
+                        <div class="flex w-full justify-between bg-transparent">
+                            <MessageInputArea
+                                message=message
+                                content_ref=content_ref
+                                channel_name=Signal::derive(move || channel.get().map(|c| c.name))
+                            />
+                            <MessageActionButtons
+                                on_send=on_send_message
+                                attachments=attachments
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -15,7 +15,7 @@ pub fn MessageInputArea(
 
     view! {
         <div class="relative self-center h-fit w-full overflow-y-auto overflow-x-hidden ">
-            <div class="text-sm font-normal relative mx-2">
+            <div class="text-sm font-normal relative">
                 <div>
                     <Show when=move || message.get().is_empty()>
                         <div class="absolute left-0 select-none text-muted-foreground">

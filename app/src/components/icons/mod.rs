@@ -23,6 +23,51 @@ pub fn Icon(children: Children, #[prop(into, optional)] class: Signal<String>) -
 }
 
 #[component]
+pub fn IconFile(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconFileText(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconFileAudio(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M17.5 22h.5a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M2 19a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0v-4a6 6 0 0 1 12 0v4a2 2 0 1 1-4 0v-1a2 2 0 1 1 4 0"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconFileVideo(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><rect width="8" height="6" x="2" y="12" rx="1"/><path d="m10 13.843 3.033-1.755a.645.645 0 0 1 .967.56v4.704a.645.645 0 0 1-.967.56L10 16.157"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconFileArchive(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M10 12v-1"/><path d="M10 18v-2"/><path d="M10 7V6"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v16a2 2 0 0 0 .274 1.01"/><circle cx="10" cy="20" r="2"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconCornerUpLeft(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>
