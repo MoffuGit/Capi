@@ -10,10 +10,9 @@ use crate::components::primitives::collapsible::{
 pub fn Collapsible(
     children: Children,
     #[prop(into, optional, default = RwSignal::new(false))] open: RwSignal<bool>,
-    #[prop(optional, into)] class: Signal<String>,
 ) -> impl IntoView {
     view! {
-        <CollapsibleRootPrimitive class=class open=open open_duration=180 close_duration=180>
+        <CollapsibleRootPrimitive open=open>
             {children()}
         </CollapsibleRootPrimitive>
     }

@@ -5,8 +5,21 @@ use leptos_dom::error;
 use std::rc::Rc;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
+use web_sys::window;
 
 use super::common::status::{AnimationFrame, TransitionStatus};
+
+// Helper function to parse CSS duration string (e.g., "0.15s", "150ms") into milliseconds (u64)
+fn parse_css_duration(duration_str: &str) -> Option<u64> {
+    if duration_str.ends_with("ms") {
+        duration_str[..duration_str.len() - 2].parse::<u64>().ok()
+    } else if duration_str.ends_with("s") {
+        let seconds = duration_str[..duration_str.len() - 1].parse::<f64>().ok()?;
+        Some((seconds * 1000.0).round() as u64)
+    } else {
+        None
+    }
+}
 
 #[derive(Clone)]
 pub struct CollapsibleContext {
@@ -31,12 +44,8 @@ pub struct Dimensions {
 pub fn CollapsibleRoot(
     #[prop(into, optional, default = RwSignal::new(false))] open: RwSignal<bool>,
     children: Children,
-    #[prop(optional, into)] class: Signal<String>,
-    #[prop(optional, default = 150)] open_duration: u64,
-    #[prop(optional, default = 150)] close_duration: u64,
+    // open_duration and close_duration are removed
 ) -> impl IntoView {
-    let state = use_transition_status(open.into(), true, true, open_duration, close_duration);
-
     let dimensions = RwSignal::new(Dimensions {
         width: None,
         height: None,
@@ -44,6 +53,10 @@ pub fn CollapsibleRoot(
 
     let trigger_ref = NodeRef::new();
     let content_ref = NodeRef::new();
+
+    // Pass content_ref to use_transition_status to read the CSS duration
+    let state = use_transition_status(open.into(), content_ref, true, true);
+
     view! {
         <Provider value=CollapsibleContext {
             open,
@@ -52,11 +65,9 @@ pub fn CollapsibleRoot(
             trigger_ref,
             content_ref
         }>
-            <div class=class>
-                {
-                    children()
-                }
-            </div>
+            {
+                children()
+            }
         </Provider>
     }
 }
@@ -206,10 +217,9 @@ pub fn CollapsiblePanel(
 
 pub fn use_transition_status(
     open: Signal<bool>,
+    content_node_ref: NodeRef<Div>, // New parameter to get the element for CSS reading
     enable_idle_state: bool,
     defer_ending_state: bool,
-    open_duration: u64,
-    close_duration: u64,
 ) -> TransitionStatusState {
     // Always start in Undefined, allow effects to transition to Idle.
     let transition_status: RwSignal<TransitionStatus> = RwSignal::new(TransitionStatus::Undefined);
@@ -217,6 +227,42 @@ pub fn use_transition_status(
     // It should be true when the dialog is in any active transition state (Starting, Ending, Idle),
     // and false when it's Undefined (i.e., fully closed and removed from DOM).
     let mounted: RwSignal<bool> = RwSignal::new(false);
+
+    // New signal to store the dynamically determined transition duration from CSS
+    let transition_duration_ms: RwSignal<u64> = RwSignal::new(150); // Default fallback duration (e.g., for SSR or if style not found)
+
+    // Effect to read the transition-duration from the content_node_ref element
+    Effect::new(move |_| {
+        #[cfg(not(feature = "ssr"))]
+        if let Some(element) = content_node_ref.get() {
+            let element: web_sys::HtmlElement = element.unchecked_into();
+            if let Some(window) = window() {
+                if let Ok(Some(style)) = window.get_computed_style(&element) {
+                    if let Ok(duration_str) = style.get_property_value("transition-duration") {
+                        if let Some(parsed_duration) = parse_css_duration(&duration_str) {
+                            transition_duration_ms.set(parsed_duration);
+                        } else {
+                            leptos::logging::error!("Could not parse transition-duration CSS property: '{}'. Falling back to 150ms.", duration_str);
+                            transition_duration_ms.set(150); // Fallback if parsing fails
+                        }
+                    } else {
+                        leptos::logging::warn!(
+                            "'transition-duration' CSS property not found. Falling back to 150ms."
+                        );
+                        transition_duration_ms.set(150); // Fallback if property not found
+                    }
+                } else {
+                    leptos::logging::warn!(
+                        "Could not get computed style for content element. Falling back to 150ms."
+                    );
+                    transition_duration_ms.set(150); // Fallback if get_computed_style fails
+                }
+            } else {
+                leptos::logging::warn!("Window object not available. Falling back to 150ms.");
+                transition_duration_ms.set(150); // Fallback if window is not available (shouldn't happen on client)
+            }
+        }
+    });
 
     Effect::new(move |_| {
         let current_open = open.get();
@@ -280,7 +326,7 @@ pub fn use_transition_status(
                     move || {
                         transition_status_setter.set(TransitionStatus::Idle);
                     },
-                    std::time::Duration::from_millis(open_duration),
+                    std::time::Duration::from_millis(transition_duration_ms.get()), // Use dynamically read duration
                 )
                 .expect("Failed to set timeout for Idle transition");
                 on_cleanup(move || {
@@ -345,7 +391,7 @@ pub fn use_transition_status(
                 move || {
                     transition_status_setter.set(TransitionStatus::Undefined);
                 },
-                std::time::Duration::from_millis(close_duration),
+                std::time::Duration::from_millis(transition_duration_ms.get()), // Use dynamically read duration
             )
             .expect("Failed to set timeout for Undefined transition");
             on_cleanup(move || {
