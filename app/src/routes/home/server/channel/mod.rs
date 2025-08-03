@@ -1,7 +1,7 @@
 mod components;
 
 use common::convex::{Channel, Member, Role};
-use convex_client::leptos::{Query, UseQuery};
+use convex_client::leptos::{Mutation, Query, UseMutation, UseQuery};
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 use serde::{Deserialize, Serialize};
@@ -48,6 +48,21 @@ impl Query<Option<Channel>> for GetChannel {
     }
 }
 
+#[derive(Debug, Serialize, PartialEq, Clone)]
+pub struct SetLastVisitedChannel {
+    auth: i64,
+    member: String,
+    channel: String,
+}
+
+impl Mutation for SetLastVisitedChannel {
+    type Output = ();
+
+    fn name(&self) -> String {
+        "member:setLastVisitedChannel".into()
+    }
+}
+
 #[component]
 pub fn Channel() -> impl IntoView {
     let auth = use_auth().auth();
@@ -68,6 +83,8 @@ pub fn Channel() -> impl IntoView {
             .map(|channel| channel.to_string())
     });
 
+    let set_last_visited_channel = UseMutation::new::<SetLastVisitedChannel>();
+
     let member_with_role = UseQuery::new(move || {
         let auth = auth.get().and_then(|res| res.ok()).flatten()?;
 
@@ -84,6 +101,21 @@ pub fn Channel() -> impl IntoView {
             .flatten()
             .map(|data| data.member)
     });
+
+    Effect::watch(
+        move || channel.get(),
+        move |channel, _, _| {
+            let auth = auth.get().and_then(|auth| auth.ok()).flatten();
+            if let (Some(auth), Some(channel), Some(member)) = (auth, channel, member.get()) {
+                set_last_visited_channel.dispatch(SetLastVisitedChannel {
+                    auth: auth.id,
+                    member: member.id,
+                    channel: channel.to_string(),
+                });
+            }
+        },
+        false,
+    );
 
     let channel_query_signal_result = UseQuery::new(move || {
         let server = server.get()?;
