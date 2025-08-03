@@ -41,6 +41,7 @@ impl Default for SidebarMenuButtonVariant {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, strum_macros::Display)]
+#[strum(serialize_all = "lowercase")]
 pub enum SidebarMenuButtonSize {
     Default,
     Sm,
@@ -214,22 +215,18 @@ pub fn SidebarProvider(
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, strum_macros::Display)]
+#[strum(serialize_all = "lowercase")]
 pub enum SideBarVariant {
-    #[strum(to_string = "floating")]
     Floating,
-    #[strum(to_string = "inset")]
     Inset,
-    #[strum(to_string = "sidebar")]
     Sidebar,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, strum_macros::Display)]
+#[strum(serialize_all = "lowercase")]
 pub enum SideBarCollapsible {
-    #[strum(to_string = "offcanvas")]
     Offcanvas,
-    #[strum(to_string = "icon")]
     Icon,
-    #[strum(to_string = "none")]
     None,
 }
 #[component]
