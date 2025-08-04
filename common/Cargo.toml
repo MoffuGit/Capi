@@ -4,11 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 leptos.workspace = true
 strum.workspace = true
 strum_macros.workspace = true
+gloo-file.workspace = true
+web-sys.workspace = true
 
 axum = { workspace = true, optional = true }
 leptos_axum = { workspace = true, optional = true }

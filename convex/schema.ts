@@ -108,7 +108,6 @@ export default defineSchema({
     imageId: v.optional(v.id("_storage")),
     bannerUrl: v.optional(v.string()),
     bannerId: v.optional(v.id("_storage")),
-    lastVisitedChannel: v.optional(v.id("channels")),
     online: v.boolean(),
     mostImportantRole: v.optional(v.id("roles")),
   })
@@ -122,6 +121,10 @@ export default defineSchema({
       "mostImportantRole",
       "online",
     ]),
+  lastVisitedChannels: defineTable({
+    member: v.id("members"),
+    channel: v.optional(v.id("channels")),
+  }).index("by_member", ["member"]),
   userStatus: defineTable({
     user: v.id("users"),
     status: presenceStatus,

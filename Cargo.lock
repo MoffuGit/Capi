@@ -129,6 +129,7 @@ dependencies = [
  "leptos",
  "leptos_axum",
  "maplit",
+ "reactive_stores",
  "serde",
  "serde_json",
  "serde_with",
@@ -664,8 +665,10 @@ dependencies = [
 name = "common"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
  "convex-client",
+ "gloo-file",
  "leptos",
  "leptos_axum",
  "serde",
@@ -674,6 +677,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "uploadthing",
+ "web-sys",
 ]
 
 [[package]]
@@ -801,6 +805,7 @@ dependencies = [
  "js-sys",
  "leptos",
  "rand 0.9.1",
+ "reactive_stores",
  "serde",
  "serde_json",
  "tokio",

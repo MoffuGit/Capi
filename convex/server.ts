@@ -6,9 +6,12 @@ export const create = mutation({
   args: {
     name: v.string(),
     auth: v.int64(),
-    image_url: v.optional(v.string()),
+    storage: v.optional(v.id("_storage")),
   },
-  handler: async ({ db }, { name, image_url, auth }) => {
+  handler: async (
+    { db, storage: storageCtx },
+    { name, storage: storageId, auth },
+  ) => {
     const user = await db
       .query("users")
       .withIndex("by_auth", (q) => q.eq("authId", auth))
@@ -18,9 +21,16 @@ export const create = mutation({
       throw new ConvexError("User not found");
     }
 
+    let newImageUrl: string | undefined = undefined;
+    if (storageId) {
+      let url = await storageCtx.getUrl(storageId);
+      newImageUrl = url ? url : undefined;
+    }
+
     const serverId = await db.insert("servers", {
       name: name,
-      image_url: image_url,
+      image_url: newImageUrl,
+      imageId: storageId,
     });
 
     // Create the owner role for the new server

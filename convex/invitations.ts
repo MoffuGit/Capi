@@ -169,7 +169,6 @@ export const joinServerWithInvitation = mutation({
       roles: defaultRoleForNewMember,
       name: user.name,
       image_url: user.image_url,
-      lastVisitedChannel: undefined,
       online: true,
       mostImportantRole: mostImportantRoleForNewMember,
     });

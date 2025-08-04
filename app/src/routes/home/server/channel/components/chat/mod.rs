@@ -5,29 +5,16 @@ mod sender;
 use std::collections::{HashMap, HashSet};
 
 use chrono::{DateTime, Local, NaiveDate};
+use common::files::ClientFile;
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 
-use common::convex::{Channel, ChannelMessage, FileType, Member};
+use common::convex::{Channel, ChannelMessage, Member};
 use leptos::context::Provider;
 use serde::Serialize;
 
 use self::messages::Messages;
 use self::sender::Sender;
-
-#[derive(Debug, Clone)]
-pub struct ClientFile {
-    pub chunks: Vec<u8>,
-    pub metadata: FileMetaData,
-}
-
-#[derive(Debug, Clone)]
-pub struct FileMetaData {
-    pub name: String,
-    pub size: usize,
-    pub content_type: FileType,
-    pub url: String,
-}
 
 #[derive(Debug, Clone)]
 pub struct ChatContext {

@@ -67,6 +67,45 @@ export const setLastVisitedChannel = mutation({
       return;
     }
 
-    await ctx.db.patch(member, { lastVisitedChannel: channel });
+    const existingLastVisited = await ctx.db
+      .query("lastVisitedChannels")
+      .withIndex("by_member", (q) => q.eq("member", member))
+      .unique();
+
+    if (existingLastVisited) {
+      await ctx.db.patch(existingLastVisited._id, { channel: channel });
+    } else {
+      await ctx.db.insert("lastVisitedChannels", {
+        member: member,
+        channel: channel,
+      });
+    }
+  },
+});
+
+export const getLastVisitedChannel = query({
+  args: {
+    member: v.id("members"),
+    auth: v.int64(),
+  },
+  handler: async ({ db }, { member, auth }) => {
+    let user = await db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+    if (user === null) {
+      return;
+    }
+
+    const memberData = await db.get(member);
+    if (memberData === null || memberData.user !== user._id) {
+      return;
+    }
+    const lastVisited = await db
+      .query("lastVisitedChannels")
+      .withIndex("by_member", (q) => q.eq("member", member))
+      .unique();
+
+    return lastVisited ? lastVisited.channel : null;
   },
 });

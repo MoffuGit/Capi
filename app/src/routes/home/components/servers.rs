@@ -1,10 +1,12 @@
 use api::category::GetCategories;
 use common::convex::{Member, Role, Server};
-use convex_client::leptos::UseQuery;
+use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_params_map;
+use serde::Serialize;
 
+use crate::components::auth::use_auth;
 use crate::components::roles::RolesProvider;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::context::{ContextMenu, ContextMenuTrigger};
@@ -37,6 +39,18 @@ pub fn ServersItems(
     }
 }
 
+#[derive(Debug, PartialEq, Serialize, Clone)]
+pub struct GetLastVisitedChannel {
+    auth: i64,
+    member: String,
+}
+
+impl Query<Option<String>> for GetLastVisitedChannel {
+    fn name(&self) -> String {
+        "member:getLastVisitedChannel".into()
+    }
+}
+
 #[component]
 pub fn ServerItem(
     server: Server,
@@ -47,11 +61,22 @@ pub fn ServerItem(
     let params = use_params_map();
     let server = RwSignal::new(server);
     let member = RwSignal::new(member);
+    let auth = use_auth();
     let roles = RwSignal::new(Some(roles));
     let categories = UseQuery::new(move || {
         Some(GetCategories {
             server: server.get().id,
         })
+    });
+    let last_visited_channel = UseQuery::new(move || {
+        auth.auth()
+            .get()
+            .and_then(|auth| auth.ok())
+            .flatten()
+            .map(|auth| GetLastVisitedChannel {
+                auth: auth.id,
+                member: member.get().id,
+            })
     });
     let categories = Signal::derive(move || categories.get().and_then(|res| res.ok()));
     let is_active = Signal::derive(move || {
@@ -61,7 +86,11 @@ pub fn ServerItem(
             .is_some_and(|s| s == server.get().id)
     });
     let href = move || {
-        if let Some(last) = member.get().last_visited_channel {
+        if let Some(last) = last_visited_channel
+            .get()
+            .and_then(|res| res.ok())
+            .flatten()
+        {
             format!("/servers/{}/{}", server.get().id, last)
         } else {
             format!("/servers/{}", server.get().id)

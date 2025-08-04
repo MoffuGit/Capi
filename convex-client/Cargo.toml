@@ -14,6 +14,7 @@ serde_json.workspace = true
 gloo-net = { workspace = true }
 gloo-timers = { workspace = true }
 leptos.workspace = true
+reactive_stores.workspace = true
 uuid.workspace = true
 wasm-bindgen-futures.workspace = true
 web-time.workspace = true

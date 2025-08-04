@@ -1,4 +1,5 @@
 use common::convex::FileType;
+use common::files::FileMetaData;
 use leptos::prelude::*;
 
 use crate::components::icons::IconFile;
@@ -6,7 +7,7 @@ use crate::components::icons::IconTrash;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::collapsible::*;
-use crate::routes::server::channel::components::chat::{ClientFile, FileMetaData};
+use crate::routes::server::channel::components::chat::ClientFile;
 
 #[component]
 pub fn AttachmentPreviewList(attachments: RwSignal<Vec<ClientFile>>) -> impl IntoView {

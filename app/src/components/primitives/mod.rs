@@ -11,4 +11,5 @@ pub mod portal;
 pub mod primitive;
 pub mod separator;
 pub mod tabs;
+pub mod toast;
 pub mod tooltip;
