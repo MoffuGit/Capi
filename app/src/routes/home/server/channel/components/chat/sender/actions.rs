@@ -46,18 +46,18 @@ pub fn MessageActionButtons(
                         input.click();
                     }
                 }
-                size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="size-6 text-muted-foreground hover:text-foreground">
+                size=ButtonSizes::Icon variant=ButtonVariants::Ghost class="size-7 text-muted-foreground hover:text-foreground">
                 <IconPaperClip/>
             </Button>
             <Button
                 size=ButtonSizes::Icon variant=ButtonVariants::Ghost
-                class="size-6 text-muted-foreground hover:text-foreground"
+                class="size-7 text-muted-foreground hover:text-foreground"
             >
                 <IconSticker/>
             </Button>
             <Button size=ButtonSizes::Icon
                 variant=ButtonVariants::Secondary
-                class="size-6 text-muted-foreground hover:text-foreground"
+                class="size-7 text-muted-foreground hover:text-foreground"
                 on:click=move |_| on_send.run(())
             >
                 <IconSend/>
