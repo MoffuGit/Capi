@@ -45,16 +45,15 @@ pub fn DialogPortal(
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
-        <DialogPortalPrimitive open_duration=200 close_duration=190 container=container container_ref=container_ref as_child=as_child node_ref=node_ref children=children/>
+        <DialogPortalPrimitive  container=container container_ref=container_ref as_child=as_child node_ref=node_ref children=children/>
     }
 }
 
-const DIALOG_POPUP: &str = "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-2 shadow-lg duration-200 sm:max-w-lg";
+const DIALOG_POPUP: &str = "bg-background data-[state=closed]:invisible data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-2 shadow-lg duration-200 sm:max-w-lg";
 
 #[component]
 pub fn DialogPopup(
-    #[prop(into, optional)] as_child: MaybeProp<bool>,
-    #[prop(optional)] node_ref: AnyNodeRef,
+    // #[prop(into, optional)] as_child: MaybeProp<bool>,
     #[prop(into, optional)] class: Signal<String>,
     #[prop(optional)] children: Option<ChildrenFn>,
 ) -> impl IntoView {
@@ -62,7 +61,7 @@ pub fn DialogPopup(
     view! {
         <DialogPortal>
             <DialogOverlay/>
-            <DialogPopupPrimitive as_child=as_child node_ref=node_ref
+            <DialogPopupPrimitive
                 class=Signal::derive(move || tw_merge!(DIALOG_POPUP, class.get()))>
                 {children.get_value().map(|children| children())}
             </DialogPopupPrimitive>
@@ -70,7 +69,7 @@ pub fn DialogPopup(
     }
 }
 
-const DIALOG_OVERLAY: &str = "data-[state=open]:animate-in data-[state=undefined]:opacity-0 data-[modal=true]:cursor-pointer-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 duration-200 ease-out-cubic";
+const DIALOG_OVERLAY: &str = "data-[state=opening]:animate-in data-[state=closed]:invisible data-[modal=true]:cursor-pointer-none data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 fixed inset-0 z-50 bg-black/50 ease-out-cubic duration-200";
 
 #[component]
 pub fn DialogOverlay(

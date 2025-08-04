@@ -25,8 +25,6 @@ use crate::components::primitives::context_menu::{
 };
 use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use leptos::{html, prelude::*};
-use leptos_node_ref::AnyNodeRef;
-use send_wrapper::SendWrapper;
 use tailwind_fuse::tw_merge;
 
 #[component]
@@ -54,24 +52,9 @@ pub fn ContextMenu(
 }
 
 #[component]
-pub fn ContextMenuPortal(
-    children: ChildrenFn,
-    #[prop(into, optional)] container: MaybeProp<SendWrapper<web_sys::Element>>,
-    #[prop(optional)] container_ref: AnyNodeRef,
-    #[prop(into, optional)] as_child: MaybeProp<bool>,
-    #[prop(optional)] node_ref: AnyNodeRef,
-    #[prop(default = 200)] open_duration: u64,
-    #[prop(default = 100)] close_duration: u64,
-) -> impl IntoView {
+pub fn ContextMenuPortal(children: ChildrenFn) -> impl IntoView {
     view! {
-        <ContextMenuPortalPrimitive
-            container=container
-            container_ref=container_ref
-            as_child=as_child
-            node_ref=node_ref
-            open_duration=open_duration
-            close_duration=close_duration
-        >
+        <ContextMenuPortalPrimitive>
             {children()}
         </ContextMenuPortalPrimitive>
     }
@@ -109,10 +92,10 @@ pub fn ContextMenuContent(
     // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
     #[prop(optional)] arrow: bool,
 ) -> impl IntoView {
-    let base_class = "bg-popover text-popover-foreground data-[state=idle]:opacity-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[12rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md duration-150 ease-out-quad";
+    let base_class = "bg-popover text-popover-foreground data-[state=closed]:invisible data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[12rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md duration-150 ease-out-quad";
     let children = StoredValue::new(children);
     view! {
-        <ContextMenuPortal open_duration=150 close_duration=140>
+        <ContextMenuPortal>
             <ContextMenuContentPrimitive
                 class=Signal::derive(move || tw_merge!(base_class, class.get()))
                 side=side

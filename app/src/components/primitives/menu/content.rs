@@ -2,7 +2,7 @@ use leptos::{html, prelude::*};
 use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::common::status::{TransitionStatus, TransitionStatusState};
+use crate::components::primitives::common::status::TransitionStatusState;
 use crate::components::primitives::menu::MenuProviderContext;
 
 #[derive(Clone, Copy)]
@@ -36,6 +36,8 @@ pub fn MenuContent(
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let content_ref = context.content_ref;
 
+    let mount_ref = NodeRef::new();
+
     Effect::new(move |_| {
         if context.modal {
             if let Some(app) = document().get_element_by_id("app") {
@@ -57,7 +59,7 @@ pub fn MenuContent(
         use leptos_use::{on_click_outside_with_options, OnClickOutsideOptions};
 
         let _ = on_click_outside_with_options(
-            content_ref,
+            mount_ref,
             move |_| {
                 if context.open.get() {
                     context.open.set(false)
@@ -68,7 +70,7 @@ pub fn MenuContent(
     }
 
     let MenuPositionReturn { x, y } = use_menu_position(
-        content_ref,
+        mount_ref,
         context.trigger_width,
         context.trigger_height,
         context.trigger_x,
@@ -126,15 +128,8 @@ pub fn MenuContent(
                 "visible"
             }
             class=format!("absolute z-50 left-0 top-0")
-            node_ref=content_ref
-            data-state=move || {
-                match transition_status.transition_status.get() {
-                    TransitionStatus::Starting => "open",
-                    TransitionStatus::Ending => "closed",
-                    TransitionStatus::Idle => "",
-                    TransitionStatus::Undefined => "undefined",
-                }
-            }
+            node_ref=mount_ref
+            data-state=move || transition_status.transition_status.get().to_string()
         >
             <div
                 data-side=move || match side.get() {
@@ -143,14 +138,8 @@ pub fn MenuContent(
                     MenuSide::Right => "right",
                     MenuSide::Top => "top",
                 }
-                data-state=move || {
-                    match transition_status.transition_status.get() {
-                        TransitionStatus::Starting => "open",
-                        TransitionStatus::Ending => "closed",
-                        TransitionStatus::Idle => "",
-                        TransitionStatus::Undefined => "undefined",
-                    }
-                }
+                node_ref=content_ref
+                data-state=move || transition_status.transition_status.get().to_string()
                 class=move || {
                     tw_merge!(
                         arrow(),

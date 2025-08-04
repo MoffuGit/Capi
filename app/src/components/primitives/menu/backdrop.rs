@@ -37,14 +37,7 @@ pub fn MenuBackDrop(
             node_ref={node_ref}
             {..}
             class=class
-            data-state=move || {
-                match transition_status.get() {
-                    TransitionStatus::Starting => "open",
-                    TransitionStatus::Ending => "closed",
-                    TransitionStatus::Idle => "",
-                    TransitionStatus::Undefined => "undefined",
-                }
-            }
+            data-state=move || transition_status.get().to_string()
             data-modal=move || modal.to_string()
             on:click=on_click_handler
         >

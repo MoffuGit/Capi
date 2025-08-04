@@ -44,17 +44,15 @@ pub fn SheetPortal(
     #[prop(optional)] container_ref: AnyNodeRef,
     #[prop(into, optional)] as_child: MaybeProp<bool>,
     #[prop(optional)] node_ref: AnyNodeRef,
-    #[prop(default = 200)] open_duration: u64,
-    #[prop(default = 200)] close_duration: u64,
     children: ChildrenFn,
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
-        <SheetPortalPrimitive container=container container_ref=container_ref as_child=as_child node_ref=node_ref children=children open_duration=open_duration close_duration=close_duration/>
+        <SheetPortalPrimitive container=container container_ref=container_ref as_child=as_child node_ref=node_ref children=children />
     }
 }
 
-const SHEET_OVERLAY: &str = "data-[state=open]:animate-in data-[state=undefined]:opacity-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 data-[state=closed]:duration-300 data-[state=open]:duration-500";
+const SHEET_OVERLAY: &str = "data-[state=opening]:animate-in data-[state=closed]:invisible data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 fixed inset-0 z-50 bg-black/50 data-[state=closing]:duration-300 data-[state=opening]:duration-500";
 
 #[component]
 pub fn SheetOverlay(
@@ -71,27 +69,25 @@ pub fn SheetOverlay(
     }
 }
 
-const SHEET_POPUP: &str = "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500";
+const SHEET_POPUP: &str = "bg-background data-[state=opening]:animate-in data-[state=closing]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closing]:duration-300 data-[state=opening]:duration-500";
 
 #[component]
 pub fn SheetPopup(
-    #[prop(into, optional)] as_child: MaybeProp<bool>,
-    #[prop(optional)] node_ref: AnyNodeRef,
     #[prop(into, optional)] class: Signal<String>,
     #[prop(optional)] children: Option<ChildrenFn>,
     #[prop(default = Side::Right)] side: Side,
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     let sheet_popup = match side {
-        Side::Top => "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
-        Side::Bottom => "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
-        Side::Left => "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm",
-        Side::Right =>  "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm",
+        Side::Top => "data-[state=closing]:slide-out-to-top data-[state=opening]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
+        Side::Bottom => "data-[state=closing]:slide-out-to-bottom data-[state=opening]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
+        Side::Left => "data-[state=closing]:slide-out-to-left data-[state=opening]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm",
+        Side::Right =>  "data-[state=closing]:slide-out-to-right data-[state=opening]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm",
     };
     view! {
-        <SheetPortal open_duration=500 close_duration=300>
+        <SheetPortal>
             <SheetOverlay/>
-            <SheetPopupPrimitive as_child=as_child node_ref=node_ref class=Signal::derive(move || format!("{} {} {}",SHEET_POPUP, sheet_popup, class.get()))>
+            <SheetPopupPrimitive  class=Signal::derive(move || format!("{} {} {}",SHEET_POPUP, sheet_popup, class.get()))>
                 {children.get_value().map(|children| children())}
             </SheetPopupPrimitive>
         </SheetPortal>

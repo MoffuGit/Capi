@@ -19,6 +19,7 @@ struct TooltipProviderContext {
     on_open: Signal<()>,
     on_close: Signal<()>,
     trigger_ref: NodeRef<html::Div>,
+    content_ref: NodeRef<html::Div>,
 }
 
 #[component]
@@ -94,6 +95,8 @@ pub fn ToolTipProvider(
     let on_open = Signal::derive(handle_open);
     let on_close = Signal::derive(handle_close);
 
+    let content_ref = NodeRef::<html::Div>::new();
+
     view! {
         <Provider value=TooltipProviderContext {
                     is_open,
@@ -102,6 +105,7 @@ pub fn ToolTipProvider(
                     on_open,
                     on_close,
                     trigger_ref,
+                    content_ref
                 }
         >
         {children()}
@@ -200,24 +204,14 @@ pub fn get_tooltip_position(
 }
 
 #[component]
-pub fn ToolTipPortal(
-    children: ChildrenFn,
-    #[prop(optional)] open_duration: u64,
-    #[prop(optional, default = 100)] close_duration: u64,
-) -> impl IntoView {
+pub fn ToolTipPortal(children: ChildrenFn) -> impl IntoView {
     let context = use_context::<TooltipProviderContext>().expect("is open context");
 
     let is_open = context.is_open;
 
     let children = StoredValue::new(children);
 
-    let state = use_transition_status(
-        is_open.read_only(),
-        true,
-        true,
-        open_duration,
-        close_duration,
-    );
+    let state = use_transition_status(is_open.into(), context.content_ref, true, true);
     view! {
         <Show when=move || state.mounted.get()>
             <Provider value=state>
@@ -240,7 +234,7 @@ pub fn ToolTipContent(
     let context = use_context::<TooltipProviderContext>().expect("is open context");
     let trigger_ref = context.trigger_ref;
 
-    let content_ref = NodeRef::<html::Div>::new();
+    let content_ref = context.content_ref;
 
     let position = RwSignal::new(("".to_string(), "".to_string()));
 
@@ -255,11 +249,13 @@ pub fn ToolTipContent(
         ..
     } = use_element_bounding(trigger_ref);
 
+    let mount_ref = NodeRef::new();
+
     let UseElementBoundingReturn {
         width: content_width,
         height: content_height,
         ..
-    } = use_element_bounding(content_ref);
+    } = use_element_bounding(mount_ref);
 
     Effect::new(move |_| {
         if transition_status.mounted.get() {
@@ -293,15 +289,8 @@ pub fn ToolTipContent(
 
     view! {
         <div
-            data-state=move || {
-                match transition_status.transition_status.get() {
-                    TransitionStatus::Starting => "open",
-                    TransitionStatus::Ending => "closed",
-                    TransitionStatus::Idle => "",
-                    TransitionStatus::Undefined => "undefined",
-                }
-            }
-            node_ref=content_ref
+            data-state=move || transition_status.transition_status.get().to_string()
+            node_ref=mount_ref
             style:position="absolute"
             style:left=move || format!("{}px", position().0)
             style:top=move || format!("{}px",  position().1)
@@ -314,20 +303,14 @@ pub fn ToolTipContent(
             class=format!("absolute z-50 left-0 top-0 font-normal")
         >
             <div
+                node_ref=content_ref
                 data-side=match tooltip_side {
                     ToolTipSide::Bottom => "bottom",
                     ToolTipSide::Left => "left",
                     ToolTipSide::Right => "right",
                     ToolTipSide::Top => "top",
                 }
-                data-state=move || {
-                    match transition_status.transition_status.get() {
-                        TransitionStatus::Starting => "open",
-                        TransitionStatus::Ending => "closed",
-                        TransitionStatus::Idle => "",
-                        TransitionStatus::Undefined => "undefined",
-                    }
-                }
+                data-state=move || transition_status.transition_status.get().to_string()
                 class=move || tw_merge!(
                 class.get(),
                 arrow,
