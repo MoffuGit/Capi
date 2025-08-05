@@ -5,6 +5,7 @@ mod worker;
 
 use crate::leptos::worker::worker;
 use async_trait::async_trait;
+use leptos::logging::error;
 use leptos::prelude::*;
 use leptos::task::spawn_local_scoped_with_cancellation;
 use std::sync::Arc;
@@ -383,6 +384,12 @@ impl UseQuery {
         let source = Memo::new(move |_| query());
 
         let (query_signal, set_query_signal) = signal(None);
+
+        Effect::new(move |_| {
+            if let Some(Err(res)) = query_signal.get() {
+                error!("{res}");
+            }
+        });
 
         Effect::new(move |_| {
             if let Some(mut client) = use_context::<ConvexClient>() {

@@ -6,12 +6,12 @@ use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use serde::Serialize;
 
-use crate::components::primitives::common::Side;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::sidebar::{
     Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
     SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
 };
+use capi_primitives::common::Side;
 
 use self::members::MembersItems;
 use self::roles::RolesItems;

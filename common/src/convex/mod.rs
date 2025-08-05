@@ -191,6 +191,8 @@ pub struct Reaction {
     pub message: String,
     pub emoji: String,
     pub count: f64,
+    #[serde(rename = "hasReacted")]
+    pub has_reacted: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -217,10 +219,12 @@ pub struct RoleMention {
 pub struct Attachment {
     #[serde(rename = "_id")]
     pub id: String,
+    #[serde(rename = "_creationTime")]
+    pub creation_time: f64,
     pub message: String,
     #[serde(rename = "storageId")]
     pub storage_id: String,
-    pub url: String,
+    pub url: Option<String>,
     pub metadata: Option<FileMetaData>,
 }
 
@@ -307,7 +311,8 @@ pub struct ChannelMessage {
     pub creation_time: f64,
     pub channel: String,
     pub sender: String,
-    pub reference: Option<String>,
+    #[serde(rename = "referencedMessage")]
+    pub referenced_message: Option<Box<ChannelMessage>>,
     pub content: String,
     pub pinned: bool,
     #[serde(rename = "mention_everyone")]

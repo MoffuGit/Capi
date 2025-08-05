@@ -129,6 +129,30 @@ pub fn MessageItem(
 
     let context: ChatContext = use_context().expect("should return teh chat context");
     let msg_ref = context.msg_reference;
+    let cached_members = context.cached_members;
+
+    let msg_value = msg.get_value();
+
+    let referenced_message_content_markdown = msg
+        .get_value()
+        .referenced_message
+        .as_ref()
+        .map(|m| MarkdownParser::new(&m.content).parse_tree());
+
+    let referenced_message_author_id_option = msg_value
+        .referenced_message
+        .as_ref()
+        .map(|m| m.sender.clone());
+
+    let referenced_message_author = Signal::derive(move || {
+        if let Some(author_id) = referenced_message_author_id_option.clone() {
+            cached_members
+                .get()
+                .and_then(|members_map| members_map.get(&author_id).cloned())
+        } else {
+            None
+        }
+    });
 
     view! {
         <div
@@ -155,6 +179,21 @@ pub fn MessageItem(
                             .map(|m| view! { <MessageHeader member=m date=date /> }.into_view())
                     }
                 }
+            </Show>
+
+            <Show when=move || msg.get_value().referenced_message.is_some()>
+                <div class="flex flex-col border-l-2 border-muted-foreground/50 pl-2 mb-1 mt-1 bg-accent/20 rounded-r-md">
+                    <div class="flex items-center gap-1 text-xs text-muted-foreground">
+                        <IconCornerUpLeft class="size-3"/>
+                        <span>
+                            {"Replying to "}
+                            {move || referenced_message_author.get().map(|m| view!{ <span class="font-semibold text-foreground">{m.name}</span> })}
+                        </span>
+                    </div>
+                    {referenced_message_content_markdown.clone().map(|md| view! {
+                        <Markdown markdown=md.into() {..} class="text-xs text-muted-foreground max-h-8 overflow-hidden line-clamp-2"/>
+                    })}
+                </div>
             </Show>
 
             <Markdown markdown=markdown.into() />

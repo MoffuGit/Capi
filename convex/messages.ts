@@ -1,4 +1,5 @@
 import { mutation, query } from "./_generated/server";
+import { Id, Doc } from "./_generated/dataModel.js";
 import { v } from "convex/values";
 
 export const createMessage = mutation({
@@ -25,12 +26,106 @@ export const createMessage = mutation({
   },
 });
 
+// Define the type for _storage metadata
+type StorageMetadata = {
+  _id: Id<"_storage">;
+  _creationTime: number;
+  contentType?: string;
+  sha256: string;
+  size: number;
+};
+
+// Define the shape of the additional data fetched for a message
+type MessageRelatedData = {
+  reactions: Array<
+    Doc<"messageReactionCounts"> & {
+      hasReacted: boolean;
+    }
+  >;
+  mentions: Array<Doc<"mentions">>;
+  role_mentions: Array<Doc<"role_mentions">>;
+  attachments: Array<
+    Doc<"attachments"> & {
+      url: string | null;
+      metadata: StorageMetadata | null;
+    }
+  >;
+};
+
+// Define the full message type including related data
+type FullMessageType = Doc<"messages"> & MessageRelatedData;
+
 export const getMessagesInChannel = query({
   args: {
     channelId: v.id("channels"),
     memberId: v.id("members"),
   },
   handler: async (ctx, { channelId, memberId }) => {
+    const fetchMessageRelatedData = async (
+      messageId: Id<"messages">,
+    ): Promise<MessageRelatedData> => {
+      const [messageReactionCounts, mentions, roleMentions, attachments] =
+        await Promise.all([
+          ctx.db
+            .query("messageReactionCounts")
+            .withIndex("by_message_and_emoji", (q) =>
+              q.eq("message", messageId),
+            )
+            .collect(),
+          ctx.db
+            .query("mentions")
+            .withIndex("by_message", (q) => q.eq("message", messageId))
+            .collect(),
+          ctx.db
+            .query("role_mentions")
+            .withIndex("by_message", (q) => q.eq("message", messageId))
+            .collect(),
+          ctx.db
+            .query("attachments")
+            .withIndex("by_message", (q) => q.eq("message", messageId))
+            .collect()
+            .then(async (atts) =>
+              Promise.all(
+                atts.map(async (att) => {
+                  const url = await ctx.storage.getUrl(att.storageId);
+                  const metadata = (await ctx.db.system.get(
+                    att.storageId,
+                  )) as StorageMetadata | null;
+                  return {
+                    ...att, // Include _id, _creationTime, message, storageId from original Doc
+                    url,
+                    metadata,
+                  };
+                }),
+              ),
+            ),
+        ]);
+
+      const reactionsWithHasReacted = await Promise.all(
+        messageReactionCounts.map(async (reactionCount) => {
+          const memberReaction = await ctx.db
+            .query("memberReactions")
+            .withIndex("by_message_member_emoji", (q) =>
+              q
+                .eq("message", messageId)
+                .eq("member", memberId)
+                .eq("emoji", reactionCount.emoji),
+            )
+            .first();
+          return {
+            ...reactionCount,
+            hasReacted: !!memberReaction,
+          };
+        }),
+      );
+      return {
+        reactions: reactionsWithHasReacted,
+        mentions,
+        role_mentions: roleMentions,
+        attachments,
+      };
+    };
+
     const messages = await ctx.db
       .query("messages")
       .withIndex("by_channel", (q) => q.eq("channel", channelId))
@@ -38,67 +133,28 @@ export const getMessagesInChannel = query({
 
     const fullMessages = await Promise.all(
       messages.map(async (message) => {
-        const [messageReactionCounts, mentions, roleMentions, attachments] =
-          await Promise.all([
-            ctx.db
-              .query("messageReactionCounts")
-              .withIndex("by_message_and_emoji", (q) =>
-                q.eq("message", message._id),
-              )
-              .collect(),
-            ctx.db
-              .query("mentions")
-              .withIndex("by_message", (q) => q.eq("message", message._id))
-              .collect(),
-            ctx.db
-              .query("role_mentions")
-              .withIndex("by_message", (q) => q.eq("message", message._id))
-              .collect(),
-            ctx.db
-              .query("attachments")
-              .withIndex("by_message", (q) => q.eq("message", message._id))
-              .collect()
-              .then(async (atts) =>
-                Promise.all(
-                  atts.map(async (att) => {
-                    const url = await ctx.storage.getUrl(att.storageId);
-                    const metadata = await ctx.db.system.get(att.storageId);
-                    return {
-                      _id: att._id,
-                      message: att.message,
-                      storageId: att.storageId,
-                      url,
-                      metadata,
-                    };
-                  }),
-                ),
-              ),
-          ]);
+        const { reactions, mentions, role_mentions, attachments } =
+          await fetchMessageRelatedData(message._id);
 
-        const reactionsWithHasReacted = await Promise.all(
-          messageReactionCounts.map(async (reactionCount) => {
-            const memberReaction = await ctx.db
-              .query("memberReactions")
-              .withIndex("by_message_member_emoji", (q) =>
-                q
-                  .eq("message", message._id)
-                  .eq("member", memberId)
-                  .eq("emoji", reactionCount.emoji),
-              )
-              .first();
-            return {
-              ...reactionCount,
-              hasReacted: !!memberReaction,
+        let referencedMessage: FullMessageType | null = null;
+        if (message.reference) {
+          const refMsg = await ctx.db.get(message.reference);
+          if (refMsg) {
+            const refData = await fetchMessageRelatedData(refMsg._id);
+            referencedMessage = {
+              ...refMsg,
+              ...refData,
             };
-          }),
-        );
+          }
+        }
 
         return {
           ...message,
-          reactions: reactionsWithHasReacted,
+          reactions,
           mentions,
-          role_mentions: roleMentions,
+          role_mentions,
           attachments,
+          referencedMessage,
         };
       }),
     );

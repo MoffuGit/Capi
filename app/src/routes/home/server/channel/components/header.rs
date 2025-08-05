@@ -2,7 +2,6 @@ use common::convex::Channel;
 use leptos::prelude::*;
 
 use crate::components::icons::{IconSearch, IconUsers};
-use crate::components::primitives::common::{Orientation, Side};
 use crate::components::ui::breadcrumb::{
     Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage,
 };
@@ -10,6 +9,7 @@ use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::divider::Separator;
 use crate::components::ui::sheet::{Sheet, SheetPopup, SheetTrigger};
 use crate::components::ui::sidebar::SidebarTrigger;
+use capi_primitives::common::{Orientation, Side};
 
 #[component]
 pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) -> impl IntoView {
