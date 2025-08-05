@@ -68,34 +68,37 @@ pub fn use_transition_status(
 
     // Effect to read the transition-duration from the content_node_ref element
     Effect::new(move |_| {
-        let _ = transition_status.get();
-        #[cfg(not(feature = "ssr"))]
-        if let Some(element) = content_node_ref.get() {
-            let element: web_sys::HtmlElement = element.unchecked_into();
-            if let Some(window) = window() {
-                if let Ok(Some(style)) = window.get_computed_style(&element) {
-                    if let Ok(duration_str) = style.get_property_value("transition-duration") {
-                        if let Some(parsed_duration) = parse_css_duration(&duration_str) {
-                            transition_duration_ms.set(parsed_duration);
+        if transition_status.get() == TransitionStatus::Opening
+            || transition_status.get() == TransitionStatus::Closing
+        {
+            #[cfg(not(feature = "ssr"))]
+            if let Some(element) = content_node_ref.get() {
+                let element: web_sys::HtmlElement = element.unchecked_into();
+                if let Some(window) = window() {
+                    if let Ok(Some(style)) = window.get_computed_style(&element) {
+                        if let Ok(duration_str) = style.get_property_value("transition-duration") {
+                            if let Some(parsed_duration) = parse_css_duration(&duration_str) {
+                                transition_duration_ms.set(parsed_duration);
+                            } else {
+                                leptos::logging::error!("Could not parse transition-duration CSS property: '{}'. Falling back to 150ms.", duration_str);
+                                transition_duration_ms.set(150); // Fallback if parsing fails
+                            }
                         } else {
-                            leptos::logging::error!("Could not parse transition-duration CSS property: '{}'. Falling back to 150ms.", duration_str);
-                            transition_duration_ms.set(150); // Fallback if parsing fails
+                            leptos::logging::warn!(
+                                "'transition-duration' CSS property not found. Falling back to 150ms."
+                            );
+                            transition_duration_ms.set(150); // Fallback if property not found
                         }
                     } else {
                         leptos::logging::warn!(
-                            "'transition-duration' CSS property not found. Falling back to 150ms."
+                            "Could not get computed style for content element. Falling back to 150ms."
                         );
-                        transition_duration_ms.set(150); // Fallback if property not found
+                        transition_duration_ms.set(150); // Fallback if get_computed_style fails
                     }
                 } else {
-                    leptos::logging::warn!(
-                        "Could not get computed style for content element. Falling back to 150ms."
-                    );
-                    transition_duration_ms.set(150); // Fallback if get_computed_style fails
+                    leptos::logging::warn!("Window object not available. Falling back to 150ms.");
+                    transition_duration_ms.set(150); // Fallback if window is not available (shouldn't happen on client)
                 }
-            } else {
-                leptos::logging::warn!("Window object not available. Falling back to 150ms.");
-                transition_duration_ms.set(150); // Fallback if window is not available (shouldn't happen on client)
             }
         }
     });
@@ -213,10 +216,6 @@ pub fn use_transition_status(
                 });
             }
         }
-    });
-
-    Effect::new(move |_| {
-        warn!("duration: {}", transition_duration_ms.get());
     });
 
     // Effect: From Ending to Undefined after animation completes.
