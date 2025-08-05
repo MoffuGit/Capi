@@ -2,10 +2,12 @@ use api::server::{GetServers, ServerData};
 use common::convex::{Member, Role, Server};
 use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
+use leptos_router::components::A;
 
 use crate::components::auth::use_auth;
 use crate::components::ui::avatar::*;
 use crate::components::ui::card::*;
+use crate::routes::home::components::dialogs::create_server::CreateServerDialog;
 
 #[component]
 pub fn Servers() -> impl IntoView {
@@ -20,7 +22,35 @@ pub fn Servers() -> impl IntoView {
 
     let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
 
+    let create_server_dialog_open = RwSignal::new(false);
+
     view! {
+        <Show when=move || data.get().is_some_and(|data| data.is_empty())>
+            <CreateServerDialog open=create_server_dialog_open/>
+            <div class="w-full h-full flex items-center justify-center">
+                <div class="flex flex-col items-center justify-center p-8 gap-4 text-center text-foreground/50 max-w-lg">
+                    <h2 class="text-2xl font-bold">"No Servers Yet"</h2>
+                    <p class="">
+                        "It looks like you haven't joined or created any servers. Get started by "
+                        <span
+                            on:click=move |_| create_server_dialog_open.set(true)
+                            class="underline cursor-pointer"
+                        >
+                            "creating your own"
+                        </span>
+                        " or "
+                        <A
+                            href="/servers/#discover"
+                            {..}
+                            class="underline"
+                        >
+                            "discovering existing ones"
+                        </A>
+                        "!"
+                    </p>
+                </div>
+            </div>
+        </Show>
         <div class="grid gap-4 grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))]">
             <For
                 each=move || data.get().unwrap_or_default()

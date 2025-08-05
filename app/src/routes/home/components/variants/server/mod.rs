@@ -3,6 +3,7 @@ mod channels;
 mod header;
 
 use api::category::GetCategories;
+use api::channel::GetChannels;
 use api::server::ServerData;
 use common::convex::{Category, Member, Server};
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
@@ -80,13 +81,20 @@ pub fn ServerSideBar(data: Signal<Option<Vec<ServerData>>>) -> impl IntoView {
 
     let categories = Signal::derive(move || categories.get().and_then(|res| res.ok()));
 
+    let channels = UseQuery::new(move || {
+        server.get().map(|server| GetChannels {
+            server: server.id,
+            category: None,
+        })
+    });
+
     view! {
         <RolesProvider roles=Signal::derive(move || roles.get().unwrap_or_default())>
             <ServerHeader server=server />
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>
-                        <ChannelsItems server=server/>
+                        <ChannelsItems channels=channels/>
                     </SidebarGroupContent>
                 </SidebarGroup>
                 <CategoriesItems server=server categories=categories />

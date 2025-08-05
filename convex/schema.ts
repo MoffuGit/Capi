@@ -64,6 +64,7 @@ export default defineSchema({
     defaultRole: v.optional(v.id("roles")),
     bannerUrl: v.optional(v.string()),
     bannerId: v.optional(v.id("_storage")),
+    type: v.union(v.literal("public"), v.literal("private")),
   }),
   users: defineTable({
     authId: v.int64(),

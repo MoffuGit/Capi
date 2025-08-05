@@ -1,6 +1,4 @@
-use api::channel::{preload_channels, GetChannels};
-use common::convex::{Channel, Server};
-use convex_client::leptos::UseQuery;
+use common::convex::Channel;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::use_location;
@@ -17,11 +15,7 @@ use crate::components::ui::sidebar::{
 };
 
 #[component]
-pub fn ChannelsItems(
-    server: Memo<Option<Server>>,
-    #[prop(into, optional)] category: Option<String>,
-    #[prop(into, optional)] preloaded_channels: Vec<Channel>,
-) -> impl IntoView {
+pub fn ChannelsItems(channels: ReadSignal<Option<Result<Vec<Channel>, String>>>) -> impl IntoView {
     let location = use_location();
     let path = location.pathname;
     let current_channel = Memo::new(move |_| {
@@ -30,16 +24,6 @@ pub fn ChannelsItems(
             .nth(3)
             .map(|channel| channel.to_string())
     });
-    let category = StoredValue::new(category);
-    let channels = UseQuery::with_preloaded(
-        move || {
-            server.get().map(|server| GetChannels {
-                server: server.id,
-                category: category.get_value(),
-            })
-        },
-        preloaded_channels,
-    );
     let channels = Signal::derive(move || channels.get().and_then(|res| res.ok()));
     view! {
         <SidebarMenu>

@@ -6,27 +6,39 @@ export const get = query({
   args: {
     channelId: v.id("channels"),
     serverId: v.id("servers"),
-    memberId: v.id("members"),
+    auth: v.int64(), // Changed from memberId to auth
   },
-  handler: async ({ db }, { channelId, serverId, memberId }) => {
+  handler: async ({ db }, { channelId, serverId, auth }) => {
     const channel = await db.get(channelId);
 
     if (!channel) {
       throw new ConvexError("Channel not found");
     }
 
-    if (String(channel.server) !== String(serverId)) {
+    if (channel.server !== serverId) {
       throw new ConvexError("Channel does not belong to the specified server");
     }
 
-    const member = await db.get(memberId);
+    // Authenticate user by authId
+    const user = await db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
 
-    if (!member) {
-      throw new ConvexError("Member not found");
+    if (!user) {
+      throw new ConvexError("User not found");
     }
 
-    if (String(member.server) !== String(serverId)) {
-      throw new ConvexError("Member does not belong to the specified server");
+    // Check if user is a member of the specified server
+    const member = await db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", user._id),
+      )
+      .unique();
+
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
     }
 
     return channel;

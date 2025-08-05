@@ -5,6 +5,7 @@ use leptos::prelude::*;
 
 use crate::components::ui::tabs::TabPanel;
 
+use self::discover::Discover;
 use self::servers::Servers;
 
 #[component]
@@ -15,7 +16,7 @@ pub fn Content() -> impl IntoView {
                 <Servers/>
             </TabPanel>
             <TabPanel value="discover">
-                "discover"
+                <Discover />
             </TabPanel>
         </div>
     }

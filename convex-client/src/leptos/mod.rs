@@ -377,7 +377,7 @@ impl UseQuery {
         query: impl Fn() -> Option<Q> + Send + Sync + 'static,
     ) -> ReadSignal<Option<Result<F, String>>>
     where
-        F: DeserializeOwned + Send + Sync + 'static,
+        F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static,
         Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone,
     {
         let source = Memo::new(move |_| query());
@@ -387,6 +387,7 @@ impl UseQuery {
         Effect::new(move |_| {
             if let Some(mut client) = use_context::<ConvexClient>() {
                 if let Some(query) = source.get() {
+                    set_query_signal.set(None);
                     let name_clone = query.name().clone();
                     let args_value = match query.args() {
                         Ok(val) => val,
@@ -414,7 +415,12 @@ impl UseQuery {
                                     }
                                 });
                                 while let Some(result) = sub_stream.next().await {
-                                    set_query_signal(Some(result));
+                                    let prev_value = query_signal.get_untracked();
+                                    if prev_value.is_none()
+                                        || prev_value.is_some_and(|prev| prev != result)
+                                    {
+                                        set_query_signal(Some(result));
+                                    }
                                 }
                             }
                             Err(e) => {
@@ -422,6 +428,8 @@ impl UseQuery {
                             }
                         }
                     });
+                } else {
+                    set_query_signal(None);
                 }
             } else {
                 set_query_signal(None);
@@ -435,7 +443,7 @@ impl UseQuery {
         preloaded: F,
     ) -> Signal<Option<Result<F, String>>>
     where
-        F: DeserializeOwned + Clone + Send + Sync + 'static,
+        F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static,
         Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone,
     {
         let query_signal = Self::new(query);

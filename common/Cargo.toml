@@ -12,6 +12,7 @@ strum.workspace = true
 strum_macros.workspace = true
 gloo-file.workspace = true
 web-sys.workspace = true
+rand = { workspace = true, optional = true }
 
 axum = { workspace = true, optional = true }
 leptos_axum = { workspace = true, optional = true }
@@ -21,4 +22,4 @@ uploadthing = { path = "../uploadthing", optional = true}
 
 [features]
 hydrate = []
-ssr = ["dep:sqlx", "dep:axum", "dep:leptos_axum", "convex-client/ssr", "uploadthing/ssr"]
+ssr = ["dep:sqlx", "dep:rand", "dep:axum", "dep:leptos_axum", "convex-client/ssr", "uploadthing/ssr"]

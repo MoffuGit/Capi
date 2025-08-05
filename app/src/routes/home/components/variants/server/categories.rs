@@ -1,13 +1,12 @@
-use api::channel::preload_channels;
+use api::channel::GetChannels;
 use common::convex::{Category, Server};
+use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
 use crate::components::icons::{IconChevronDown, IconPlus};
-use crate::components::ui::collapsible::{Collapsible, CollapsiblePanel, CollapsibleTrigger};
-use crate::components::ui::sidebar::{
-    SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel,
-};
+use crate::components::ui::collapsible::*;
+use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::variants::server::channels::ChannelsItems;
 
@@ -22,22 +21,21 @@ pub fn CategoriesItems(
             key=|category| category.id.clone()
             children=move |category| {
                 let name = StoredValue::new(category.name.clone());
-                let is_open = RwSignal::new(false);
+                let is_open = RwSignal::new(true);
                 let category_id = StoredValue::new(category.id.clone());
-                let preloaded_channels = Resource::new(
-                    move || (server.get(), category_id.get_value()),
-                    move |(server, category)| preload_channels(server.map(|server| server.id), Some(category)),
-                );
                 let open_create_channel = RwSignal::new(false);
+                let channels = UseQuery::new(move || {
+                    server.get().map(|server| GetChannels {
+                        server: server.id,
+                        category: Some(category_id.get_value()),
+                    })
+                });
                 view!{
-                    <Collapsible>
+                    <Collapsible open=is_open>
                         <SidebarGroup>
                             <CollapsibleTrigger>
                                 <SidebarGroupLabel
                                     class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer"
-                                    on:click=move |_| {
-                                        is_open.update(|open| *open = !*open);
-                                    }
                                 >
                                     <IconChevronDown class=Signal::derive(
                                         move || {
@@ -59,22 +57,11 @@ pub fn CategoriesItems(
                                 <IconPlus class="text-sidebar-foreground/70"/>
                                 <span class="sr-only">Add channel</span>
                             </SidebarGroupAction>
-                            <Transition>
-                                {
-                                    move || {
-                                        preloaded_channels.and_then(|channels| {
-                                            let channels = StoredValue::new(channels.clone());
-                                            view!{
-                                                <SidebarGroupContent>
-                                                    <CollapsiblePanel>
-                                                        <ChannelsItems preloaded_channels=channels.get_value() server=server category=category_id.get_value() />
-                                                    </CollapsiblePanel>
-                                                </SidebarGroupContent>
-                                            }
-                                        })
-                                    }
-                                }
-                            </Transition>
+                            <SidebarGroupContent>
+                                <CollapsiblePanel>
+                                    <ChannelsItems channels=channels />
+                                </CollapsiblePanel>
+                            </SidebarGroupContent>
                         </SidebarGroup>
                     </Collapsible>
                     <CreateChannelDialog categories=categories category=category server=server open=open_create_channel />

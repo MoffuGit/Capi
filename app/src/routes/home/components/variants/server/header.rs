@@ -12,17 +12,17 @@ use crate::components::ui::sidebar::*;
 #[component]
 pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
     view! {
-        {
-            move || {
-                server.get().map(|server| {
-                    let name = StoredValue::new(server.name.clone());
-                    let image_url = StoredValue::new(server.image_url.clone());
-                    view!{
-                        <DropdownMenu>
-                            <SidebarHeader class="flex w-full">
-                                <SidebarMenu>
-                                    <SidebarMenuItem>
-                                        <SidebarMenuButton size=SidebarMenuButtonSize::Lg>
+        <DropdownMenu>
+            <SidebarHeader class="flex w-full">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size=SidebarMenuButtonSize::Lg>
+                            {
+                                move || {
+                                    server.get().map(|server| {
+                                        let name = StoredValue::new(server.name.clone());
+                                        let image_url = StoredValue::new(server.image_url.clone());
+                                        view!{
                                             <A
                                                 href=move || format!("/servers/{}", server.id)
                                                 {..}
@@ -42,50 +42,58 @@ pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
                                                 </span>
                                             </div>
                                             </A>
-                                        </SidebarMenuButton>
-                                        <SidebarMenuAction>
-                                            <IconChevronDown/>
-                                            <DropdownMenuTrigger class="absolute inset-0"/>
-                                        </SidebarMenuAction>
-                                    </SidebarMenuItem>
-                                </SidebarMenu>
-                            </SidebarHeader>
-                            <DropdownMenuContent side=MenuSide::Bottom align=MenuAlign::Center>
-                                <DropdownMenuGroup>
-                                    <DropdownMenuLabel>
-                                        {name.get_value()}
-                                    </DropdownMenuLabel>
-                                    <CanManageChannels>
-                                        <DropdownMenuItem>
-                                            <IconPlus/>
-                                            "Create Channel"
-                                        </DropdownMenuItem>
-                                    </CanManageChannels>
-                                    <CanManageCategories>
-                                        <DropdownMenuItem>
-                                            <IconBox/>
-                                            "Create Category"
-                                        </DropdownMenuItem>
-                                    </CanManageCategories>
-                                    <CanCreateInvitation>
-                                        <DropdownMenuItem>
-                                            <IconUsers/>
-                                            "Invite People"
-                                        </DropdownMenuItem>
-                                    </CanCreateInvitation>
-                                    <CanManageServerSettings>
-                                        <DropdownMenuItem>
-                                            <IconSettings/>
-                                            "Settings"
-                                        </DropdownMenuItem>
-                                    </CanManageServerSettings>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    }
-                })
-            }
+                                        }
+                                    })
+                                }
 
-        }
+                            }
+                        </SidebarMenuButton>
+                        <SidebarMenuAction>
+                            <IconChevronDown/>
+                            <DropdownMenuTrigger class="absolute inset-0"/>
+                        </SidebarMenuAction>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <ServerMenu server=server/>
+        </DropdownMenu>
+    }
+}
+
+#[component]
+fn ServerMenu(server: Memo<Option<Server>>) -> impl IntoView {
+    view! {
+        <DropdownMenuContent side=MenuSide::Bottom align=MenuAlign::Center>
+            <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                    {move || server.get().map(|server| server.name)}
+                </DropdownMenuLabel>
+                <CanManageChannels>
+                    <DropdownMenuItem>
+                        <IconPlus/>
+                        "Create Channel"
+                    </DropdownMenuItem>
+                </CanManageChannels>
+                <CanManageCategories>
+                    <DropdownMenuItem>
+                        <IconBox/>
+                        "Create Category"
+                    </DropdownMenuItem>
+                </CanManageCategories>
+                <CanCreateInvitation>
+                    <DropdownMenuItem>
+                        <IconUsers/>
+                        "Invite People"
+                    </DropdownMenuItem>
+                </CanCreateInvitation>
+                <CanManageServerSettings>
+                    <DropdownMenuItem>
+                        <IconSettings/>
+                        "Settings"
+                    </DropdownMenuItem>
+                </CanManageServerSettings>
+            </DropdownMenuGroup>
+        </DropdownMenuContent>
+
     }
 }

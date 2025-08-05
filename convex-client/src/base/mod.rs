@@ -368,6 +368,13 @@ impl BaseConvexClient {
     /// messages to the server.
     pub fn subscribe(&mut self, udf_path: UdfPath, args: Value) -> SubscriberId {
         let (modification, subscription) = self.state.subscribe(udf_path, args);
+        let query_id = subscription.0;
+        if let Some(cached_result) = self.get_query(query_id) {
+            self.state
+                .latest_results
+                .results
+                .insert(query_id, cached_result);
+        }
         if let Some(modification) = modification {
             self.outgoing_message_queue.push_back(modification);
         }

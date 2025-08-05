@@ -17,6 +17,16 @@ pub struct Server {
     pub description: Option<String>,
     #[serde(rename = "bannerUrl")]
     pub banner_url: Option<String>,
+    #[serde(rename = "type")]
+    pub _type: ServerType,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub enum ServerType {
+    #[serde(rename = "public")]
+    Public,
+    #[serde(rename = "private")]
+    Private,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -32,13 +42,13 @@ pub struct User {
     pub banner_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum ChannelType {
     #[serde(rename = "text")]
     Text,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Channel {
     #[serde(rename = "_id")]
     pub id: String,
@@ -52,7 +62,7 @@ pub struct Channel {
     pub topic: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Category {
     #[serde(rename = "_id")]
     pub id: String,

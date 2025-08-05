@@ -7,10 +7,11 @@ export const create = mutation({
     name: v.string(),
     auth: v.int64(),
     storage: v.optional(v.id("_storage")),
+    type: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (
     { db, storage: storageCtx },
-    { name, storage: storageId, auth },
+    { name, storage: storageId, auth, type },
   ) => {
     const user = await db
       .query("users")
@@ -31,6 +32,7 @@ export const create = mutation({
       name: name,
       image_url: newImageUrl,
       imageId: storageId,
+      type,
     });
 
     // Create the owner role for the new server
@@ -418,5 +420,25 @@ export const removeServerBanner = mutation({
     });
 
     return true;
+  },
+});
+
+export const getPublicServers = query({
+  args: {
+    auth: v.int64(),
+  },
+  handler: async ({ db }, { auth }) => {
+    const user = await db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+    return await db
+      .query("servers")
+      .filter((q) => q.eq(q.field("type"), "public"))
+      .collect();
   },
 });

@@ -133,7 +133,7 @@ pub fn MessageItem(
     view! {
         <div
             data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.get_value().id) { "true" } else { "false" }
-            class="w-full h-auto transition-colors ease-out-quad duration-180 data-[response=true]:bg-blue-1/10 data-[response=true]:border-l-blue-1 border-l border-l-transparent hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
+            class="w-full h-auto transition-colors ease-out-quad duration-180 dark:data-[response=true]:bg-purple/10 dark:data-[response=true]:border-l-purple data-[response=true]:bg-red/10 data-[response=true]:border-l-red border-l border-l-transparent hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
             on:dblclick=move |_| {
                 msg_ref.update(|current| {
                     let msg = Some(msg.get_value());

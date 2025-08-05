@@ -8,10 +8,11 @@ use serde::Serialize;
 
 use crate::components::auth::use_auth;
 use crate::components::roles::RolesProvider;
-use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
-use crate::components::ui::context::{ContextMenu, ContextMenuTrigger};
-use crate::components::ui::sidebar::{SidebarMenuButton, SidebarMenuItem};
-use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
+use crate::components::ui::avatar::*;
+use crate::components::ui::context::*;
+use crate::components::ui::sidebar::*;
+use crate::components::ui::skeleton::*;
+use crate::components::ui::tooltip::*;
 use crate::routes::home::components::variants::ServerContextMenuData;
 
 use super::sidebar::ServerData;
@@ -22,20 +23,42 @@ pub fn ServersItems(
     set_option: Callback<()>,
 ) -> impl IntoView {
     view! {
-        <For
-            each=move || data.get().unwrap_or_default()
-            key=|data| data.server.id.clone()
-            let(
-                ServerData {
-                    server,
-                    member,
-                    roles
-                }
+        <Show when=move || data.get().is_none()>
+            <For
+                each=move || 0..5
+                key=|i| *i
+                let(_)
+            >
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
+                        class="md:h-8 md:p-0 flex items-center justify-center"
+                    >
+                        <Skeleton class="h-8 w-8 rounded-lg" />
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </For>
+        </Show>
+        <Show when=move || data.get().is_some()>
+            <div
+                class="flex w-full min-w-0 flex-col gap-2 pt-1"
+            >
+                <For
+                    each=move || data.get().unwrap_or_default()
+                    key=|data| data.server.id.clone()
+                    let(
+                        ServerData {
+                            server,
+                            member,
+                            roles
+                        }
 
-            )
-        >
-            <ServerItem server=server member=member roles=roles set_option=set_option/>
-        </For>
+                    )
+                >
+                    <ServerItem server=server member=member roles=roles set_option=set_option/>
+                </For>
+            </div>
+        </Show>
     }
 }
 

@@ -3,6 +3,7 @@ mod components;
 use common::convex::{Channel, Member, Role};
 use convex_client::leptos::{Mutation, Query, UseMutation, UseQuery};
 use leptos::prelude::*;
+use leptos_dom::error;
 use leptos_router::hooks::use_location;
 use serde::{Deserialize, Serialize};
 
@@ -20,7 +21,7 @@ pub struct GetMemberForServerByUser {
     auth: i64,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct MemberWithRole {
     member: Member,
     roles: Vec<Role>,
@@ -38,8 +39,7 @@ pub struct GetChannel {
     channel: String,
     #[serde(rename = "serverId")]
     server: String,
-    #[serde(rename = "memberId")]
-    member: String,
+    auth: i64,
 }
 
 impl Query<Option<Channel>> for GetChannel {
@@ -83,8 +83,6 @@ pub fn Channel() -> impl IntoView {
             .map(|channel| channel.to_string())
     });
 
-    let set_last_visited_channel = UseMutation::new::<SetLastVisitedChannel>();
-
     let member_with_role = UseQuery::new(move || {
         let auth = auth.get().and_then(|res| res.ok()).flatten()?;
 
@@ -102,31 +100,15 @@ pub fn Channel() -> impl IntoView {
             .map(|data| data.member)
     });
 
-    Effect::watch(
-        move || channel.get(),
-        move |channel, _, _| {
-            let auth = auth.get().and_then(|auth| auth.ok()).flatten();
-            if let (Some(auth), Some(channel), Some(member)) = (auth, channel, member.get()) {
-                set_last_visited_channel.dispatch(SetLastVisitedChannel {
-                    auth: auth.id,
-                    member: member.id,
-                    channel: channel.to_string(),
-                });
-            }
-        },
-        false,
-    );
-
     let channel_query_signal_result = UseQuery::new(move || {
         let server = server.get()?;
         let channel = channel.get()?;
-
-        let member = member.get()?;
+        let auth = auth.get().and_then(|res| res.ok()).flatten()?;
 
         Some(GetChannel {
             server,
             channel,
-            member: member.id,
+            auth: auth.id,
         })
     });
 
@@ -135,6 +117,23 @@ pub fn Channel() -> impl IntoView {
             .get()
             .and_then(|query_res| query_res.ok().flatten())
     });
+
+    let set_last_visited_channel = UseMutation::new::<SetLastVisitedChannel>();
+
+    Effect::watch(
+        move || current_channel.get(),
+        move |channel, _, _| {
+            let auth = auth.get().and_then(|auth| auth.ok()).flatten();
+            if let (Some(auth), Some(channel), Some(member)) = (auth, channel, member.get()) {
+                set_last_visited_channel.dispatch(SetLastVisitedChannel {
+                    auth: auth.id,
+                    member: member.id,
+                    channel: channel.id.to_string(),
+                });
+            }
+        },
+        false,
+    );
 
     let open = RwSignal::new(false);
 

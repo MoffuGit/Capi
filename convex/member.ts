@@ -53,8 +53,8 @@ export const setLastVisitedChannel = mutation({
     member: v.id("members"),
     channel: v.id("channels"),
   },
-  handler: async (ctx, { auth, member, channel }) => {
-    let user = await ctx.db
+  handler: async ({ db }, { auth, channel, member }) => {
+    let user = await db
       .query("users")
       .withIndex("by_auth", (q) => q.eq("authId", auth))
       .unique();
@@ -62,21 +62,29 @@ export const setLastVisitedChannel = mutation({
       return;
     }
 
-    const memberData = await ctx.db.get(member);
-    if (memberData === null || memberData.user !== user._id) {
+    const channelData = await db.get(channel);
+    if (channelData === null) {
       return;
     }
 
-    const existingLastVisited = await ctx.db
+    const memberData = await db.get(member);
+
+    if (memberData === null) {
+      return;
+    }
+
+    const memberId = memberData._id;
+
+    const existingLastVisited = await db
       .query("lastVisitedChannels")
-      .withIndex("by_member", (q) => q.eq("member", member))
+      .withIndex("by_member", (q) => q.eq("member", memberId))
       .unique();
 
     if (existingLastVisited) {
-      await ctx.db.patch(existingLastVisited._id, { channel: channel });
+      await db.patch(existingLastVisited._id, { channel: channel });
     } else {
-      await ctx.db.insert("lastVisitedChannels", {
-        member: member,
+      await db.insert("lastVisitedChannels", {
+        member: memberId,
         channel: channel,
       });
     }

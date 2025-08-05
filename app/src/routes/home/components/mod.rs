@@ -1,5 +1,5 @@
 mod collapsible;
-mod dialogs;
+pub mod dialogs;
 mod icons;
 mod server_settings;
 mod servers;

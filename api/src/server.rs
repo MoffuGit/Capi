@@ -4,7 +4,7 @@ use leptos::server;
 use serde::{Deserialize, Serialize};
 use server_fn::ServerFnError;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ServerData {
     pub server: Server,
     pub member: Member,
