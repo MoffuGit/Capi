@@ -1,11 +1,11 @@
 use leptos::prelude::*;
 
 use crate::components::icons::IconSearch;
-use crate::components::primitives::common::{Orientation, Side};
 use crate::components::ui::button::*;
 use crate::components::ui::divider::Separator;
 use crate::components::ui::sheet::*;
 use crate::components::ui::sidebar::SidebarTrigger;
+use capi_primitives::common::{Orientation, Side};
 
 #[component]
 pub fn Header() -> impl IntoView {

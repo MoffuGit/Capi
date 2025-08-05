@@ -1,11 +1,11 @@
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::tooltip::ToolTipContent as ToolContentPrimitive;
-use crate::components::primitives::tooltip::ToolTipPortal as ToolPortalPrimitive;
-use crate::components::primitives::tooltip::ToolTipProvider as ToolProviderPrimitive;
-use crate::components::primitives::tooltip::ToolTipSide;
-use crate::components::primitives::tooltip::ToolTipTrigger as ToolTriggerPrimitive;
+use capi_primitives::tooltip::ToolTipContent as ToolContentPrimitive;
+use capi_primitives::tooltip::ToolTipPortal as ToolPortalPrimitive;
+use capi_primitives::tooltip::ToolTipProvider as ToolProviderPrimitive;
+use capi_primitives::tooltip::ToolTipSide;
+use capi_primitives::tooltip::ToolTipTrigger as ToolTriggerPrimitive;
 
 #[component]
 pub fn ToolTipProvider(children: Children) -> impl IntoView {

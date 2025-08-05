@@ -13,7 +13,6 @@ use leptos_router::hooks::use_location;
 use serde::Serialize;
 
 use crate::components::icons::{IconBox, IconLink, IconPlus, IconSettings};
-use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::roles::*;
 use crate::components::ui::context::*;
 use crate::components::ui::dialog::*;
@@ -21,6 +20,7 @@ use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_category::CreateCategoryDialog;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::server_settings::DialogServerSettings;
+use capi_primitives::menu::{MenuAlign, MenuSide};
 
 use self::categories::CategoriesItems;
 use self::channels::ChannelsItems;

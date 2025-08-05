@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::components::primitives::tabs::TabsContext;
+use crate::tabs::TabsContext;
 
 use super::use_tabs_context;
 

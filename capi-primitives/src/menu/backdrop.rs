@@ -1,9 +1,9 @@
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
-use crate::components::primitives::common::status::TransitionStatus;
-use crate::components::primitives::menu::MenuProviderContext;
-use crate::components::primitives::primitive::Primitive;
+use crate::common::status::TransitionStatus;
+use crate::menu::MenuProviderContext;
+use crate::primitive::Primitive;
 
 #[component]
 pub fn MenuBackDrop(

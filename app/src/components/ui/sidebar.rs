@@ -8,12 +8,12 @@ const SIDEBAR_WIDTH_MOBILE: &str = "18rem";
 const SIDEBAR_WIDTH_ICON: &str = "3rem";
 
 use crate::components::icons::IconPanelLeft;
-use crate::components::primitives::common::{is_mobile, Side};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::divider::Separator;
 use crate::components::ui::input::Input;
 use crate::components::ui::sheet::{Sheet, SheetPopup};
 use crate::components::ui::skeleton::Skeleton;
+use capi_primitives::common::{is_mobile, Side};
 
 #[derive(Clone)]
 pub struct SidebarContextValue {

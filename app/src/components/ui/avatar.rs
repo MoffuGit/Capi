@@ -1,9 +1,9 @@
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::avatar::AvatarFallback as AvatarFallbackPrimitive;
-use crate::components::primitives::avatar::AvatarImage as AvatarImagePrimitive;
-use crate::components::primitives::avatar::AvatarRoot as AvatarPrimitive;
+use capi_primitives::avatar::AvatarFallback as AvatarFallbackPrimitive;
+use capi_primitives::avatar::AvatarImage as AvatarImagePrimitive;
+use capi_primitives::avatar::AvatarRoot as AvatarPrimitive;
 
 #[component]
 pub fn Avatar(

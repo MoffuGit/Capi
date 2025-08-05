@@ -2,7 +2,7 @@ use leptos::context::Provider;
 use leptos::html::Div;
 use leptos::prelude::*;
 
-use crate::components::primitives::common::status::use_transition_status;
+use crate::common::status::use_transition_status;
 
 use super::common::status::{TransitionStatus, TransitionStatusState};
 

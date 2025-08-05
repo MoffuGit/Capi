@@ -1,7 +1,6 @@
 use crate::components::auth::use_auth;
 use crate::components::icons::IconImage;
 use crate::components::icons::IconX;
-use crate::components::primitives::tooltip::ToolTipSide;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::tooltip::*;
@@ -10,6 +9,7 @@ use crate::components::uploadthing::UploadResult;
 use api::files::RemoveServerBanner;
 use api::files::RemoveServerImage;
 use api::files::SetServerImageUrl;
+use capi_primitives::tooltip::ToolTipSide;
 use convex_client::leptos::Mutation;
 use web_sys::HtmlInputElement;
 

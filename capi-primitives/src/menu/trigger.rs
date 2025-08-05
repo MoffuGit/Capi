@@ -1,7 +1,7 @@
 use leptos::prelude::*;
-use leptos_use::{use_element_bounding, UseElementBoundingReturn};
+use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 
-use crate::components::primitives::menu::MenuProviderContext;
+use crate::menu::MenuProviderContext;
 
 #[component]
 pub fn MenuTrigger(

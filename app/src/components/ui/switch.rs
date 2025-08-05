@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::switch::{
+use capi_primitives::switch::{
     SwitchRoot as SwitchRootPrimitive, SwitchTumb as SwitchTumbPrimitive,
 };
 

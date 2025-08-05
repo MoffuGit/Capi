@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::components::primitives::tabs::{use_tabs_context, TabsContext};
+use crate::tabs::{TabsContext, use_tabs_context};
 
 #[component]
 pub fn Panel(

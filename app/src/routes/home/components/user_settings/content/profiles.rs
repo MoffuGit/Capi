@@ -1,6 +1,5 @@
 use crate::components::auth::use_auth;
 use crate::components::icons::{IconImage, IconX};
-use crate::components::primitives::tooltip::ToolTipSide;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::input::Input;
@@ -11,6 +10,7 @@ use crate::routes::home::components::user_settings::content::{
     Setting, SettingAction, SettingData, SettingDescription, SettingTitle,
 };
 use crate::routes::use_profile;
+use capi_primitives::tooltip::ToolTipSide;
 use convex_client::leptos::Mutation;
 use gloo_file::File;
 use web_sys::HtmlInputElement;

@@ -3,11 +3,11 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
-use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::roles::*;
 use crate::components::ui::avatar::*;
 use crate::components::ui::dropwdown::*;
 use crate::components::ui::sidebar::*;
+use capi_primitives::menu::{MenuAlign, MenuSide};
 
 #[component]
 pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {

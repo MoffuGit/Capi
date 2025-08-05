@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::collapsible::{
+use capi_primitives::collapsible::{
     CollapsiblePanel as CollapsiblePanelPrimitive, CollapsibleRoot as CollapsibleRootPrimitive,
     CollapsibleTrigger as CollapsibleTriggerPrimitive,
 };

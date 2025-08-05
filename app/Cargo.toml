@@ -14,6 +14,7 @@ leptos_router.workspace = true
 leptos_axum = { workspace = true, optional = true }
 convex-client = { path = "../convex-client", optional = true }
 
+capi-primitives = {path="../capi-primitives", optional = true}
 common = { path = "../common", optional = true }
 http.workspace = true
 cfg-if.workspace = true
@@ -48,5 +49,5 @@ reqwest.workspace = true
 
 [features]
 default = []
-hydrate = ["leptos/hydrate", "api/hydrate", "dep:common",  "convex-client/hydrate"]
-ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:convex-client", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common"]
+hydrate = ["leptos/hydrate", "api/hydrate", "dep:common",  "convex-client/hydrate", "capi-primitives/hydrate"]
+ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:convex-client", "capi-primitives/ssr", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common"]

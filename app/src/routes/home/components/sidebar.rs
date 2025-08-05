@@ -7,7 +7,6 @@ use leptos::prelude::*;
 
 use crate::components::auth::use_auth;
 use crate::components::icons::{IconHeadphones, IconMic, IconSettings};
-use crate::components::primitives::menu::{MenuAlign, MenuSide};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::badge::{Badge, BadgeVariant};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
@@ -22,6 +21,7 @@ use crate::routes::home::components::collapsible::SidebarCollapsible;
 use crate::routes::home::components::icons::SidebarIcons;
 use crate::routes::home::components::user_settings::DialogUserSettings;
 use crate::routes::{use_profile, SideBarRoute};
+use capi_primitives::menu::{MenuAlign, MenuSide};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum SideBarOption {

@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::components::primitives::menu::MenuProviderContext;
+use crate::menu::MenuProviderContext;
 
 #[component]
 pub fn MenuItem(

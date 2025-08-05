@@ -1,3 +1,5 @@
+use crate::menu::MenuProviderContext;
+
 pub use super::menu::GroupLabel as ContextMenuGroupLabel;
 pub use super::menu::MenuBackDrop as ContextMenuBackDrop;
 pub use super::menu::MenuContent as ContextMenuContent;
@@ -8,13 +10,9 @@ pub use super::menu::MenuProvider as ContextProvider;
 pub use super::menu::MenuSeparator as ContextSeparator;
 
 use leptos::prelude::*;
-// use leptos_use::use_element_bounding;
-use leptos_use::use_mouse;
-// use leptos_use::UseElementBoundingReturn;
 use leptos_use::UseMouseReturn;
+use leptos_use::use_mouse;
 use tailwind_fuse::tw_merge;
-
-use crate::components::primitives::menu::MenuProviderContext;
 
 #[component]
 pub fn ContextMenuTrigger(
@@ -32,7 +30,7 @@ pub fn ContextMenuTrigger(
         Effect::new(move |_| {
             if context.open.get() {
                 if !pointer {
-                    use leptos_use::{use_element_bounding, UseElementBoundingReturn};
+                    use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 
                     let UseElementBoundingReturn {
                         width,

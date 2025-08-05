@@ -1,9 +1,9 @@
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
-use crate::components::primitives::dialog::root::use_dialog_root::DialogRootContext;
-use crate::components::primitives::dialog::root::use_dialog_root_context;
-use crate::components::primitives::primitive::Primitive;
+use crate::dialog::root::use_dialog_root::DialogRootContext;
+use crate::dialog::root::use_dialog_root_context;
+use crate::primitive::Primitive;
 
 #[component]
 pub fn DialogTrigger(

@@ -1,8 +1,8 @@
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::common::Orientation;
-use crate::components::primitives::tabs::{
+use capi_primitives::common::Orientation;
+use capi_primitives::tabs::{
     Panel as TabsPanelPrmitive, Tab as TabPrimitive, TabIndicator as TabIndicatorPrimitive,
     TabsList as TabsListPrimitive, TabsRoot as TabsRooutPrimitive,
 };

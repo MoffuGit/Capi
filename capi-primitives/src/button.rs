@@ -1,7 +1,8 @@
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
-use crate::components::primitives::primitive::Primitive;
+use crate::primitive::Primitive;
+
 #[component]
 pub fn Button(
     #[prop(optional, into)] class: Signal<String>,

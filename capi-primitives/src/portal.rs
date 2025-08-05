@@ -3,7 +3,7 @@ use leptos_node_ref::AnyNodeRef;
 use leptos_portal::LeptosPortal;
 use send_wrapper::SendWrapper;
 
-use crate::components::primitives::primitive::Primitive;
+use crate::primitive::Primitive;
 
 #[component]
 pub fn Portal(
@@ -37,8 +37,8 @@ mod leptos_portal {
     use std::sync::Arc;
 
     use leptos::prelude::{
-        component, mount_to, untrack, Effect, Get, IntoView, MaybeProp, Owner, RwSignal, Set,
-        Signal, TypedChildrenFn,
+        Effect, Get, IntoView, MaybeProp, Owner, RwSignal, Set, Signal, TypedChildrenFn, component,
+        mount_to, untrack,
     };
     use leptos_dom::helpers::document;
     use leptos_node_ref::AnyNodeRef;

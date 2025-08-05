@@ -1,15 +1,13 @@
 use leptos::context::Provider;
 use leptos::html;
 use leptos::{leptos_dom::helpers::TimeoutHandle, prelude::*};
-use leptos_use::{use_element_bounding, UseElementBoundingReturn};
+use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use std::time::Duration;
 use tailwind_fuse::tw_merge;
 use web_sys::PointerEvent;
 
-use crate::components::primitives::common::status::{
-    use_transition_status, TransitionStatus, TransitionStatusState,
-};
-use crate::components::primitives::portal::Portal;
+use crate::common::status::{TransitionStatusState, use_transition_status};
+use crate::portal::Portal;
 
 #[derive(Clone)]
 struct TooltipProviderContext {
@@ -276,10 +274,18 @@ pub fn ToolTipContent(
 
     let arrow = if arrow {
         match tooltip_side {
-            ToolTipSide::Bottom => "after:content-[' '] after:absolute after:bottom-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-b-inherit",
-            ToolTipSide::Right => "after:content-[' '] after:absolute after:right-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-r-inherit",
-            ToolTipSide::Left => "after:content-[' '] after:absolute after:left-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-l-inherit",
-            ToolTipSide::Top => "after:content-[' '] after:absolute after:top-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-t-inherit",
+            ToolTipSide::Bottom => {
+                "after:content-[' '] after:absolute after:bottom-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-b-inherit"
+            }
+            ToolTipSide::Right => {
+                "after:content-[' '] after:absolute after:right-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-r-inherit"
+            }
+            ToolTipSide::Left => {
+                "after:content-[' '] after:absolute after:left-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-l-inherit"
+            }
+            ToolTipSide::Top => {
+                "after:content-[' '] after:absolute after:top-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-t-inherit"
+            }
         }
     } else {
         ""

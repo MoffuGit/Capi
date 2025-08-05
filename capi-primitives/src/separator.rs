@@ -6,9 +6,7 @@ pub use super::common::Orientation;
 #[component]
 pub fn Separator(
     #[prop(into, optional)] class: Signal<String>,
-    #[prop(into, default = Signal::from(Orientation::Horizontal))] orientation: Signal<
-        crate::components::primitives::separator::Orientation,
-    >,
+    #[prop(into, default = Signal::from(Orientation::Horizontal))] orientation: Signal<Orientation>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     view! {

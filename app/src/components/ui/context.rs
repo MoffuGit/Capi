@@ -15,7 +15,7 @@
 // - `inset` and `variant` props on DropdownMenuItem (Primitive MenuItem does not support these props)
 // - `inset` prop on DropdownMenuLabel (Primitive GroupLabel does not support this prop)
 
-use crate::components::primitives::context_menu::{
+use capi_primitives::context_menu::{
     ContextMenuContent as ContextMenuContentPrimitive,
     ContextMenuGroup as ContextMenuGroupPrimitive,
     ContextMenuGroupLabel as ContextMenuGroupLabelPrimitive,
@@ -23,7 +23,7 @@ use crate::components::primitives::context_menu::{
     ContextPortal as ContextMenuPortalPrimitive, ContextProvider as ContextMenuPrimitive,
     ContextSeparator as ContextMenuSeparatorPrimitive,
 };
-use crate::components::primitives::menu::{MenuAlign, MenuSide};
+use capi_primitives::menu::{MenuAlign, MenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 

@@ -1,9 +1,9 @@
 use leptos::{html, prelude::*};
-use leptos_use::{use_element_bounding, UseElementBoundingReturn};
+use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use tailwind_fuse::tw_merge;
 
-use crate::components::primitives::common::status::TransitionStatusState;
-use crate::components::primitives::menu::MenuProviderContext;
+use crate::common::status::TransitionStatusState;
+use crate::menu::MenuProviderContext;
 
 #[derive(Clone, Copy)]
 pub enum MenuSide {
@@ -56,7 +56,7 @@ pub fn MenuContent(
     });
     #[cfg(feature = "hydrate")]
     {
-        use leptos_use::{on_click_outside_with_options, OnClickOutsideOptions};
+        use leptos_use::{OnClickOutsideOptions, on_click_outside_with_options};
 
         let _ = on_click_outside_with_options(
             mount_ref,
@@ -95,11 +95,19 @@ pub fn MenuContent(
     let arrow = move || {
         if arrow {
             match side.get() {
-            MenuSide::Bottom => "after:content-[' '] after:absolute after:bottom-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-b-inherit",
-            MenuSide::Right => "after:content-[' '] after:absolute after:right-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-r-inherit",
-            MenuSide::Left => "after:content-[' '] after:absolute after:left-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-l-inherit",
-            MenuSide::Top => "after:content-[' '] after:absolute after:top-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-t-inherit",
-        }
+                MenuSide::Bottom => {
+                    "after:content-[' '] after:absolute after:bottom-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-b-inherit"
+                }
+                MenuSide::Right => {
+                    "after:content-[' '] after:absolute after:right-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-r-inherit"
+                }
+                MenuSide::Left => {
+                    "after:content-[' '] after:absolute after:left-[100%] after:top-[50%] after:mt-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-l-inherit"
+                }
+                MenuSide::Top => {
+                    "after:content-[' '] after:absolute after:top-[100%] after:left-[50%] after:ml-[-3px] after:border-[3px] after:border-solid after:border-transparent after:border-t-inherit"
+                }
+            }
         } else {
             ""
         }

@@ -1,9 +1,9 @@
 use leptos::context::Provider;
 use leptos::prelude::*;
 
-use crate::components::primitives::common::status::use_transition_status;
-use crate::components::primitives::menu::MenuProviderContext;
-use crate::components::primitives::portal::Portal;
+use crate::common::status::use_transition_status;
+use crate::menu::MenuProviderContext;
+use crate::portal::Portal;
 
 #[component]
 pub fn MenuPortal(children: ChildrenFn) -> impl IntoView {

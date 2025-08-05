@@ -1,10 +1,8 @@
-use leptos::html::Span;
 use leptos::prelude::*;
-use leptos_dom::log;
 use tailwind_fuse::tw_merge;
 use web_sys::HtmlDivElement;
 
-use crate::components::primitives::tabs::{use_tabs_context, TabsContext};
+use crate::tabs::{TabsContext, use_tabs_context};
 
 pub fn get_indicator_position(trigger: HtmlDivElement) -> (String, String, String) {
     let trigger_x = trigger.offset_left() as f64;
@@ -43,7 +41,7 @@ pub fn TabIndicator(
 
     Effect::new(move |_| {
         if let Some(tab) = selected_ref.get() {
-            if let Some(trigger) = (tab.get()) {
+            if let Some(trigger) = tab.get() {
                 position.set(Some(get_indicator_position(trigger)));
             }
         }

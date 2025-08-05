@@ -1,8 +1,8 @@
-use crate::components::primitives::dialog::DialogOverlay as DialogOverlayPrimitive;
-use crate::components::primitives::dialog::DialogPopup as DialogPopupPrimitive;
-use crate::components::primitives::dialog::DialogPortal as DialogPortalPrimitive;
-use crate::components::primitives::dialog::DialogRoot as DialogPrimitive;
-use crate::components::primitives::dialog::DialogTrigger as DialogTriggerPrimitive;
+use capi_primitives::dialog::DialogOverlay as DialogOverlayPrimitive;
+use capi_primitives::dialog::DialogPopup as DialogPopupPrimitive;
+use capi_primitives::dialog::DialogPortal as DialogPortalPrimitive;
+use capi_primitives::dialog::DialogRoot as DialogPrimitive;
+use capi_primitives::dialog::DialogTrigger as DialogTriggerPrimitive;
 use leptos::prelude::*;
 use leptos_node_ref::AnyNodeRef;
 use send_wrapper::SendWrapper;

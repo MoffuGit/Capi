@@ -6,14 +6,14 @@ use serde::Serialize;
 
 use crate::components::auth::use_auth;
 use crate::components::icons::IconChevronDown;
-use crate::components::primitives::menu::MenuAlign;
-use crate::components::primitives::menu::MenuSide;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::dialog::*;
 use crate::components::ui::dropwdown::*;
 use crate::components::ui::input::*;
 use crate::components::ui::label::*;
+use capi_primitives::menu::MenuAlign;
+use capi_primitives::menu::MenuSide;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct CreateChannel {

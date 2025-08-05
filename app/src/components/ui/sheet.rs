@@ -1,9 +1,9 @@
-use crate::components::primitives::common::Side;
-use crate::components::primitives::dialog::DialogOverlay as SheetOverlayPrimitive;
-use crate::components::primitives::dialog::DialogPopup as SheetPopupPrimitive;
-use crate::components::primitives::dialog::DialogPortal as SheetPortalPrimitive;
-use crate::components::primitives::dialog::DialogRoot as SheetPrimitive;
-use crate::components::primitives::dialog::DialogTrigger as SheetTriggerPrimitive;
+use capi_primitives::common::Side;
+use capi_primitives::dialog::DialogOverlay as SheetOverlayPrimitive;
+use capi_primitives::dialog::DialogPopup as SheetPopupPrimitive;
+use capi_primitives::dialog::DialogPortal as SheetPortalPrimitive;
+use capi_primitives::dialog::DialogRoot as SheetPrimitive;
+use capi_primitives::dialog::DialogTrigger as SheetTriggerPrimitive;
 use leptos::prelude::*;
 use leptos_node_ref::AnyNodeRef;
 use send_wrapper::SendWrapper;

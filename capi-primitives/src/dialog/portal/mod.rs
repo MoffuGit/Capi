@@ -6,10 +6,8 @@ use leptos::prelude::*;
 use leptos_node_ref::AnyNodeRef;
 use send_wrapper::SendWrapper;
 
-use crate::components::primitives::common::status::{
-    use_transition_status, AnimationFrame, TransitionStatus,
-};
-use crate::components::primitives::portal::Portal;
+use crate::common::status::use_transition_status;
+use crate::portal::Portal;
 
 use super::root::use_dialog_root_context;
 
