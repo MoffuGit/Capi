@@ -62,17 +62,15 @@ pub fn use_transition_status(
 
     let transition_duration_ms: RwSignal<u64> = RwSignal::new(150);
 
-    Effect::new(move |_| {
-        if transition_status.get() == TransitionStatus::Opening
-            || transition_status.get() == TransitionStatus::Closing
+    #[cfg(not(feature = "ssr"))]
+    let read_style_closure = Rc::new(Closure::new(move || {
+        if let Some(element) = content_node_ref
+            .get()
+            .map(|element| element.unchecked_into::<web_sys::HtmlElement>())
         {
-            #[cfg(not(feature = "ssr"))]
-            if let Some(element) = content_node_ref
-                .get()
-                .map(|element| element.unchecked_into::<web_sys::HtmlElement>())
-                && let Some(style) = window()
-                    .and_then(|window| window.get_computed_style(&element).ok())
-                    .flatten()
+            if let Some(style) = window()
+                .and_then(|window| window.get_computed_style(&element).ok())
+                .flatten()
             {
                 let mut max_duration = 0;
 
@@ -89,18 +87,36 @@ pub fn use_transition_status(
                 }
 
                 if max_duration == 0 {
-                    warn!(
-                        "CSS read: No animation-duration or transition-duration found, defaulting to 150ms."
-                    );
                     transition_duration_ms.set(150);
                 } else {
                     transition_duration_ms.set(max_duration);
                 }
             } else {
-                warn!("CSS read: Element or computed style not available.");
+                transition_duration_ms.set(150);
             }
+        } else {
+            transition_duration_ms.set(150);
         }
-    });
+    }));
+
+    Effect::watch(
+        move || transition_status.get(),
+        move |current_status, _, _| {
+            if current_status == &TransitionStatus::Opening
+                || current_status == &TransitionStatus::Closing
+            {
+                #[cfg(not(feature = "ssr"))]
+                {
+                    // Schedule the closure to run on the next animation frame
+                    let cancel_frame = AnimationFrame::request(read_style_closure.clone());
+                    on_cleanup(move || {
+                        cancel_frame();
+                    });
+                }
+            }
+        },
+        false,
+    );
 
     Effect::new(move |_| {
         let current_open = open.get();
@@ -118,6 +134,10 @@ pub fn use_transition_status(
         }
     });
 
+    #[cfg(not(feature = "ssr"))]
+    let closure_for_animation_frame = Rc::new(Closure::new(move || {
+        transition_status.set(TransitionStatus::Opening);
+    }));
     Effect::new(move |_| {
         let current_open = open.get();
         let current_status = transition_status.get();
@@ -128,16 +148,9 @@ pub fn use_transition_status(
         {
             #[cfg(not(feature = "ssr"))]
             {
-                let transition_status_setter = transition_status;
-                let timeout_handle = set_timeout_with_handle(
-                    move || {
-                        transition_status_setter.set(TransitionStatus::Opening);
-                    },
-                    std::time::Duration::from_millis(0),
-                )
-                .expect("Failed to set timeout for Starting transition");
+                let cancel_frame = AnimationFrame::request(closure_for_animation_frame.clone());
                 on_cleanup(move || {
-                    timeout_handle.clear();
+                    cancel_frame();
                 });
             }
         }
@@ -230,95 +243,99 @@ pub fn use_transition_status(
                     on_cleanup(move || {
                         timeout_handle.clear();
                     });
-                } else {
-                    if let Some(element) = node_ref_clone
-                        .get()
-                        .map(|el| el.unchecked_into::<web_sys::HtmlElement>())
-                    {
-                        let element_for_closure = element.clone();
+                } else if let Some(element) = node_ref_clone
+                    .get()
+                    .map(|el| el.unchecked_into::<web_sys::HtmlElement>())
+                {
+                    let element_for_closure = element.clone();
 
-                        let js_closures =
-                            Rc::new(RefCell::new(Vec::<web_sys::js_sys::Function>::new()));
+                    let js_closures =
+                        Rc::new(RefCell::new(Vec::<web_sys::js_sys::Function>::new()));
 
-                        let setup_event_listener = move |event_name_str: &str,
-                                                         element: &web_sys::HtmlElement,
-                                                         closures_ref: Rc<
-                            RefCell<Vec<web_sys::js_sys::Function>>,
-                        >| {
-                            let event_name_owned = event_name_str.to_string();
-                            let element_for_callback = element_for_closure.clone();
-                            let set_status_to_closed_for_callback = set_status_to_closed.clone();
+                    let setup_event_listener = move |event_name_str: &str,
+                                                     element: &web_sys::HtmlElement,
+                                                     closures_ref: Rc<
+                        RefCell<Vec<web_sys::js_sys::Function>>,
+                    >| {
+                        let event_name_owned = event_name_str.to_string();
+                        let element_for_callback = element_for_closure.clone();
+                        let set_status_to_closed_for_callback = set_status_to_closed;
 
-                            let closure_for_event = Closure::wrap(
-                                Box::new(move |event: web_sys::Event| {
-                                    if let Some(target) = event.target()
-                                        && let Ok(html_element) = target.dyn_into::<web_sys::HtmlElement>()
-                                    {
-                                        if element_for_callback.is_same_node(Some(&html_element)) {
-                                            set_status_to_closed_for_callback();
-                                        } else {
-                                            warn!("{} event fired on a different element than expected.", event_name_owned);
-                                        }
+                        let closure_for_event =
+                            Closure::wrap(Box::new(move |event: web_sys::Event| {
+                                if let Some(target) = event.target()
+                                    && let Ok(html_element) =
+                                        target.dyn_into::<web_sys::HtmlElement>()
+                                {
+                                    if element_for_callback.is_same_node(Some(&html_element)) {
+                                        set_status_to_closed_for_callback();
+                                    } else {
+                                        warn!(
+                                            "{} event fired on a different element than expected.",
+                                            event_name_owned
+                                        );
                                     }
-                                }) as Box<dyn Fn(Event)>
-                            ).into_js_value();
+                                }
+                            }) as Box<dyn Fn(Event)>)
+                            .into_js_value();
 
-                            let options = web_sys::AddEventListenerOptions::new();
-                            options.set_once(true);
+                        let options = web_sys::AddEventListenerOptions::new();
+                        options.set_once(true);
 
-                            if let Err(e) = element
-                                .add_event_listener_with_callback_and_add_event_listener_options(
-                                    event_name_str,
-                                    closure_for_event.as_ref().unchecked_ref(),
-                                    &options,
-                                )
-                            {
-                                error!("Failed to add {} listener: {:?}", event_name_str, e);
-                                None
-                            } else {
-                                closures_ref
-                                    .borrow_mut()
-                                    .push(closure_for_event.unchecked_into());
-                                Some(())
-                            }
-                        };
+                        if let Err(e) = element
+                            .add_event_listener_with_callback_and_add_event_listener_options(
+                                event_name_str,
+                                closure_for_event.as_ref().unchecked_ref(),
+                                &options,
+                            )
+                        {
+                            error!("Failed to add {} listener: {:?}", event_name_str, e);
+                            None
+                        } else {
+                            closures_ref
+                                .borrow_mut()
+                                .push(closure_for_event.unchecked_into());
+                            Some(())
+                        }
+                    };
 
-                        setup_event_listener("animationend", &element, js_closures.clone());
-                        setup_event_listener("transitionend", &element, js_closures.clone());
+                    setup_event_listener("animationend", &element, js_closures.clone());
+                    setup_event_listener("transitionend", &element, js_closures.clone());
 
-                        let timeout_handle = set_timeout_with_handle(
-                            move || {
-                                set_status_to_closed();
-                                warn!("Fallback timeout hit for {}ms.", duration);
-                            },
-                            std::time::Duration::from_millis(duration),
-                        )
-                        .expect("Failed to set fallback timeout");
+                    let timeout_handle = set_timeout_with_handle(
+                        move || {
+                            set_status_to_closed();
+                            warn!("Fallback timeout hit for {}ms.", duration);
+                        },
+                        std::time::Duration::from_millis(duration),
+                    )
+                    .expect("Failed to set fallback timeout");
 
-                        on_cleanup({
-                            let closures_to_drop = SendWrapper::new(js_closures.clone());
-                            move || {
-                                closures_to_drop.take().borrow_mut().clear();
-                                timeout_handle.clear();
-                            }
-                        });
-                    } else {
-                        warn!(
-                            "Element for animationend/transitionend listener not found for closing transition, falling back to timeout."
-                        );
-                        let transition_status_setter_fallback = transition_status;
-                        let timeout_handle = set_timeout_with_handle(
-                            move || {
-                                transition_status_setter_fallback.set(TransitionStatus::Closed);
-                                warn!("Fallback timeout hit (no element): TransitionStatus set to Closed.");
-                            },
-                            std::time::Duration::from_millis(duration),
-                        )
-                        .expect("Failed to set timeout for Undefined transition (fallback)");
-                        on_cleanup(move || {
+                    on_cleanup({
+                        let closures_to_drop = SendWrapper::new(js_closures.clone());
+                        move || {
+                            closures_to_drop.take().borrow_mut().clear();
                             timeout_handle.clear();
-                        });
-                    }
+                        }
+                    });
+                } else {
+                    warn!(
+                        "Element for animationend/transitionend listener not found for closing transition, falling back to timeout."
+                    );
+                    let transition_status_setter_fallback = transition_status;
+                    let timeout_handle = set_timeout_with_handle(
+                        move || {
+                            transition_status_setter_fallback.set(TransitionStatus::Closed);
+                            warn!(
+                                "Fallback timeout hit (no element): TransitionStatus set to Closed."
+                            );
+                        },
+                        std::time::Duration::from_millis(duration),
+                    )
+                    .expect("Failed to set timeout for Undefined transition (fallback)");
+                    on_cleanup(move || {
+                        timeout_handle.clear();
+                    });
                 }
             }
         }
