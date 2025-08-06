@@ -16,12 +16,25 @@ use serde::Serialize;
 use self::messages::Messages;
 use self::sender::Sender;
 
+#[derive(Debug, PartialEq, Serialize, Clone)]
+pub struct GetMemberEmojis {
+    #[serde(rename = "memberId")]
+    member: String,
+}
+
+impl Query<Vec<String>> for GetMemberEmojis {
+    fn name(&self) -> String {
+        "reaction:getMemberEmojis".into()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct ChatContext {
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
     pub attachments: RwSignal<Vec<ClientFile>>,
     pub cached_members: Memo<Option<HashMap<String, Member>>>,
-    pub target_message_id: RwSignal<Option<String>>, // Add this line
+    pub target_message_id: RwSignal<Option<String>>,
+    pub reactions: Signal<Option<Vec<String>>>,
 }
 
 #[derive(Debug, Serialize, PartialEq, Clone)]
@@ -189,13 +202,21 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
             None
         }
     });
+    let member_reactions = UseQuery::new(move || {
+        member
+            .get()
+            .map(|member| GetMemberEmojis { member: member.id })
+    });
+
+    let reactions = Signal::derive(move || member_reactions.get().and_then(|res| res.ok()));
     view! {
         <div/>
         <Provider value=ChatContext {
             msg_reference: RwSignal::new(None),
             attachments: RwSignal::new(vec![]),
             cached_members,
-           target_message_id
+            target_message_id,
+            reactions
         }>
             <div class="flex h-full w-full flex-col relative">
                 <Messages messages=display_items_memo sender_ref=sender_ref/>

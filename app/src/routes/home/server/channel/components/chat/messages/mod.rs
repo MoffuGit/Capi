@@ -1,4 +1,12 @@
 mod group;
+mod message_attachments;
+mod message_content;
+mod message_header;
+mod message_item;
+mod message_reactions;
+mod message_reference;
+mod utils;
+
 use leptos::html::Div;
 use leptos::prelude::*;
 use leptos_use::{use_element_bounding, UseElementBoundingReturn};

@@ -34,7 +34,8 @@ export default defineSchema({
     emoji: v.string(),
   })
     .index("by_message_member_emoji", ["message", "member", "emoji"])
-    .index("by_message_and_member", ["message", "member"]),
+    .index("by_message_and_member", ["message", "member"])
+    .index("by_member", ["member"]), // Added index
   messageReactionCounts: defineTable({
     message: v.id("messages"),
     emoji: v.string(),
