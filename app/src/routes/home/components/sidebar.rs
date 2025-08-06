@@ -2,6 +2,7 @@ use api::presence::GetUserStatus;
 use api::server::GetServers;
 pub use api::server::ServerData;
 use api::sidebar::SideBarState;
+use common::convex::PresenceStatus;
 use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 
@@ -92,10 +93,17 @@ pub fn Profile() -> impl IntoView {
                         }
                     </Avatar>
                     <div class="flex justify-between flex-col h-full px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expqnded]:opacity-100 min-w-0">
-                        <div class="text-sm truncate font-light">
+                        <div class="text-xs truncate font-light">
                             {move || user.get().map(|user| user.name)}
                         </div>
-                        <Badge class="h-4 rounded-sm px-1.5" variant=BadgeVariant::Outline>
+                        <Badge class="h-4 rounded-sm px-1.5" variant=Signal::derive(move || {
+                            match status.get().and_then(|res| res.ok()).flatten() {
+                                Some(PresenceStatus::Online) => BadgeVariant::Online,
+                                Some(PresenceStatus::NotDisturb) => BadgeVariant::NotDisturb,
+                                Some(PresenceStatus::Idle) => BadgeVariant::Idle,
+                                _ => BadgeVariant::Secondary
+                            }
+                        })>
                             {move || status.get().and_then(|res| res.ok()).flatten().map(|status| {
                                 status.to_string()
                             })}

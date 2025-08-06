@@ -19,23 +19,18 @@ pub enum BadgeVariant {
     Destructive,
     #[tw(class = "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground")]
     Outline,
-    //Status
     #[tw(
-        class = "border-transparent bg-lime-50 text-secondary-foreground [a&]:hover:bg-secondary/90"
-    )]
-    Online,
-    #[tw(
-        class = "border-transparent bg-lime-300 text-secondary-foreground [a&]:hover:bg-secondary/90"
-    )]
-    Idle,
-    #[tw(
-        class = "border-transparent bg-lime-300 text-secondary-foreground [a&]:hover:bg-secondary/90"
+        class = "bg-[oklch(58.34%_0.20677121452071168_277.43192324218336)]/10 border-[oklch(58.34%_0.20677121452071168_277.43192324218336)] text-[oklch(58.34%_0.20677121452071168_277.43192324218336)]"
     )]
     NotDisturb,
     #[tw(
-        class = "border-transparent bg-lime-300 text-secondary-foreground [a&]:hover:bg-secondary/90"
+        class = "bg-[oklch(83.38%_0.16559104756620588_84.44076417390266)]/10 border-[oklch(83.38%_0.16559104756620588_84.44076417390266)] text-[oklch(83.38%_0.16559104756620588_84.44076417390266)]"
     )]
-    Invisible,
+    Idle,
+    #[tw(
+        class = "bg-[oklch(76.51%_0.20332783629621082_130.4768088467706)]/10 border-[oklch(76.51%_0.20332783629621082_130.4768088467706)] text-[oklch(76.51%_0.20332783629621082_130.4768088467706)] [a&]:hover:bg-secondary/90"
+    )]
+    Online,
 }
 
 #[component]
