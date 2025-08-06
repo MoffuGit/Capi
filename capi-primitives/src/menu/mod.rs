@@ -5,6 +5,7 @@ mod group_label;
 mod item;
 mod portal;
 mod separator;
+mod sub_menu;
 mod trigger;
 use leptos::context::Provider;
 use leptos::{html, prelude::*};
@@ -16,6 +17,7 @@ pub use group_label::*;
 pub use item::*;
 pub use portal::*;
 pub use separator::*;
+pub use sub_menu::*;
 pub use trigger::*;
 
 #[derive(Clone)]

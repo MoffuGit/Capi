@@ -8,6 +8,10 @@ pub use super::menu::MenuItem as ContextMenuItem;
 pub use super::menu::MenuPortal as ContextPortal;
 pub use super::menu::MenuProvider as ContextProvider;
 pub use super::menu::MenuSeparator as ContextSeparator;
+pub use super::menu::SubMenuContent as ContextSubMenuContent;
+pub use super::menu::SubMenuPortal as ContextSubMenuPortal;
+pub use super::menu::SubMenuProvider as ContextSubMenuProvider;
+pub use super::menu::SubMenuTrigger as ContextSubMenuTrigger;
 
 use leptos::prelude::*;
 use leptos_use::UseMouseReturn;

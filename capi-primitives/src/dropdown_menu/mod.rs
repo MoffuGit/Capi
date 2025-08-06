@@ -7,3 +7,6 @@ pub use super::menu::MenuPortal as DropdownPortal;
 pub use super::menu::MenuProvider as DropdownProvider;
 pub use super::menu::MenuSeparator as DropdownSeparator;
 pub use super::menu::MenuTrigger as DropdownMenuTrigger;
+pub use super::menu::SubMenuContent as DropdownSubMenuContent;
+pub use super::menu::SubMenuProvider as DropdownSubMenuProvider;
+pub use super::menu::SubMenuTrigger as DropdownSubMenuTrigger;

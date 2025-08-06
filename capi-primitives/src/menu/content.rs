@@ -130,11 +130,6 @@ pub fn MenuContent(
     view! {
         <div
             style=move || format!("{}; {}", position.get(), helper.get())
-            style:visibility=move || if context.hidden.get() {
-                "hidden"
-            } else {
-                "visible"
-            }
             class=format!("absolute z-50 left-0 top-0")
             node_ref=mount_ref
             data-state=move || transition_status.transition_status.get().to_string()
@@ -163,11 +158,11 @@ pub fn MenuContent(
 
 #[derive(Debug, PartialEq)]
 pub struct MenuPositionReturn {
-    x: Memo<f64>,
-    y: Memo<f64>,
+    pub x: Memo<f64>,
+    pub y: Memo<f64>,
 }
 
-fn use_menu_position(
+pub fn use_menu_position(
     content_ref: NodeRef<html::Div>,
     trigger_width: RwSignal<f64>,
     trigger_height: RwSignal<f64>,

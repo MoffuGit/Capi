@@ -3,7 +3,6 @@ mod components;
 use common::convex::{Channel, Member, Role};
 use convex_client::leptos::{Mutation, Query, UseMutation, UseQuery};
 use leptos::prelude::*;
-use leptos_dom::error;
 use leptos_router::hooks::use_location;
 use serde::{Deserialize, Serialize};
 

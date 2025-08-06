@@ -122,9 +122,16 @@ pub fn MessageItem(
                     <IconCornerUpLeft />
                     "Reply"
                 </ContextMenuItem>
-                <ContextMenuItem>
-                    "React"
-                </ContextMenuItem>
+                <ContextSubMenu>
+                    <ContextSubTrigger>
+                        "React"
+                    </ContextSubTrigger>
+                    <ContextSubContent>
+                        <ContextMenuItem>
+                            "a reaction"
+                        </ContextMenuItem>
+                    </ContextSubContent>
+                </ContextSubMenu>
             </ContextMenuContent>
         </ContextMenu>
     }

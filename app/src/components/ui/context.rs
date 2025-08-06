@@ -22,10 +22,16 @@ use capi_primitives::context_menu::{
     ContextMenuItem as ContextMenuItemPrimitive, ContextMenuTrigger as ContextMenuTriggerPrimitive,
     ContextPortal as ContextMenuPortalPrimitive, ContextProvider as ContextMenuPrimitive,
     ContextSeparator as ContextMenuSeparatorPrimitive,
+    ContextSubMenuContent as ContextSubMenuContentPrimitive,
+    ContextSubMenuPortal as ContextSubMenuPortalPrimitive,
+    ContextSubMenuProvider as ContextSubMenuProviderPrimitive,
+    ContextSubMenuTrigger as ContextSubMenuTriggerPrimitive,
 };
 use capi_primitives::menu::{MenuAlign, MenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
+
+use crate::components::icons::IconChevronRight;
 
 #[component]
 pub fn ContextMenu(
@@ -164,5 +170,43 @@ pub fn ContextMenuSeparator(#[prop(optional, into)] class: Signal<String>) -> im
         <ContextMenuSeparatorPrimitive
             class=Signal::derive(move || tw_merge!(base_class, class.get()))
         />
+    }
+}
+
+#[component]
+pub fn ContextSubMenu(children: Children) -> impl IntoView {
+    view! {
+        <ContextSubMenuProviderPrimitive>
+            {children()}
+        </ContextSubMenuProviderPrimitive>
+    }
+}
+
+#[component]
+pub fn ContextSubTrigger(children: Children) -> impl IntoView {
+    view! {
+        <ContextSubMenuTriggerPrimitive
+            open_on_hover=true
+            class=Signal::derive(move || tw_merge!("focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"))
+            {..}
+            data-slot="context-menu-sub-trigger"
+        >
+            {children()}
+             <IconChevronRight class="ml-auto" />
+        </ContextSubMenuTriggerPrimitive>
+    }
+}
+
+#[component]
+pub fn ContextSubContent(children: ChildrenFn) -> impl IntoView {
+    let children = StoredValue::new(children);
+    view! {
+        <ContextSubMenuPortalPrimitive>
+            <ContextSubMenuContentPrimitive
+                class=Signal::derive(move || tw_merge!("bg-popover text-popover-foreground data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg duration-150 ease-out-quad"))
+            >
+                {children.get_value()()}
+            </ContextSubMenuContentPrimitive>
+        </ContextSubMenuPortalPrimitive>
     }
 }
