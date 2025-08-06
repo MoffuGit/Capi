@@ -65,7 +65,7 @@ pub fn use_transition_status(
     #[cfg(not(feature = "ssr"))]
     let read_style_closure = Rc::new(Closure::new(move || {
         if let Some(element) = content_node_ref
-            .get()
+            .get_untracked()
             .map(|element| element.unchecked_into::<web_sys::HtmlElement>())
         {
             if let Some(style) = window()

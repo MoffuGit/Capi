@@ -4,8 +4,10 @@ use leptos::{leptos_dom::helpers::TimeoutHandle, prelude::*};
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use std::time::Duration;
 use tailwind_fuse::tw_merge;
-use web_sys::PointerEvent;
 
+use crate::common::floating::{
+    HoverAreaProvider, use_hover_area_item_handlers, use_is_hovering_area,
+};
 use crate::common::status::{TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
 
@@ -106,7 +108,9 @@ pub fn ToolTipProvider(
                     content_ref
                 }
         >
-        {children()}
+            <HoverAreaProvider timeout_duration_ms=0 enabled=RwSignal::new(true)>
+                {children()}
+            </HoverAreaProvider>
         </Provider>
     }
 }
@@ -118,40 +122,46 @@ pub fn ToolTipTrigger(
     #[prop(optional, default = true)] close_on_click: bool,
     #[prop(optional, into)] on_click: Option<Callback<()>>,
 ) -> impl IntoView {
-    let provider_context = use_context::<TooltipProviderContext>().expect("have this context");
-    let is_hover = RwSignal::new(false);
-    let trigger_ref = provider_context.trigger_ref;
+    let TooltipProviderContext {
+        trigger_ref,
+        on_close,
+        on_open,
+        on_trigger_enter,
+        on_trigger_leave,
+        ..
+    } = use_context::<TooltipProviderContext>().expect("have this context");
+
+    let is_hovering_area = use_is_hovering_area();
+
+    Effect::new(move |_| {
+        if is_hovering_area.get() {
+            on_trigger_enter.get();
+        } else {
+            on_trigger_leave.get();
+        }
+    });
+
+    let (on_pointer_enter_handler, on_pointer_leave_handler) = use_hover_area_item_handlers();
 
     view! {
         <div
-            node_ref={trigger_ref}
+            node_ref=trigger_ref
             class=class
-            on:pointermove=move |evt: PointerEvent| {
-                if evt.pointer_type() == "touch" {
-                    return;
-                }
-                if !is_hover.get_untracked() {
-                    provider_context.on_trigger_enter.get_untracked();
-                    is_hover.update_untracked(|value| *value = true)
-                }
-            }
-            on:pointerleave=move |_| {
-                provider_context.on_trigger_leave.get_untracked();
-                is_hover.update_untracked(|value| *value = false)
-            }
+            on:pointerenter=on_pointer_enter_handler
+            on:pointerleave=on_pointer_leave_handler
             on:click=move |_evt| {
                 if close_on_click {
-                    provider_context.on_close.get_untracked();
+                    on_close.get_untracked();
                 }
                 if let Some(on_click) = on_click {
                     on_click.run(())
                 }
             }
             on:wheel=move |_| {
-                provider_context.on_close.get_untracked();
+                on_close.get_untracked();
             }
             on:focus=move |_| {
-                provider_context.on_open.get_untracked();
+                on_open.get_untracked();
             }
         >
             {children()}
@@ -293,6 +303,8 @@ pub fn ToolTipContent(
 
     let children = StoredValue::new(children);
 
+    let (on_pointer_enter_handler, on_pointer_leave_handler) = use_hover_area_item_handlers();
+
     view! {
         <div
             data-state=move || transition_status.transition_status.get().to_string()
@@ -306,6 +318,8 @@ pub fn ToolTipContent(
                 ToolTipSide::Right => "right",
                 ToolTipSide::Top => "top",
             })
+            on:pointerenter=on_pointer_enter_handler
+            on:pointerleave=on_pointer_leave_handler
             class=format!("absolute z-50 left-0 top-0 font-normal")
         >
             <div

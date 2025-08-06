@@ -1,9 +1,5 @@
 use leptos::{html, prelude::*};
-use leptos_dom::error;
-use leptos_use::{
-    OnClickOutsideOptions, UseElementBoundingReturn, on_click_outside_with_options,
-    use_element_bounding,
-};
+use leptos_use::{UseElementBoundingReturn, on_click_outside_with_options, use_element_bounding};
 use tailwind_fuse::tw_merge;
 
 use super::{MenuAlign, MenuPositionReturn, MenuProviderContext, MenuSide, use_menu_position};
@@ -200,7 +196,6 @@ pub fn SubMenuContent(
         }
     };
 
-    // Retrieve TransitionStatusState from context, provided by SubMenuPortal
     let transition_status_state = use_context::<TransitionStatusState>()
         .expect("should access the transition context provided by SubMenuPortal");
 
@@ -239,7 +234,6 @@ pub fn SubMenuContent(
         )
     });
 
-    // Get hover handlers from the new reusable hook
     let (on_pointer_enter_handler, on_pointer_leave_handler) = use_hover_area_item_handlers();
 
     view! {
