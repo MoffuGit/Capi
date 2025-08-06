@@ -10,6 +10,8 @@ pub fn Header() -> impl IntoView {
             <TabsList class="gap-2">
                 <A
                     href="/servers"
+                    {..}
+                    class="z-20"
                 >
                     <Tab set_on_click=false value="servers">
                         "Servers"
@@ -17,6 +19,8 @@ pub fn Header() -> impl IntoView {
                 </A>
                 <A
                     href="/servers/#discover"
+                    {..}
+                    class="z-20"
                 >
                     <Tab set_on_click=false value="discover"
                         {..}
@@ -27,7 +31,7 @@ pub fn Header() -> impl IntoView {
                         "Discover"
                     </Tab>
                 </A>
-                <TabIndicator/>
+                <TabIndicator class="z-10"/>
             </TabsList>
         </header>
     }

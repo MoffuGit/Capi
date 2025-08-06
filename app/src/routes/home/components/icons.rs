@@ -1,6 +1,7 @@
 use convex_client::leptos::{Mutation, UseMutation};
 use leptos::prelude::*;
 use leptos_router::components::A;
+use leptos_router::hooks::use_location;
 use serde::Serialize;
 
 use crate::components::icons::{
@@ -50,10 +51,10 @@ pub fn SidebarIcons(
                 <SidebarGroup>
                     <SidebarGroupContent class="px-1.5 md:px-0">
                         <SidebarMenu>
-                            <Direct set_option=set_option/>
+                            <Direct set_option=set_option option=option/>
                             <InboxOption option=option/>
                             <SearchOption option=option/>
-                            <ServerMenu set_option=set_option/>
+                            <ServerMenu set_option=set_option option=option/>
                             <SidebarSeparator
                                 class="mr-2 data-[orientation=horizontal]:w-4 my-0.5"
                             />
@@ -67,7 +68,10 @@ pub fn SidebarIcons(
 }
 
 #[component]
-pub fn Direct(set_option: Callback<()>) -> impl IntoView {
+pub fn Direct(set_option: Callback<()>, option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
+    let location = use_location();
+    let is_current_route =
+        Signal::derive(move || location.pathname.get() == "/servers/me" && option.get().is_none());
     view! {
         <SidebarMenuItem>
             <ToolTip>
@@ -77,10 +81,11 @@ pub fn Direct(set_option: Callback<()>) -> impl IntoView {
                         on:click=move |_| set_option.run(())
                     >
                         <SidebarMenuButton
+                            is_active=is_current_route
                             size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
-                            class="md:h-8 md:p-0 flex items-center justify-center"
+                            class="md:h-8 md:p-0 flex items-center justify-center group/button"
                         >
-                            <IconMessageCircle />
+                            <IconMessageCircle class="text-sidebar-foreground/70 group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground transition-[color,font-weight] duration-150 ease-out"/>
                         </SidebarMenuButton>
                     </A>
                 </ToolTipTrigger>
@@ -100,13 +105,14 @@ pub fn InboxOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
             <ToolTip>
                 <ToolTipTrigger>
                     <SidebarMenuButton
-                        class="px-2.5 md:px-2"
+                        class="px-2.5 md:px-2 group/button"
+                        is_active=Signal::derive(move || option.get() == Some(SideBarOption::Inbox))
                         {..}
                         on:click=move |_| {
                             option.set(Some(SideBarOption::Inbox))
                         }
                     >
-                        <IconInbox />
+                        <IconInbox class="text-sidebar-foreground/70 group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground transition-[color,font-weight] duration-150 ease-out" />
                     </SidebarMenuButton>
                 </ToolTipTrigger>
                 <ToolTipContent side_of_set=3.0>
@@ -125,13 +131,14 @@ pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
             <ToolTip>
                 <ToolTipTrigger>
                     <SidebarMenuButton
-                        class="px-2.5 md:px-2"
+                        class="px-2.5 md:px-2 group/button"
+                        is_active=Signal::derive(move || option.get() == Some(SideBarOption::Search))
                         {..}
                         on:click=move |_| {
                             option.set(Some(SideBarOption::Search))
                         }
                     >
-                        <IconSearch />
+                        <IconSearch class="text-sidebar-foreground/70 group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground transition-[color,font-weight] duration-150 ease-out"/>
                     </SidebarMenuButton>
                 </ToolTipTrigger>
                 <ToolTipContent side_of_set=3.0 >
@@ -144,9 +151,15 @@ pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
 }
 
 #[component]
-pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
+pub fn ServerMenu(
+    set_option: Callback<()>,
+    option: RwSignal<Option<SideBarOption>>,
+) -> impl IntoView {
     let create_open = RwSignal::new(false);
     let join_open = RwSignal::new(false);
+    let location = use_location();
+    let is_current_route =
+        Signal::derive(move || (location.pathname.get() == "/servers" && option.get().is_none()));
     view! {
         <SidebarMenuItem>
             <ContextMenu>
@@ -159,9 +172,10 @@ pub fn ServerMenu(set_option: Callback<()>) -> impl IntoView {
                         <ToolTip>
                             <ToolTipTrigger>
                             <SidebarMenuButton
-                              class="px-2.5 md:px-2"
+                                is_active=is_current_route
+                                class="px-2.5 md:px-2 group/button"
                             >
-                                <IconGlobe />
+                                <IconGlobe class="text-sidebar-foreground/70 group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground transition-[color,font-weight] duration-150 ease-out" />
                             </SidebarMenuButton>
                             </ToolTipTrigger>
                             <ToolTipContent >

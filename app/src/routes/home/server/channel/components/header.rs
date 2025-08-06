@@ -45,7 +45,7 @@ pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) ->
                     })
                 }
             }
-            <div class="ml-auto mr-0 space-x-1">
+            <div class="ml-auto mr-0 space-x-1 gap-2">
                 <Button
                     variant=ButtonVariants::Ghost
                     size=ButtonSizes::Icon
