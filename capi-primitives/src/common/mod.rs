@@ -33,8 +33,8 @@ pub fn is_mobile() -> Memo<bool> {
     #[cfg(not(feature = "ssr"))]
     {
         use send_wrapper::SendWrapper;
-        use wasm_bindgen::prelude::Closure;
         use wasm_bindgen::JsCast;
+        use wasm_bindgen::prelude::Closure;
         let update = move || {
             set_window_size(
                 window()

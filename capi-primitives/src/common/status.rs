@@ -1,11 +1,12 @@
 use leptos::html::Div;
-use leptos::logging::error;
+use leptos::logging::{error, warn};
 use leptos::prelude::*;
-use leptos_dom::warn;
+use send_wrapper::SendWrapper;
+use std::cell::RefCell;
 use std::rc::Rc;
-use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
-use web_sys::window;
+use wasm_bindgen::prelude::Closure;
+use web_sys::{Event, window};
 
 #[derive(Clone, Copy)]
 pub struct AnimationFrame;
@@ -52,53 +53,51 @@ fn parse_css_duration(duration_str: &str) -> Option<u64> {
 
 pub fn use_transition_status(
     open: Signal<bool>,
-    content_node_ref: NodeRef<Div>, // New parameter to get the element for CSS reading
+    content_node_ref: NodeRef<Div>,
     enable_idle_state: bool,
     defer_ending_state: bool,
 ) -> TransitionStatusState {
-    // Always start in Undefined, allow effects to transition to Idle.
     let transition_status: RwSignal<TransitionStatus> = RwSignal::new(TransitionStatus::Closed);
-    // `mounted` controls whether the dialog content (Portal) is in the DOM.
-    // It should be true when the dialog is in any active transition state (Starting, Ending, Idle),
-    // and false when it's Undefined (i.e., fully closed and removed from DOM).
     let mounted: RwSignal<bool> = RwSignal::new(false);
 
-    // New signal to store the dynamically determined transition duration from CSS
-    let transition_duration_ms: RwSignal<u64> = RwSignal::new(150); // Default fallback duration (e.g., for SSR or if style not found)
+    let transition_duration_ms: RwSignal<u64> = RwSignal::new(150);
 
-    // Effect to read the transition-duration from the content_node_ref element
     Effect::new(move |_| {
         if transition_status.get() == TransitionStatus::Opening
             || transition_status.get() == TransitionStatus::Closing
         {
             #[cfg(not(feature = "ssr"))]
-            if let Some(element) = content_node_ref.get() {
-                let element: web_sys::HtmlElement = element.unchecked_into();
-                if let Some(window) = window() {
-                    if let Ok(Some(style)) = window.get_computed_style(&element) {
-                        if let Ok(duration_str) = style.get_property_value("transition-duration") {
-                            if let Some(parsed_duration) = parse_css_duration(&duration_str) {
-                                transition_duration_ms.set(parsed_duration);
-                            } else {
-                                leptos::logging::error!("Could not parse transition-duration CSS property: '{}'. Falling back to 150ms.", duration_str);
-                                transition_duration_ms.set(150); // Fallback if parsing fails
-                            }
-                        } else {
-                            leptos::logging::warn!(
-                                "'transition-duration' CSS property not found. Falling back to 150ms."
-                            );
-                            transition_duration_ms.set(150); // Fallback if property not found
-                        }
-                    } else {
-                        leptos::logging::warn!(
-                            "Could not get computed style for content element. Falling back to 150ms."
-                        );
-                        transition_duration_ms.set(150); // Fallback if get_computed_style fails
-                    }
-                } else {
-                    leptos::logging::warn!("Window object not available. Falling back to 150ms.");
-                    transition_duration_ms.set(150); // Fallback if window is not available (shouldn't happen on client)
+            if let Some(element) = content_node_ref
+                .get()
+                .map(|element| element.unchecked_into::<web_sys::HtmlElement>())
+                && let Some(style) = window()
+                    .and_then(|window| window.get_computed_style(&element).ok())
+                    .flatten()
+            {
+                let mut max_duration = 0;
+
+                if let Ok(duration_str) = style.get_property_value("animation-duration")
+                    && let Some(parsed_duration) = parse_css_duration(&duration_str)
+                {
+                    max_duration = max_duration.max(parsed_duration);
                 }
+
+                if let Ok(duration_str) = style.get_property_value("transition-duration")
+                    && let Some(parsed_duration) = parse_css_duration(&duration_str)
+                {
+                    max_duration = max_duration.max(parsed_duration);
+                }
+
+                if max_duration == 0 {
+                    warn!(
+                        "CSS read: No animation-duration or transition-duration found, defaulting to 150ms."
+                    );
+                    transition_duration_ms.set(150);
+                } else {
+                    transition_duration_ms.set(max_duration);
+                }
+            } else {
+                warn!("CSS read: Element or computed style not available.");
             }
         }
     });
@@ -119,28 +118,22 @@ pub fn use_transition_status(
         }
     });
 
-    // Effect 3: Set `transition_status` to `Starting` when dialog opens or re-opens,
-    // and then schedule transition to `Idle` if enabled.
     Effect::new(move |_| {
         let current_open = open.get();
         let current_status = transition_status.get();
 
-        // Condition for setting to Starting:
-        // If open and not already in Starting or Idle (meaning it's closed or just mounted)
         if current_open
             && (current_status == TransitionStatus::Closed
                 || current_status == TransitionStatus::Closing)
         {
-            // Delay setting 'Starting' using a 0ms timeout to ensure the DOM renders
-            // the initial state before applying the 'Starting' state for animation.
             #[cfg(not(feature = "ssr"))]
             {
-                let transition_status_setter = transition_status; // Capture RwSignal
+                let transition_status_setter = transition_status;
                 let timeout_handle = set_timeout_with_handle(
                     move || {
                         transition_status_setter.set(TransitionStatus::Opening);
                     },
-                    std::time::Duration::from_millis(0), // Defer to next event loop tick
+                    std::time::Duration::from_millis(0),
                 )
                 .expect("Failed to set timeout for Starting transition");
                 on_cleanup(move || {
@@ -155,8 +148,6 @@ pub fn use_transition_status(
         let current_status = transition_status.get();
         let enable_idle_captured = enable_idle_state;
 
-        // Only transition to Idle if the component is currently opening (Starting)
-        // and the `open` signal is still true, and Idle state is enabled.
         if current_open && current_status == TransitionStatus::Opening && enable_idle_captured {
             #[cfg(not(feature = "ssr"))]
             {
@@ -165,7 +156,7 @@ pub fn use_transition_status(
                     move || {
                         transition_status_setter.set(TransitionStatus::Open);
                     },
-                    std::time::Duration::from_millis(transition_duration_ms.get()), // Use dynamically read duration
+                    std::time::Duration::from_millis(transition_duration_ms.get()),
                 )
                 .expect("Failed to set timeout for Idle transition");
                 on_cleanup(move || {
@@ -175,12 +166,10 @@ pub fn use_transition_status(
         }
     });
 
-    // Effect 4: Set `transition_status` to `Ending` immediately on close if not deferred.
-    // This initiates the closing animation for non-deferred cases.
     Effect::new(move |_| {
         let current_open = open.get();
         let current_status = transition_status.get();
-        let current_mounted = mounted.get(); // Track mounted to ensure it's still active
+        let current_mounted = mounted.get();
 
         if !current_open
             && current_mounted
@@ -196,8 +185,6 @@ pub fn use_transition_status(
         transition_status.set(TransitionStatus::Closing);
     }));
 
-    // Effect 5: Deferred `Ending` transition using `AnimationFrame` for closing animations.
-    // This effect determines *when* the 'Ending' status is set if deferred.
     Effect::new(move |_| {
         #[cfg(not(feature = "ssr"))]
         {
@@ -218,29 +205,122 @@ pub fn use_transition_status(
         }
     });
 
-    // Effect: From Ending to Undefined after animation completes.
-    // This handles the "animation out" completion.
     Effect::new(move |_| {
         let current_open = open.get();
         let current_status = transition_status.get();
+        let node_ref_clone = content_node_ref;
 
         if !current_open && current_status == TransitionStatus::Closing {
-            let transition_status_setter = transition_status;
-            let timeout_handle = set_timeout_with_handle(
-                move || {
+            #[cfg(not(feature = "ssr"))]
+            {
+                let duration = transition_duration_ms.get_untracked();
+
+                let transition_status_setter = transition_status;
+
+                let set_status_to_closed = move || {
                     transition_status_setter.set(TransitionStatus::Closed);
-                },
-                std::time::Duration::from_millis(
-                    transition_duration_ms
+                };
+
+                if duration == 0 {
+                    let timeout_handle = set_timeout_with_handle(
+                        set_status_to_closed,
+                        std::time::Duration::from_millis(0),
+                    )
+                    .expect("Failed to set 0ms timeout for immediate Closed transition");
+                    on_cleanup(move || {
+                        timeout_handle.clear();
+                    });
+                } else {
+                    if let Some(element) = node_ref_clone
                         .get()
-                        .checked_sub(10)
-                        .unwrap_or_default(),
-                ), // Use dynamically read duration
-            )
-            .expect("Failed to set timeout for Undefined transition");
-            on_cleanup(move || {
-                timeout_handle.clear();
-            });
+                        .map(|el| el.unchecked_into::<web_sys::HtmlElement>())
+                    {
+                        let element_for_closure = element.clone();
+
+                        let js_closures =
+                            Rc::new(RefCell::new(Vec::<web_sys::js_sys::Function>::new()));
+
+                        let setup_event_listener = move |event_name_str: &str,
+                                                         element: &web_sys::HtmlElement,
+                                                         closures_ref: Rc<
+                            RefCell<Vec<web_sys::js_sys::Function>>,
+                        >| {
+                            let event_name_owned = event_name_str.to_string();
+                            let element_for_callback = element_for_closure.clone();
+                            let set_status_to_closed_for_callback = set_status_to_closed.clone();
+
+                            let closure_for_event = Closure::wrap(
+                                Box::new(move |event: web_sys::Event| {
+                                    if let Some(target) = event.target()
+                                        && let Ok(html_element) = target.dyn_into::<web_sys::HtmlElement>()
+                                    {
+                                        if element_for_callback.is_same_node(Some(&html_element)) {
+                                            set_status_to_closed_for_callback();
+                                        } else {
+                                            warn!("{} event fired on a different element than expected.", event_name_owned);
+                                        }
+                                    }
+                                }) as Box<dyn Fn(Event)>
+                            ).into_js_value();
+
+                            let options = web_sys::AddEventListenerOptions::new();
+                            options.set_once(true);
+
+                            if let Err(e) = element
+                                .add_event_listener_with_callback_and_add_event_listener_options(
+                                    event_name_str,
+                                    closure_for_event.as_ref().unchecked_ref(),
+                                    &options,
+                                )
+                            {
+                                error!("Failed to add {} listener: {:?}", event_name_str, e);
+                                None
+                            } else {
+                                closures_ref
+                                    .borrow_mut()
+                                    .push(closure_for_event.unchecked_into());
+                                Some(())
+                            }
+                        };
+
+                        setup_event_listener("animationend", &element, js_closures.clone());
+                        setup_event_listener("transitionend", &element, js_closures.clone());
+
+                        let timeout_handle = set_timeout_with_handle(
+                            move || {
+                                set_status_to_closed();
+                                warn!("Fallback timeout hit for {}ms.", duration);
+                            },
+                            std::time::Duration::from_millis(duration),
+                        )
+                        .expect("Failed to set fallback timeout");
+
+                        on_cleanup({
+                            let closures_to_drop = SendWrapper::new(js_closures.clone());
+                            move || {
+                                closures_to_drop.take().borrow_mut().clear();
+                                timeout_handle.clear();
+                            }
+                        });
+                    } else {
+                        warn!(
+                            "Element for animationend/transitionend listener not found for closing transition, falling back to timeout."
+                        );
+                        let transition_status_setter_fallback = transition_status;
+                        let timeout_handle = set_timeout_with_handle(
+                            move || {
+                                transition_status_setter_fallback.set(TransitionStatus::Closed);
+                                warn!("Fallback timeout hit (no element): TransitionStatus set to Closed.");
+                            },
+                            std::time::Duration::from_millis(duration),
+                        )
+                        .expect("Failed to set timeout for Undefined transition (fallback)");
+                        on_cleanup(move || {
+                            timeout_handle.clear();
+                        });
+                    }
+                }
+            }
         }
     });
 

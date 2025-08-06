@@ -38,6 +38,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                     href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
                     rel="stylesheet"
                 />
+                <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet"/>
             </head>
             <body>
                 <App/>

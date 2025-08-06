@@ -64,7 +64,7 @@ pub fn ThemeProvider(children: ChildrenFn) -> impl IntoView {
     };
     view! {
         <Html attr:data-theme=theme />
-        <Body {..} class=move || format!("w-full h-screen font-geist overflow-hidden {}", theme()) />
+        <Body {..} class=move || format!("w-full h-screen font-inter overflow-hidden {}", theme()) />
         {children()}
     }
 }

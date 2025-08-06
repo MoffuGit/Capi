@@ -1,8 +1,10 @@
+use std::ops::Not;
+
 use chrono::{DateTime, Duration, Local};
 use common::convex::{ChannelMessage, FileType, Member};
 use leptos::prelude::*;
 
-use crate::components::icons::IconCornerUpLeft;
+use crate::components::icons::{IconCornerUpLeft, IconImage};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::markdown::{Markdown, MarkdownParser};
@@ -130,6 +132,7 @@ pub fn MessageItem(
     let context: ChatContext = use_context().expect("should return teh chat context");
     let msg_ref = context.msg_reference;
     let cached_members = context.cached_members;
+    let target_message_id = context.target_message_id; // Assume ChatContext has this field
 
     let msg_value = msg.get_value();
 
@@ -156,8 +159,15 @@ pub fn MessageItem(
 
     view! {
         <div
+            id=msg.get_value().id.clone() // Add ID for scrolling
             data-response=move || if msg_ref.get().is_some_and(|msg_ref| msg_ref.id == msg.get_value().id) { "true" } else { "false" }
-            class="w-full h-auto transition-colors ease-out-quad duration-180 dark:data-[response=true]:bg-purple/10 dark:data-[response=true]:border-l-purple data-[response=true]:bg-red/10 data-[response=true]:border-l-red border-l border-l-transparent hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
+            data-highlight=move || if target_message_id.get().is_some_and(|id| id == msg.get_value().id) { "true" } else { "false" }
+            class="w-full h-auto transition-colors ease-out-quad duration-180
+                   dark:data-[response=true]:bg-purple/10 dark:data-[response=true]:border-l-purple
+                   data-[response=true]:bg-red/10 data-[response=true]:border-l-red
+                   dark:data-[highlight=true]:bg-purple/10 dark:data-[highlight=true]:border-l-purple
+                   data-[highlight=true]:bg-red/10 data-[highlight=true]:border-l-red
+                   border-l border-l-transparent hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"
             on:dblclick=move |_| {
                 msg_ref.update(|current| {
                     let msg = Some(msg.get_value());
@@ -172,17 +182,15 @@ pub fn MessageItem(
             <div class="absolute bg-popover text-popover-foreground flex items-center h-auto z-10 w-auto overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md group-hover:opacity-100 opacity-0 top-0 right-4 -translate-y-1/2">
                 <MessageReferenceButton msg=msg.get_value() />
             </div>
-            <Show when=move || idx == 0>
-                {
-                    move || {
-                        member.get()
-                            .map(|m| view! { <MessageHeader member=m date=date /> }.into_view())
-                    }
-                }
-            </Show>
 
             <Show when=move || msg.get_value().referenced_message.is_some()>
-                <div class="flex flex-col border-l-2 border-muted-foreground/50 pl-2 mb-1 mt-1 bg-accent/20 rounded-r-md">
+                <div class="flex flex-col border-l-2 border-muted-foreground/50 pl-2 mb-1 mt-1 bg-accent/50 cursor-pointer"
+                     on:click=move |_| {
+                         if let Some(referenced_msg) = msg.get_value().referenced_message.as_ref().map(|m| m.id.clone()) {
+                             target_message_id.set(Some(referenced_msg));
+                         }
+                     }
+                >
                     <div class="flex items-center gap-1 text-xs text-muted-foreground">
                         <IconCornerUpLeft class="size-3"/>
                         <span>
@@ -190,10 +198,30 @@ pub fn MessageItem(
                             {move || referenced_message_author.get().map(|m| view!{ <span class="font-semibold text-foreground">{m.name}</span> })}
                         </span>
                     </div>
-                    {referenced_message_content_markdown.clone().map(|md| view! {
-                        <Markdown markdown=md.into() {..} class="text-xs text-muted-foreground max-h-8 overflow-hidden line-clamp-2"/>
-                    })}
+                    <div class="text-xs text-muted-foreground flex items-center max-h-8 overflow-hidden line-clamp-2">
+                        {referenced_message_content_markdown.clone().map(|md| view! {
+                            <Markdown markdown=md.into() />
+                        })}
+                        {
+                            msg.get_value().referenced_message.and_then(|msg| {
+                                msg.attachments.is_empty().not().then(|| {
+                                    view!{
+                                        <IconImage class="size-4 ml-1" />
+                                    }
+                                })
+                            })
+                        }
+                    </div>
                 </div>
+            </Show>
+
+            <Show when=move || idx == 0>
+                {
+                    move || {
+                        member.get()
+                            .map(|m| view! { <MessageHeader member=m date=date /> }.into_view())
+                    }
+                }
             </Show>
 
             <Markdown markdown=markdown.into() />

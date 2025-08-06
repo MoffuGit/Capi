@@ -21,6 +21,7 @@ pub struct ChatContext {
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
     pub attachments: RwSignal<Vec<ClientFile>>,
     pub cached_members: Memo<Option<HashMap<String, Member>>>,
+    pub target_message_id: RwSignal<Option<String>>, // Add this line
 }
 
 #[derive(Debug, Serialize, PartialEq, Clone)]
@@ -170,12 +171,31 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
 
     let sender_ref = NodeRef::new();
 
+    let target_message_id = RwSignal::new(None);
+
+    Effect::new(move |prev: Option<Option<TimeoutHandle>>| {
+        if target_message_id.get().is_some() {
+            if let Some(Some(prev)) = prev {
+                prev.clear();
+            }
+            set_timeout_with_handle(
+                move || {
+                    target_message_id.set(None);
+                },
+                std::time::Duration::from_secs(3),
+            )
+            .ok()
+        } else {
+            None
+        }
+    });
     view! {
         <div/>
         <Provider value=ChatContext {
             msg_reference: RwSignal::new(None),
             attachments: RwSignal::new(vec![]),
-            cached_members
+            cached_members,
+           target_message_id
         }>
             <div class="flex h-full w-full flex-col relative">
                 <Messages messages=display_items_memo sender_ref=sender_ref/>

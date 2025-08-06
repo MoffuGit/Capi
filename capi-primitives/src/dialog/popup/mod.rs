@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use leptos::{html, prelude::*};
+use leptos_dom::error;
 use leptos_node_ref::AnyNodeRef;
 
 use crate::common::status::TransitionStatus;
