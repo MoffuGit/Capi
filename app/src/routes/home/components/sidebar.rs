@@ -92,7 +92,7 @@ pub fn Profile() -> impl IntoView {
                             }
                         }
                     </Avatar>
-                    <div class="flex justify-between flex-col h-full px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expqnded]:opacity-100 min-w-0">
+                    <div class="flex justify-between flex-col h-[32px] w-[152px] pl-2 pr-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 transition-all duration-200 ease-out group-data-[state=collapsed]:-translate-x-3.5">
                         <div class="text-xs truncate font-light">
                             {move || user.get().map(|user| user.name)}
                         </div>
@@ -128,7 +128,7 @@ pub fn Profile() -> impl IntoView {
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <div class="flex justify-center w-auto group-data-[state=expanded]:shrink-0 group-data-[state=collapsed]:w-0 items-center ml-auto gap-2 overflow-hidden px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expqnded]:opacity-100 transition-opacity ease-out">
+            <div class="flex justify-center w-auto group-data-[state=expanded]:shrink-0 group-data-[state=collapsed]:w-0 items-center ml-auto gap-2 overflow-hidden px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 transition-opacity ease-out duration-250">
                 <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
                     <IconMic/>
                 </Button>
