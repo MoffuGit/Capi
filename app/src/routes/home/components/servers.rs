@@ -122,7 +122,11 @@ pub fn ServerItem(
     view! {
         <ContextMenu>
             <RolesProvider roles=roles>
-                <SidebarMenuItem>
+                <SidebarMenuItem class="flex justify-center items-center group/server">
+                    <div
+                        data-active=move || is_active.get().to_string()
+                        class="absolute group-hover/server:opacity-100 opacity-0 data-[active=true]:h-4 data-[active=true]:opacity-100 left-0 -translate-x-1.5 w-0.5 h-2 rounded-md bg-primary transition-[opacity, height] ease-out-quad duration-200"
+                    />
                     <ContextMenuTrigger pointer=false >
                         <A
                             href=move || href()
