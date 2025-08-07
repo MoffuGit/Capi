@@ -20,7 +20,7 @@ pub struct SubMenuProviderContext {
     pub trigger_x: RwSignal<f64>,
     pub trigger_y: RwSignal<f64>,
     pub content_ref: NodeRef<html::Div>,
-    // New field to enable/disable hover logic for the HoverAreaProvider
+    pub transition_status: TransitionStatusState,
     pub open_on_hover_enabled: RwSignal<bool>,
 }
 
@@ -44,9 +44,12 @@ pub fn SubMenuProvider(
         }
     });
 
+    let transition_status = use_transition_status(open.into(), content_ref, true, true);
+
     view! {
         <Provider
             value=SubMenuProviderContext {
+                transition_status,
                 open,
                 hidden,
                 trigger_ref,
@@ -132,6 +135,7 @@ pub fn SubMenuTrigger(
                 }
             }
             node_ref=trigger_ref
+            data-state=move || context.transition_status.transition_status.get().to_string()
         >
             {children.map(|children| children())}
         </div>
@@ -143,16 +147,12 @@ pub fn SubMenuPortal(children: ChildrenFn) -> impl IntoView {
     let children = StoredValue::new(children);
     let context: SubMenuProviderContext =
         use_context().expect("should access the sub menu context");
-    let transition_status =
-        use_transition_status(context.open.into(), context.content_ref, true, true);
-    let mounted = transition_status.mounted;
+    let mounted = context.transition_status.mounted;
     view! {
         <Show when=move || mounted.get()>
-            <Provider value=transition_status>
-                <Portal>
-                        {children.get_value()()}
-                </Portal>
-            </Provider>
+            <Portal>
+                    {children.get_value()()}
+            </Portal>
         </Show>
     }
 }
@@ -196,8 +196,7 @@ pub fn SubMenuContent(
         }
     };
 
-    let transition_status_state = use_context::<TransitionStatusState>()
-        .expect("should access the transition context provided by SubMenuPortal");
+    let transition_status_state = context.transition_status;
 
     let arrow = move || {
         if arrow {

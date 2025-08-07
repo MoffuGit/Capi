@@ -32,6 +32,15 @@ pub fn IconFile(#[prop(into, optional)] class: Signal<String>) -> impl IntoView 
 }
 
 #[component]
+pub fn IconCircle(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <circle cx="12" cy="12" r="10"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconFileText(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>

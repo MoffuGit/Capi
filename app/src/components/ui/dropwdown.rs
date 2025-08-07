@@ -1,32 +1,23 @@
-// Missing Components and Capabilities:
-// - DropdownMenuCheckboxItem (No corresponding primitive component)
-// - DropdownMenuRadioGroup (No corresponding primitive component)
-// - DropdownMenuRadioItem (No corresponding primitive component)
-// - DropdownMenuShortcut (No corresponding primitive component)
-// - DropdownMenuSub (No corresponding primitive component)
-// - DropdownMenuSubTrigger (No corresponding primitive component)
-// - DropdownMenuSubContent (No corresponding primitive component)
-// - CheckIcon (No icon component provided)
-// - CircleIcon (No icon component provided)
-// - ChevronRightIcon (No icon component provided)
-// - `children` prop on DropdownMenuItem (Primitive MenuItem does not support children)
-// - `class` prop on DropdownMenuGroup (Primitive MenuGroup does not support a `class` prop)
-// - `class` prop on DropdownMenuLabel (Primitive GroupLabel does not support a `class` prop)
-// - `inset` and `variant` props on DropdownMenuItem (Primitive MenuItem does not support these props)
-// - `inset` prop on DropdownMenuLabel (Primitive GroupLabel does not support this prop)
-
 use capi_primitives::dropdown_menu::{
     DropdownMenuContent as DropdownMenuContentPrimitive,
     DropdownMenuGroup as DropdownMenuGroupPrimitive,
     DropdownMenuGroupLabel as DropdownMenuLabelPrimitive,
     DropdownMenuItem as DropdownMenuItemPrimitive,
+    DropdownMenuSubPortal as DropdownMenuSubPortalPrimitive,
     DropdownMenuTrigger as DropdownMenuTriggerPrimitive,
     DropdownPortal as DropdownMenuPortalPrimitive, DropdownProvider as DropdownMenuPrimitive,
+    DropdownRadioGroupProvider as DropdownRadioGroupProviderPrimitive,
+    DropdownRadioItem as DropdownRadioItemPrimitive,
+    DropdownRadioItemIndicator as DropdownRadioItemIndicatorPrimitive,
     DropdownSeparator as DropdownMenuSeparatorPrimitive,
+    DropdownSubMenuContent as DropdownMenuSubContentPrimitive,
+    DropdownSubMenuProvider as DropdownMenuSubProviderPrimitive, DropdownSubMenuTrigger,
 };
 use capi_primitives::menu::{MenuAlign, MenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
+
+use crate::components::icons::{IconChevronRight, IconCircle};
 
 #[component]
 pub fn DropdownMenu(
@@ -178,5 +169,97 @@ pub fn DropdownMenuSeparator(#[prop(optional, into)] class: Signal<String>) -> i
             {..}
             data-slot="dropdown-menu-separator"
         />
+    }
+}
+
+#[component]
+pub fn DropdownMenuRadioGroup(
+    children: Children,
+    #[prop(into)] value: RwSignal<String>,
+) -> impl IntoView {
+    view! {
+        <DropdownRadioGroupProviderPrimitive value=value>
+            {children()}
+        </DropdownRadioGroupProviderPrimitive>
+    }
+}
+
+#[component]
+pub fn DropdownMenuRadioItem(
+    children: ChildrenFn,
+    #[prop(into)] value: Signal<String>,
+) -> impl IntoView {
+    view! {
+        <DropdownRadioItemPrimitive
+            value=value
+            class=tw_merge!("text-muted-foreground hover:bg-accent hover:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4")
+            {..}
+            data-slot="context-menu-radio-item"
+        >
+            <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+                <DropdownRadioItemIndicatorPrimitive>
+                    <IconCircle class="size-2 fill-current" />
+                </DropdownRadioItemIndicatorPrimitive>
+            </span>
+            {children()}
+
+        </DropdownRadioItemPrimitive>
+    }
+}
+
+#[component]
+pub fn DropdownMenuSub(children: Children) -> impl IntoView {
+    view! {
+        <DropdownMenuSubProviderPrimitive>
+            {children()}
+        </DropdownMenuSubProviderPrimitive>
+    }
+}
+
+#[component]
+pub fn DropdownMenuSubTrigger(children: Children) -> impl IntoView {
+    view! {
+        <DropdownSubMenuTrigger
+            open_on_hover=true
+            class=Signal::derive(move || tw_merge!("text-muted-foreground hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"))
+            {..}
+            data-slot="dropdown-menu-sub-trigger"
+        >
+            {children()}
+            <IconChevronRight class="ml-auto" />
+        </DropdownSubMenuTrigger>
+    }
+}
+
+#[component]
+pub fn DropdownMenuSubContent(
+    children: ChildrenFn,
+    #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
+    #[prop(into, optional, default = Signal::derive(|| 4.0))] side_of_set: Signal<f64>,
+    #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
+        MenuAlign,
+    >,
+    #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
+    #[prop(into, default = None)] limit_y: Option<Signal<f64>>,
+    // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
+    #[prop(optional)] arrow: bool,
+) -> impl IntoView {
+    let children = StoredValue::new(children);
+    view! {
+        <DropdownMenuSubPortalPrimitive>
+            <DropdownMenuSubContentPrimitive
+                side=side
+                side_of_set=side_of_set
+                align=align
+                align_of_set=align_of_set
+                limit_y=limit_y
+                arrow=arrow
+                class=Signal::derive(move || tw_merge!("bg-popover text-popover-foreground data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-[var(--radix-menu-content-transform-origin)] overflow-hidden rounded-md border p-1 shadow-lg duration-150 ease-out-quad"))
+                {..}
+                data-slot="dropdown-menu-sub-content"
+            >
+                {children.get_value()()}
+            </DropdownMenuSubContentPrimitive>
+        </DropdownMenuSubPortalPrimitive>
     }
 }

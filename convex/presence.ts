@@ -121,3 +121,29 @@ export const getStatus = query({
     return userStatusDoc ? userStatusDoc.status : "Invisible"; // Default to "Invisible" if no record
   },
 });
+
+export const patchUserStatus = mutation({
+  args: {
+    auth: v.int64(),
+    status: presenceStatus,
+  },
+  handler: async (ctx, { auth, status }) => {
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+    if (user === null) {
+      return;
+    }
+    const userStatusDoc = await getUserStatus(ctx, user._id);
+
+    if (userStatusDoc) {
+      await ctx.db.patch(userStatusDoc._id, { status });
+    } else {
+      await ctx.db.insert("userStatus", { user: user._id, status });
+    }
+
+    const membersShouldBeOnline = status !== "Invisible";
+    await updateMembersOnlineStatus(ctx, user._id, membersShouldBeOnline);
+  },
+});

@@ -126,13 +126,23 @@ pub struct Member {
     pub most_important_role: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, strum_macros::Display)]
+#[derive(
+    Debug,
+    Copy,
+    Serialize,
+    Deserialize,
+    Clone,
+    PartialEq,
+    strum_macros::Display,
+    strum_macros::EnumIter,
+)]
 pub enum PresenceStatus {
     #[serde(rename = "Online")]
     Online,
     #[serde(rename = "Idle")]
     Idle,
     #[serde(rename = "NotDisturb")]
+    #[strum(to_string = "Not Disturb")]
     NotDisturb,
     #[serde(rename = "Invisible")]
     Invisible,
