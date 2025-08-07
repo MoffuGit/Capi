@@ -220,7 +220,6 @@ pub fn DropdownMenuSub(children: Children) -> impl IntoView {
 pub fn DropdownMenuSubTrigger(children: Children) -> impl IntoView {
     view! {
         <DropdownSubMenuTrigger
-            open_on_hover=true
             class=Signal::derive(move || tw_merge!("text-muted-foreground hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"))
             {..}
             data-slot="dropdown-menu-sub-trigger"

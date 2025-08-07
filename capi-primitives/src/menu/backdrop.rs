@@ -1,7 +1,6 @@
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
-use crate::common::status::TransitionStatus;
 use crate::menu::MenuProviderContext;
 use crate::primitive::Primitive;
 
@@ -16,10 +15,9 @@ pub fn MenuBackDrop(
         open,
         modal,
         dismissible,
+        transition_status,
         ..
     } = use_context().expect("should acces the menu context");
-    let transition_status =
-        use_context::<RwSignal<TransitionStatus>>().expect("should access the transition context");
 
     let children = StoredValue::new(children);
 
@@ -37,7 +35,7 @@ pub fn MenuBackDrop(
             node_ref={node_ref}
             {..}
             class=class
-            data-state=move || transition_status.get().to_string()
+            data-state=move || transition_status.transition_status.get().to_string()
             data-modal=move || modal.to_string()
             on:click=on_click_handler
         >

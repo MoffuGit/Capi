@@ -22,6 +22,8 @@ pub use separator::*;
 pub use sub_menu::*;
 pub use trigger::*;
 
+use crate::common::status::{TransitionStatusState, use_transition_status};
+
 #[derive(Clone)]
 pub struct MenuProviderContext {
     pub open: RwSignal<bool>,
@@ -34,6 +36,7 @@ pub struct MenuProviderContext {
     pub trigger_x: RwSignal<f64>,
     pub trigger_y: RwSignal<f64>,
     pub content_ref: NodeRef<html::Div>,
+    pub transition_status: TransitionStatusState,
 }
 
 #[component]
@@ -46,9 +49,11 @@ pub fn MenuProvider(
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
     #[prop(optional)] dismissible: bool,
 ) -> impl IntoView {
+    let transition_status = use_transition_status(open.into(), content_ref, true, true);
     view! {
         <Provider
         value=MenuProviderContext {
+            transition_status,
             dismissible,
             open,
             modal,

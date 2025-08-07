@@ -39,13 +39,13 @@ pub fn MenuContent(
     let mount_ref = NodeRef::new();
 
     Effect::new(move |_| {
-        if context.modal {
-            if let Some(app) = document().get_element_by_id("app") {
-                if context.open.get() {
-                    let _ = app.class_list().add_1("pointer-events-none");
-                } else {
-                    let _ = app.class_list().remove_1("pointer-events-none");
-                }
+        if context.modal
+            && let Some(app) = document().get_element_by_id("app")
+        {
+            if context.open.get() {
+                let _ = app.class_list().add_1("pointer-events-none");
+            } else {
+                let _ = app.class_list().remove_1("pointer-events-none");
             }
         }
     });
@@ -89,8 +89,7 @@ pub fn MenuContent(
         }
     };
 
-    let transition_status =
-        use_context::<TransitionStatusState>().expect("should acces the transition context");
+    let transition_status = context.transition_status;
 
     let arrow = move || {
         if arrow {

@@ -1,114 +1,45 @@
 use leptos::context::Provider;
 use leptos::html;
-use leptos::{leptos_dom::helpers::TimeoutHandle, prelude::*};
+use leptos::prelude::*;
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
-use std::time::Duration;
 use tailwind_fuse::tw_merge;
 
 use crate::common::floating::{
-    HoverAreaProvider, use_hover_area_item_handlers, use_is_hovering_area,
+    HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers, use_is_hovering_area,
 };
-use crate::common::status::{TransitionStatusState, use_transition_status};
+use crate::common::status::{TransitionStatus, TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
 
 #[derive(Clone)]
 struct TooltipProviderContext {
     is_open: RwSignal<bool>,
-    on_trigger_leave: Signal<()>,
-    on_trigger_enter: Signal<()>,
-    on_open: Signal<()>,
-    on_close: Signal<()>,
     trigger_ref: NodeRef<html::Div>,
     content_ref: NodeRef<html::Div>,
+    transition_state: TransitionStatusState,
 }
 
 #[component]
 pub fn ToolTipProvider(
     children: Children,
-    #[prop(default = Duration::new(0,0))] delay_duration: Duration,
+    #[prop(default = 0)] delay_duration: u64,
 ) -> impl IntoView {
-    let was_open_delayed_ref = RwSignal::new(false);
     let is_open = RwSignal::new(false);
-    let open_timer_ref: RwSignal<Option<TimeoutHandle>> = RwSignal::new(None);
     let trigger_ref = NodeRef::<html::Div>::new();
-
-    let handle_open = move || match open_timer_ref.get_untracked() {
-        None => {
-            was_open_delayed_ref.update_untracked(|value| *value = false);
-            is_open.update(|value| *value = true);
-        }
-        Some(timer) => {
-            timer.clear();
-            was_open_delayed_ref.update_untracked(|value| *value = false);
-            is_open.update(|value| *value = true);
-        }
-    };
-
-    let handle_close = move || match open_timer_ref.get_untracked() {
-        None => {
-            is_open.update(|value| *value = false);
-        }
-        Some(timer) => {
-            timer.clear();
-            is_open.update(|value| *value = false);
-        }
-    };
-
-    let handle_delayed_open = move || match open_timer_ref.get_untracked() {
-        None => {
-            open_timer_ref.update_untracked(|value| {
-                *value = set_timeout_with_handle(
-                    move || {
-                        was_open_delayed_ref.update_untracked(|value| *value = true);
-                        is_open.update(|value| *value = true);
-                    },
-                    delay_duration,
-                )
-                .ok()
-            });
-        }
-        Some(timer) => {
-            timer.clear();
-            open_timer_ref.update_untracked(|value| {
-                *value = set_timeout_with_handle(
-                    move || {
-                        was_open_delayed_ref.update_untracked(|value| *value = true);
-                        is_open.update(|value| *value = true);
-                    },
-                    delay_duration,
-                )
-                .ok()
-            });
-        }
-    };
-
-    let on_trigger_enter = Signal::derive(handle_delayed_open);
-    let on_trigger_leave = Signal::derive(move || match open_timer_ref.get_untracked() {
-        None => {
-            handle_close();
-        }
-        Some(timer) => {
-            handle_close();
-            timer.clear();
-        }
-    });
-    let on_open = Signal::derive(handle_open);
-    let on_close = Signal::derive(handle_close);
 
     let content_ref = NodeRef::<html::Div>::new();
 
+    let transition_state = use_transition_status(is_open.into(), content_ref, true, true);
+
     view! {
-        <Provider value=TooltipProviderContext {
-                    is_open,
-                    on_trigger_leave,
-                    on_trigger_enter,
-                    on_open,
-                    on_close,
-                    trigger_ref,
-                    content_ref
-                }
+        <Provider
+            value=TooltipProviderContext {
+                transition_state,
+                is_open,
+                trigger_ref,
+                content_ref
+            }
         >
-            <HoverAreaProvider timeout_duration_ms=0 enabled=RwSignal::new(true)>
+            <HoverAreaProvider is_hovering=is_open timeout_duration_ms=delay_duration enabled=RwSignal::new(true)>
                 {children()}
             </HoverAreaProvider>
         </Provider>
@@ -124,44 +55,47 @@ pub fn ToolTipTrigger(
 ) -> impl IntoView {
     let TooltipProviderContext {
         trigger_ref,
-        on_close,
-        on_open,
-        on_trigger_enter,
-        on_trigger_leave,
+        transition_state,
         ..
     } = use_context::<TooltipProviderContext>().expect("have this context");
 
-    let is_hovering_area = use_is_hovering_area();
+    let UseHoverHandlers {
+        on_pointer_enter,
+        on_pointer_leave,
+        close,
+        open,
+    } = use_hover_area_item_handlers();
 
-    Effect::new(move |_| {
-        if is_hovering_area.get() {
-            on_trigger_enter.get();
-        } else {
-            on_trigger_leave.get();
-        }
-    });
-
-    let (on_pointer_enter_handler, on_pointer_leave_handler) = use_hover_area_item_handlers();
+    let is_hovering = RwSignal::new(false);
 
     view! {
         <div
+            data-state=move || transition_state.transition_status.get().to_string()
             node_ref=trigger_ref
             class=class
-            on:pointerenter=on_pointer_enter_handler
-            on:pointerleave=on_pointer_leave_handler
+            on:pointerenter=move |evt| {
+                if !is_hovering.get() && transition_state.transition_status.get() != TransitionStatus::Closing {
+                    on_pointer_enter.run(evt);
+                }
+                is_hovering.set(true);
+            }
+            on:pointerleave=move |evt| {
+                on_pointer_leave.run(evt);
+                is_hovering.set(false);
+            }
             on:click=move |_evt| {
                 if close_on_click {
-                    on_close.get_untracked();
+                    close.run(());
                 }
                 if let Some(on_click) = on_click {
                     on_click.run(())
                 }
             }
             on:wheel=move |_| {
-                on_close.get_untracked();
+                close.run(());
             }
             on:focus=move |_| {
-                on_open.get_untracked();
+                open.run(())
             }
         >
             {children()}
@@ -215,18 +149,14 @@ pub fn get_tooltip_position(
 pub fn ToolTipPortal(children: ChildrenFn) -> impl IntoView {
     let context = use_context::<TooltipProviderContext>().expect("is open context");
 
-    let is_open = context.is_open;
-
     let children = StoredValue::new(children);
 
-    let state = use_transition_status(is_open.into(), context.content_ref, true, true);
+    let state = context.transition_state;
     view! {
         <Show when=move || state.mounted.get()>
-            <Provider value=state>
-                <Portal>
-                    {children.get_value()()}
-                </Portal>
-            </Provider>
+            <Portal>
+                {children.get_value()()}
+            </Portal>
         </Show>
     }
 }
@@ -246,8 +176,7 @@ pub fn ToolTipContent(
 
     let position = RwSignal::new(("".to_string(), "".to_string()));
 
-    let transition_status =
-        use_context::<TransitionStatusState>().expect("should acces the transition context");
+    let transition_status = context.transition_state;
 
     let UseElementBoundingReturn {
         width: trigger_width,
@@ -303,7 +232,11 @@ pub fn ToolTipContent(
 
     let children = StoredValue::new(children);
 
-    let (on_pointer_enter_handler, on_pointer_leave_handler) = use_hover_area_item_handlers();
+    let UseHoverHandlers {
+        on_pointer_enter,
+        on_pointer_leave,
+        ..
+    } = use_hover_area_item_handlers();
 
     view! {
         <div
@@ -318,8 +251,14 @@ pub fn ToolTipContent(
                 ToolTipSide::Right => "right",
                 ToolTipSide::Top => "top",
             })
-            on:pointerenter=on_pointer_enter_handler
-            on:pointerleave=on_pointer_leave_handler
+            on:pointerenter=move |evt| {
+                if transition_status.transition_status.get() != TransitionStatus::Closing {
+                    on_pointer_enter.run(evt);
+                }
+            }
+            on:pointerleave=move |evt| {
+                on_pointer_leave.run(evt);
+            }
             class=format!("absolute z-50 left-0 top-0 font-normal")
         >
             <div

@@ -3,9 +3,11 @@ use convex_client::leptos::Mutation;
 use convex_client::leptos::UseMutation;
 use leptos::prelude::*;
 use serde::Serialize;
+use std::time::Duration;
 
 use crate::components::auth::use_auth;
 use crate::components::icons::IconChevronDown;
+use crate::components::icons::IconLoader;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::dialog::*;
@@ -45,21 +47,28 @@ pub fn CreateChannelDialog(
     let pending = create_channel.pending();
     let auth = use_auth().auth();
 
-    // Effect to close the dialog and reset the input after the mutation completes
+    let (show_success_message, set_show_success_message) = signal(false);
+
     Effect::new(move |_| {
         if create_channel.value().get().is_some() {
-            open.set(false);
-            set_name("".to_string());
-            selected_category.set(category.clone());
+            set_show_success_message(true);
+            set_timeout(
+                move || {
+                    open.set(false);
+                },
+                Duration::from_millis(300),
+            );
         }
     });
 
     view! {
         <Dialog
             open=open
-            on_open_change=Callback::new(move |open: bool| {
-                if !open {
-                    selected_category.set(None);
+            on_open_change=Callback::new(move |open_state: bool| {
+                if !open_state {
+                    set_name("".to_string());
+                    selected_category.set(category.clone());
+                    set_show_success_message.set(false);
                 }
             })
         >
@@ -153,7 +162,7 @@ pub fn CreateChannelDialog(
                     </div>
                 <DialogFooter>
                     <Button
-                        class="w-full"
+                        class="w-full relative overflow-hidden"
                         variant=ButtonVariants::Secondary
                         size=ButtonSizes::Sm
                         on:click=move |_| {
@@ -166,9 +175,44 @@ pub fn CreateChannelDialog(
                                 }
                             }
                         }
-                        disabled=Signal::derive(move || pending.get() | server.get().is_none())
+                        disabled=Signal::derive(move || pending.get() || server.get().is_none() || show_success_message.get() || name.get().is_empty())
                     >
-                        "Create"
+                        {move || {
+                            let is_success = show_success_message.get();
+                            let is_pending = pending.get();
+
+                            view! {
+                                <div class="absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out-expo"
+                                    class:translate-y-0=!is_success && !is_pending
+                                    class:opacity-100=!is_success && !is_pending
+                                    class:translate-y-full=is_success || is_pending
+                                    class:opacity-0=is_success || is_pending
+                                >
+                                    "Create"
+                                </div>
+
+                                <div class="absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out-expo"
+                                    class:translate-y-0=is_pending
+                                    class:opacity-100=is_pending
+                                    class:-translate-y-full=!is_pending && !is_success
+                                    class:translate-y-full=!is_pending && is_success
+                                    class:opacity-0=!is_pending
+                                >
+                                    <IconLoader class="animate-spin text-lg" />
+                                </div>
+
+                                <div class="absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out-expo"
+                                    class:translate-y-0=is_success
+                                    class:opacity-100=is_success
+                                    class:-translate-y-full=!is_success
+                                    class:opacity-0=!is_success
+                                >
+                                    <span class="text-sm">
+                                        {format!("{} created", name.get())}
+                                    </span>
+                                </div>
+                            }
+                        }}
                     </Button>
                 </DialogFooter>
             </DialogPopup>

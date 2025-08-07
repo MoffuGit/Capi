@@ -1,7 +1,5 @@
-use leptos::context::Provider;
 use leptos::prelude::*;
 
-use crate::common::status::use_transition_status;
 use crate::menu::MenuProviderContext;
 use crate::portal::Portal;
 
@@ -9,16 +7,12 @@ use crate::portal::Portal;
 pub fn MenuPortal(children: ChildrenFn) -> impl IntoView {
     let children = StoredValue::new(children);
     let context: MenuProviderContext = use_context().expect("should acces to the menu context");
-    let transition_state =
-        use_transition_status(context.open.into(), context.content_ref, true, true);
-    let mounted = transition_state.mounted;
+    let mounted = context.transition_status.mounted;
     view! {
         <Show when=move || mounted.get()>
-            <Provider value=transition_state>
-                <Portal >
-                        {children.get_value()()}
-                </Portal>
-            </Provider>
+            <Portal >
+                    {children.get_value()()}
+            </Portal>
         </Show>
     }
 }
