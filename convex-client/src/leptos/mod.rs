@@ -475,7 +475,13 @@ impl UseMutation {
         UseMutation::with_fn(move |(mutation, client): (&M, &mut ConvexClient)| {
             let mutation = mutation.to_owned();
             let mut client = client.to_owned();
-            async move { mutation.run(&mut client).await }
+            async move {
+                let result = mutation.run(&mut client).await;
+                if let Err(err) = &result {
+                    error!("mutation failed: {err}");
+                }
+                result
+            }
         })
     }
 

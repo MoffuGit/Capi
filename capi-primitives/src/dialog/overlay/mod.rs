@@ -17,15 +17,13 @@ pub fn DialogOverlay(
         set_open,
         modal,
         dismissible,
+        transition_status,
         ..
     } = use_dialog_root_context();
-    let transition_status =
-        use_context::<RwSignal<TransitionStatus>>().expect("should access the transition context");
 
     let children = StoredValue::new(children);
 
     let on_click_handler = move |_| {
-        // If the dialog is dismissible and not modal, close it when the overlay is clicked.
         if dismissible {
             set_open.set(false);
         }
@@ -38,7 +36,7 @@ pub fn DialogOverlay(
             node_ref={node_ref}
             {..}
             class=class
-            data-state=move || transition_status.get().to_string()
+            data-state=move || transition_status.transition_status.get().to_string()
             data-modal=move || modal.to_string()
             on:click=on_click_handler
         >

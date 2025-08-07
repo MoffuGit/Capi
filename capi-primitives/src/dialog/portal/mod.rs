@@ -20,8 +20,7 @@ pub fn DialogPortal(
     children: StoredValue<Arc<dyn Fn() -> AnyView + Send + Sync + 'static>>,
 ) -> impl IntoView {
     let context = use_dialog_root_context();
-    let transition_state =
-        use_transition_status(context.open.into(), context.popup_ref, true, true);
+    let transition_state = context.transition_status;
     let mounted = transition_state.mounted;
     let transition_status = transition_state.transition_status;
     view! {

@@ -13,14 +13,13 @@ pub fn DialogPopup(
     #[prop(optional)] children: Option<ChildrenFn>,
 ) -> impl IntoView {
     let context = use_dialog_root_context();
-    let transition_status =
-        use_context::<RwSignal<TransitionStatus>>().expect("should acces the transition context");
+    let transition_state = context.transition_status.transition_status;
     let children = StoredValue::new(children);
     view! {
         <div
             class=class
             node_ref=context.popup_ref
-            data-state=move || transition_status.get().to_string()
+                data-state=move || transition_state.get().to_string()
              >
             {children.get_value().map(|children| children())}
         </div>

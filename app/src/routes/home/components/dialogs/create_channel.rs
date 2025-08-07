@@ -57,6 +57,11 @@ pub fn CreateChannelDialog(
     view! {
         <Dialog
             open=open
+            on_open_change=Callback::new(move |open: bool| {
+                if !open {
+                    selected_category.set(None);
+                }
+            })
         >
             <DialogPopup>
                 <DialogHeader>
@@ -147,25 +152,24 @@ pub fn CreateChannelDialog(
                         />
                     </div>
                 <DialogFooter>
-                    <Transition>
-                        <Button
-                            variant=ButtonVariants::Secondary
-                            size=ButtonSizes::Sm
-                            on:click=move |_| {
-                                if !name.get().is_empty() {
-                                    if let Some(server) = server.get() {
-                                        if let Some(user) = auth.get().and_then(|res|res.ok()).flatten() {
-                                            let input = CreateChannel { name: name.get(), server: server.id , category: selected_category.get().map(|category| category.id), auth: user.id };
-                                            create_channel.dispatch(input);
-                                        }
+                    <Button
+                        class="w-full"
+                        variant=ButtonVariants::Secondary
+                        size=ButtonSizes::Sm
+                        on:click=move |_| {
+                            if !name.get().is_empty() {
+                                if let Some(server) = server.get() {
+                                    if let Some(user) = auth.get().and_then(|res|res.ok()).flatten() {
+                                        let input = CreateChannel { name: name.get(), server: server.id , category: selected_category.get().map(|category| category.id), auth: user.id };
+                                        create_channel.dispatch(input);
                                     }
                                 }
                             }
-                            disabled=Signal::derive(move || pending.get() | server.get().is_none())
-                        >
-                            "Create"
-                        </Button>
-                    </Transition>
+                        }
+                        disabled=Signal::derive(move || pending.get() | server.get().is_none())
+                    >
+                        "Create"
+                    </Button>
                 </DialogFooter>
             </DialogPopup>
         </Dialog>

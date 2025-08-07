@@ -13,10 +13,11 @@ pub fn Sheet(
     #[prop(into, default = RwSignal::new(false))] open: RwSignal<bool>,
     #[prop(default = true)] modal: bool,
     #[prop(default = true)] dismissible: bool,
+    #[prop(optional, into)] on_open_change: Option<Callback<bool>>,
     children: Children,
 ) -> impl IntoView {
     view! {
-        <SheetPrimitive open=open modal=modal dismissible=dismissible>
+        <SheetPrimitive on_open_change=on_open_change open=open modal=modal dismissible=dismissible>
             {children()}
         </SheetPrimitive>
     }

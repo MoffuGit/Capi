@@ -1,8 +1,12 @@
 use leptos::html::Div;
-use leptos::prelude::{on_cleanup, Effect, Get, NodeRef, ReadSignal, RwSignal, Set, WriteSignal};
+use leptos::prelude::{
+    Callable, Callback, Effect, Get, NodeRef, ReadSignal, RwSignal, Set, WriteSignal, on_cleanup,
+};
 use leptos_dom::log;
 use leptos_node_ref::AnyNodeRef;
 use web_sys::MouseEvent;
+
+use crate::common::status::{TransitionStatusState, use_transition_status};
 
 #[derive(Clone)]
 pub struct DialogRootContext {
@@ -11,20 +15,18 @@ pub struct DialogRootContext {
     pub set_open: WriteSignal<bool>,
     pub open: ReadSignal<bool>,
     pub title_element_id: RwSignal<Option<String>>,
-    pub mounted: RwSignal<bool>,
     pub popup_ref: NodeRef<Div>,
     pub trigger_ref: NodeRef<Div>,
     pub backdrop_ref: NodeRef<Div>,
     pub internal_backdrop_ref: NodeRef<Div>,
     pub dismissible: bool,
-    // floatingRootContext: FloatingRootContext;
+    pub transition_status: TransitionStatusState,
 }
 
 pub struct DialogRootParams {
     pub open: RwSignal<bool>,
     pub modal: bool,
-    // pub on_open_change: Box<dyn Fn(bool)>,
-    // pub on_open_change_complete: Box<dyn Fn(bool)>,
+    pub on_open_change: Option<Callback<bool>>,
     pub dismissible: bool,
 }
 
@@ -32,8 +34,7 @@ pub fn use_dialog_root(params: DialogRootParams) -> DialogRootContext {
     let DialogRootParams {
         open,
         modal,
-        // on_open_change,
-        // on_open_change_complete,
+        on_open_change,
         dismissible,
     } = params;
 
@@ -46,25 +47,22 @@ pub fn use_dialog_root(params: DialogRootParams) -> DialogRootContext {
 
     let description_element_id = RwSignal::new(None);
     let title_element_id = RwSignal::new(None);
-    let mounted = RwSignal::new(false);
-    Effect::watch(
-        move || (),
-        move |_, _, _| {
-            mounted.set(true);
-        },
-        true,
-    );
-    on_cleanup(move || {
-        mounted.set(false);
+
+    let transition_status = use_transition_status(open.into(), popup_ref, true, true);
+
+    Effect::new(move |_| {
+        if let Some(callback) = on_open_change {
+            callback.run(transition_status.mounted.get());
+        }
     });
 
     DialogRootContext {
+        transition_status,
         description_element_id,
         modal,
         set_open,
         open,
         title_element_id,
-        mounted,
         popup_ref,
         backdrop_ref,
         internal_backdrop_ref,
