@@ -156,7 +156,6 @@ dependencies = [
  "chrono",
  "common",
  "convex-client",
- "floating-ui-leptos",
  "futures",
  "gloo-file",
  "gloo-timers",
@@ -1140,24 +1139,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c7a8fb8a9fbf66c1f703fe16184d10ca0ee9d23be5b4436400408ba54a95005"
 
 [[package]]
-name = "dyn_derive"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11bce3f6b5ab55c48928e8b0c960fb63de8aa9756e34ddfafc9720b2731e972e"
-dependencies = [
- "dyn_std",
- "proc-macro2",
- "quote",
- "syn 2.0.104",
-]
-
-[[package]]
-name = "dyn_std"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18150a3b95526a6f32f542e74999f7f34607794d2048a105a30474b361474e67"
-
-[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1253,58 +1234,6 @@ checksum = "4a3d7db9596fecd151c5f638c0ee5d5bd487b6e0ea232e5dc96d5250f6f94b1d"
 dependencies = [
  "crc32fast",
  "miniz_oxide",
-]
-
-[[package]]
-name = "floating-ui-core"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07b820214ebb0d8d1f76df7ebd20e80f4beb7fbecd575d636be36e1fdc300cd0"
-dependencies = [
- "dyn_derive",
- "dyn_std",
- "floating-ui-utils",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "floating-ui-dom"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "129ccdde91a971c47d0fe7a0e8c2eafa068919d0e308deaf7467ea734a3cb299"
-dependencies = [
- "floating-ui-core",
- "floating-ui-utils",
- "web-sys",
-]
-
-[[package]]
-name = "floating-ui-leptos"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce66e0c81e60c9c26912d41b3bee139feb04c77ef0716e0908522e5b4b81203f"
-dependencies = [
- "dyn_derive",
- "dyn_std",
- "floating-ui-dom",
- "leptos",
- "leptos-node-ref",
- "send_wrapper",
- "web-sys",
-]
-
-[[package]]
-name = "floating-ui-utils"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a44e3bcef1a851d6d440606075b6ee234d062edc12350128bf31287c03fd1fdf"
-dependencies = [
- "cfg-if",
- "dyn_derive",
- "dyn_std",
- "serde",
- "web-sys",
 ]
 
 [[package]]

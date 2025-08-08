@@ -26,7 +26,6 @@ web-sys = { workspace = true }
 strum.workspace = true
 strum_macros.workspace = true
 reactive_stores.workspace = true
-floating-ui-leptos.workspace = true
 leptos-node-ref.workspace = true
 leptos_dom.workspace = true
 send_wrapper.workspace = true
