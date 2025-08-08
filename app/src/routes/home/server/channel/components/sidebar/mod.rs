@@ -6,12 +6,12 @@ use common::convex::Member;
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use serde::Serialize;
+use tailwind_fuse::tw_merge;
 
-use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
-use crate::components::ui::sidebar::{
-    Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-    SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
-};
+use crate::components::icons::IconChevronDown;
+use crate::components::ui::avatar::*;
+use crate::components::ui::collapsible::*;
+use crate::components::ui::sidebar::*;
 use capi_primitives::common::Side;
 
 use self::members::MembersItems;
@@ -52,29 +52,63 @@ pub fn MembersSideBar(
             .map(|server| GetOnlineMembersByRole { server, role: None })
     });
     let offline = UseQuery::new(move || server.get().map(|server| GetOfflineMembers { server }));
+    let is_offline_open = RwSignal::new(true);
+    let is_online_open = RwSignal::new(true);
     view! {
         <Sidebar class="mt-[54px] h-auto" side=Side::Right>
             <SidebarContent>
                 <RolesItems server=server/>
                 <Show when=move || online.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
                     <SidebarGroup>
-                        <SidebarGroupContent>
-                            <SidebarGroupLabel>
+                        <CollapsibleTrigger>
+                            <SidebarGroupLabel class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer">
+                                <IconChevronDown class=Signal::derive(
+                                    move || {
+                                        tw_merge!("mr-1", if is_online_open.get() {
+                                                "rotate-0"
+                                            } else {
+                                                "-rotate-90"
+                                            },
+                                            "transition-transform ease-in-out-quad duration-150"
+                                        )
+                                    }
+                                )/>
                                 "Online"
                             </SidebarGroupLabel>
-                            <MembersItems members=online/>
+                        </CollapsibleTrigger>
+                        <SidebarGroupContent>
+                            <CollapsiblePanel>
+                                <MembersItems members=online/>
+                            </CollapsiblePanel>
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </Show>
                 <Show when=move || offline.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
-                    <SidebarGroup>
-                        <SidebarGroupContent>
-                            <SidebarGroupLabel>
-                                "Offline"
-                            </SidebarGroupLabel>
-                            <MembersItems members=offline/>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
+                    <Collapsible open=is_offline_open>
+                        <SidebarGroup>
+                            <CollapsibleTrigger>
+                                <SidebarGroupLabel class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer">
+                                    <IconChevronDown class=Signal::derive(
+                                        move || {
+                                            tw_merge!("mr-1", if is_offline_open.get() {
+                                                    "rotate-0"
+                                                } else {
+                                                    "-rotate-90"
+                                                },
+                                                "transition-transform ease-in-out-quad duration-150"
+                                            )
+                                        }
+                                    )/>
+                                    "Offline"
+                                </SidebarGroupLabel>
+                            </CollapsibleTrigger>
+                            <SidebarGroupContent>
+                                <CollapsiblePanel>
+                                    <MembersItems members=offline/>
+                                </CollapsiblePanel>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </Collapsible>
                 </Show>
             </SidebarContent>
             <Footer member=member/>

@@ -2,8 +2,11 @@ use common::convex::Role;
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
 use serde::Serialize;
+use tailwind_fuse::tw_merge;
 
-use crate::components::ui::sidebar::{SidebarGroup, SidebarGroupContent, SidebarGroupLabel};
+use crate::components::icons::IconChevronDown;
+use crate::components::ui::collapsible::*;
+use crate::components::ui::sidebar::*;
 use crate::routes::server::channel::components::sidebar::members::MembersItems;
 use crate::routes::server::channel::components::sidebar::GetOnlineMembersByRole;
 
@@ -33,16 +36,34 @@ pub fn RolesItems(server: Memo<Option<String>>) -> impl IntoView {
                             .map(|server| GetOnlineMembersByRole { server, role: Some(role.id.clone()) })
                     });
                     let name = StoredValue::new(role.name);
+                    let is_open = RwSignal::new(true);
                     view! {
                         <Show when=move || members.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
+                        <Collapsible open=is_open>
                             <SidebarGroup>
-                                <SidebarGroupContent>
-                                    <SidebarGroupLabel>
+                                <CollapsibleTrigger>
+                                    <SidebarGroupLabel class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer">
+                                        <IconChevronDown class=Signal::derive(
+                                            move || {
+                                                tw_merge!("mr-1", if is_open.get() {
+                                                        "rotate-0"
+                                                    } else {
+                                                        "-rotate-90"
+                                                    },
+                                                    "transition-transform ease-in-out-quad duration-150"
+                                                )
+                                            }
+                                        )/>
                                         {name.get_value()}
                                     </SidebarGroupLabel>
-                                    <MembersItems members=members/>
+                                </CollapsibleTrigger>
+                                <SidebarGroupContent>
+                                    <CollapsiblePanel>
+                                        <MembersItems members=members/>
+                                    </CollapsiblePanel>
                                 </SidebarGroupContent>
                             </SidebarGroup>
+                        </Collapsible>
                         </Show>
                     }
                 }

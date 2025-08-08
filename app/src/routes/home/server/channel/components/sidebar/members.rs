@@ -24,7 +24,7 @@ pub fn MembersItems(members: ReadSignal<Option<Result<Vec<Member>, String>>>) ->
                                 <SidebarMenuItem>
                                     <SidebarMenuButton
                                         size=SidebarMenuButtonSize::Lg
-                                        class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                        class="active:scale-[.98] duration-150 transition-[scale] data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                                     >
                                         <Avatar class="h-8 w-8 rounded-lg">
                                             <AvatarImage url=member.get_value().image_url/>
