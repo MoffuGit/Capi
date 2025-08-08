@@ -19,14 +19,19 @@ pub fn MenuTrigger(
             height,
             x,
             y,
+            update,
             ..
         } = use_element_bounding(trigger_ref);
         Effect::new(move |_| {
+            context.trigger_width.set(width.get());
+            context.trigger_height.set(height.get());
+            context.trigger_x.set(x.get());
+            context.trigger_y.set(y.get());
+        });
+
+        Effect::new(move |_| {
             if context.open.get() {
-                context.trigger_width.set(width.get_untracked());
-                context.trigger_height.set(height.get_untracked());
-                context.trigger_x.set(x.get_untracked());
-                context.trigger_y.set(y.get_untracked());
+                update()
             }
         });
     }

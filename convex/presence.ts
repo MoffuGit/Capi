@@ -11,7 +11,10 @@ const presenceStatus = v.union(
 );
 type PresenceStatus = typeof presenceStatus.type;
 
-async function getUserStatus(ctx: QueryCtx | MutationCtx, userId: Id<"users">) {
+export async function getUserStatus(
+  ctx: QueryCtx | MutationCtx,
+  userId: Id<"users">,
+) {
   return await ctx.db
     .query("userStatus")
     .withIndex("by_user", (q) => q.eq("user", userId))

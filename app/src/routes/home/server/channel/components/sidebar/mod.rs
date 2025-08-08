@@ -1,3 +1,4 @@
+pub mod card;
 mod members;
 mod roles;
 
@@ -9,7 +10,7 @@ use serde::Serialize;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::sidebar::{
     Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-    SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
+    SidebarMenu, SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem,
 };
 use capi_primitives::common::Side;
 
@@ -53,9 +54,6 @@ pub fn MembersSideBar(
     let offline = UseQuery::new(move || server.get().map(|server| GetOfflineMembers { server }));
     view! {
         <Sidebar class="mt-[54px] h-auto" side=Side::Right>
-            <SidebarHeader>
-                <div/>
-            </SidebarHeader>
             <SidebarContent>
                 <RolesItems server=server/>
                 <Show when=move || online.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>

@@ -127,6 +127,7 @@ pub fn MessageItem(
                         "React"
                     </ContextSubTrigger>
                     <ContextSubContent>
+                    //NOTE: add the list of emojis as reactions
                         <ContextMenuItem>
                             "a reaction"
                         </ContextMenuItem>

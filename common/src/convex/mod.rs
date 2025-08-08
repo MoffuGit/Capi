@@ -135,6 +135,8 @@ pub struct Member {
     PartialEq,
     strum_macros::Display,
     strum_macros::EnumIter,
+    Eq,
+    Hash,
 )]
 pub enum PresenceStatus {
     #[serde(rename = "Online")]

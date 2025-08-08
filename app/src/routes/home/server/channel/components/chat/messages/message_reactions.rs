@@ -5,6 +5,9 @@ use serde::Serialize;
 
 use crate::components::ui::button::*;
 
+//NOTE: this will have at the end a button for adding more reactions,
+//it need to check if the user already have reacted with an emoji, if true, on click will remove,
+//if not then will react
 #[component]
 pub fn MessageReactions(reactions: Vec<Reaction>) -> impl IntoView {
     view! {

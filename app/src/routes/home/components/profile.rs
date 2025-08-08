@@ -43,7 +43,7 @@ pub fn Profile() -> impl IntoView {
     view! {
         <div class="bg-background h-8 shadow-md border rounded-lg flex items-center bottom-2 left-2 absolute group-data-[state=collapsed]:w-8 group-data-[state=expanded]:p-1 group-data-[state=expanded]:w-[calc(var(--sidebar-width)-18px)] group-data-[state=expanded]:h-13 transition-all ease-in-out-cubic duration-200 overflow-hidden">
             <DropdownMenu>
-                <DropdownMenuTrigger class="h-full flex items-center hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-lg group-data-[state=expanded]:p-1 min-w-0">
+                <DropdownMenuTrigger class="h-full active:scale-[.98] flex items-center hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-lg group-data-[state=expanded]:p-1 min-w-0">
                     <Avatar class="flex relative bg-accent aspect-square size-8 items-center justify-center rounded-lg overflow-visible">
                         {
                             move || {

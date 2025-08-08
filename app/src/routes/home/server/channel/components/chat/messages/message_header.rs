@@ -1,10 +1,14 @@
+use capi_primitives::menu::MenuAlign;
+use capi_primitives::menu::MenuSide;
 use chrono::{Duration, Local};
 use leptos::prelude::*;
 
 use common::convex::Member;
 
-use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
+use crate::components::ui::avatar::*;
+use crate::components::ui::dropwdown::*;
 use crate::routes::home::server::channel::components::chat::messages::utils::get_date;
+use crate::routes::server::channel::components::sidebar::card::MemberCard;
 
 #[component]
 pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
@@ -24,19 +28,35 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
         })
     });
 
-    let name = StoredValue::new(member.name.clone());
+    let member = StoredValue::new(member);
 
     view! {
         <div class="pt-2 flex items-center gap-1 -translate-x-3">
-            <Avatar class="flex bg-accent aspect-square size-6 items-center justify-center rounded-md group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
-                <AvatarImage url=member.image_url.clone()/>
-                <AvatarFallback class="rounded-lg select-none bg-transparent">
-                    {name.get_value().chars().next()}
-                </AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+                <DropdownMenuTrigger
+                    class="cursor-pointer active:scale-[.97]"
+                    {..}
+                    on:dblclick=move |evt| {
+                        evt.stop_propagation();
+                    }
+                >
+                    <Avatar class="flex bg-accent aspect-square size-6 items-center justify-center rounded-md group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
+                        <AvatarImage url=member.get_value().image_url.clone()/>
+                        <AvatarFallback class="rounded-lg select-none bg-transparent">
+                            {member.get_value().name.chars().next()}
+                        </AvatarFallback>
+                    </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                    side=MenuSide::Right
+                    align=MenuAlign::Start
+                >
+                    <MemberCard member=member.get_value() />
+                </DropdownMenuContent>
+            </DropdownMenu>
             <div>
                 <span class="font-medium">
-                    {name.get_value()}
+                    {member.get_value().name}
                 </span>
                 <span class="text-muted-foreground text-xs ml-1">
                     {formatted_date}

@@ -2,7 +2,6 @@ use leptos::{html, prelude::*};
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use tailwind_fuse::tw_merge;
 
-use crate::common::status::TransitionStatusState;
 use crate::menu::MenuProviderContext;
 
 #[derive(Clone, Copy)]
