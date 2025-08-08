@@ -226,7 +226,7 @@ pub fn CreateServerDialog(open: RwSignal<bool>) -> impl IntoView {
                         <Label class="hover:bg-accent/50 active:scale-[.98] transition-[scale] flex items-start gap-3 rounded-lg border w-full p-3 has-[[aria-checked=true]]:border-purple has-[[aria-checked=true]]:bg-purple/10">
                             <Checkbox
                                 checked=is_private
-                                class="data-[state=checked]:border-purple data-[state=checked]:bg-purple data-[state=checked]:text-white"
+                                class="data-[state=checked]:border-purple data-[state=checked]:bg-purple data-[state=checked]:text-white dark:data-[state=checked]:border-purple dark:data-[state=checked]:bg-purple dark:data-[state=checked]:text-white"
                                 {..}
                                 id="toggle-2"
                             />
