@@ -46,7 +46,7 @@ pub fn MessageItem(
     view! {
         <ContextMenu open=context_open>
             <ContextMenuTrigger
-                class="w-full h-auto transition-colors ease-out-quad duration-180
+                class="w-full h-auto transition-colors ease-in-out-quad duration-180
                     data-[response=true]:bg-purple/10 data-[response=true]:border-l-purple
                     data-[highlight=true]:bg-purple/10 data-[highlight=true]:border-l-purple
                     border-l border-l-transparent data-[context=true]:bg-accent/50 hover:bg-accent/50 px-8 group min-h-9 flex flex-col justify-center relative"

@@ -38,7 +38,7 @@ pub fn ReferencedMessageDisplay(
         MarkdownParser::new(&referenced_message.content).parse_tree();
 
     view! {
-        <div class="flex flex-col border-l-2 border-muted-foreground/50 pl-2 mb-1 mt-1 bg-accent/50 cursor-pointer"
+        <div class="flex flex-col border-l-2 border-muted-foreground/50 hover:border-muted-foreground/70 hover:bg-accent/70 w-fit px-2 my-1 pt-2 bg-accent/50 cursor-pointer transition-colors ease-in-out-quad duration-180"
              on:click=move |_| {
                  target_message_id.set(Some(referenced_message.id.clone()));
              }
@@ -47,7 +47,7 @@ pub fn ReferencedMessageDisplay(
                 <IconCornerUpLeft class="size-3"/>
                 <span>
                     {"Replying to "}
-                    {move || referenced_message_author.get().map(|m| view!{ <span class="font-semibold text-foreground">{m.name}</span> })}
+                    {move || referenced_message_author.get().map(|m| view!{ <span class="text-foreground">{m.name}</span> })}
                 </span>
             </div>
             <div class="text-xs text-muted-foreground flex items-center max-h-8 overflow-hidden line-clamp-2">
