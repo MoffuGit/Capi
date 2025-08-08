@@ -27,7 +27,7 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
     let name = StoredValue::new(member.name.clone());
 
     view! {
-        <div class="pt-2 flex items-center gap-1">
+        <div class="pt-2 flex items-center gap-1 -translate-x-3">
             <Avatar class="flex bg-accent aspect-square size-6 items-center justify-center rounded-md group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 ease-in-out duration-150 transition-opacity">
                 <AvatarImage url=member.image_url.clone()/>
                 <AvatarFallback class="rounded-lg select-none bg-transparent">
