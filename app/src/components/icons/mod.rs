@@ -378,6 +378,15 @@ pub fn IconLoader(#[prop(into, optional)] class: Signal<String>) -> impl IntoVie
 }
 
 #[component]
+pub fn IconCheck(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M20 6 9 17l-5-5"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconPanelLeft(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>

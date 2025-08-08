@@ -111,7 +111,7 @@ pub fn BreadcrumbEllipsis(
         >
             {children()}
             <IconEllipsis class="size-4" />
-            <span className="sr-only">More</span>
+            <span class="sr-only">More</span>
         </span>
 
     }

@@ -1,5 +1,3 @@
-use std::any::Any;
-
 use api::presence::GetUserStatus;
 use common::convex::PresenceStatus;
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
