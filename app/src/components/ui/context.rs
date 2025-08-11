@@ -186,7 +186,7 @@ pub fn ContextSubMenu(children: Children) -> impl IntoView {
 pub fn ContextSubTrigger(children: Children) -> impl IntoView {
     view! {
         <ContextSubMenuTriggerPrimitive
-            class=Signal::derive(move || tw_merge!("focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"))
+            class=Signal::derive(move || tw_merge!("text-muted-foreground hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"))
             {..}
             data-slot="context-menu-sub-trigger"
         >
@@ -197,12 +197,32 @@ pub fn ContextSubTrigger(children: Children) -> impl IntoView {
 }
 
 #[component]
-pub fn ContextSubContent(children: ChildrenFn) -> impl IntoView {
+pub fn ContextSubContent(
+    #[prop(optional, into)] class: Signal<String>,
+    children: ChildrenFn,
+    #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
+    #[prop(into, optional, default = Signal::derive(|| 4.0))] side_of_set: Signal<f64>,
+    #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
+        MenuAlign,
+    >,
+    #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
+    #[prop(into, default = None)] limit_y: Option<Signal<f64>>,
+    // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
+    #[prop(optional)] arrow: bool,
+) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
         <ContextSubMenuPortalPrimitive>
             <ContextSubMenuContentPrimitive
                 class=Signal::derive(move || tw_merge!("bg-popover text-popover-foreground data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg duration-150 ease-out-quad"))
+                side=side
+                side_of_set=side_of_set
+                align=align
+                align_of_set=align_of_set
+                limit_y=limit_y
+                arrow={arrow}
+                {..}
+                data-slot="dropdown-menu-content"
             >
                 {children.get_value()()}
             </ContextSubMenuContentPrimitive>
