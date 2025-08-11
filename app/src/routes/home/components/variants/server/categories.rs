@@ -35,7 +35,7 @@ pub fn CategoriesItems(
                         <SidebarGroup>
                             <CollapsibleTrigger>
                                 <SidebarGroupLabel
-                                    class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer"
+                                    class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer group-data-[collapsible=icon]:mt-0"
                                 >
                                     <IconChevronDown class=Signal::derive(
                                         move || {

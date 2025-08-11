@@ -53,7 +53,7 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
                             })
                         }
                     )
-                    class="group/button">
+                    class="group/button group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:h-8! group-data-[collapsible=icon]:p-2!">
                     <span
                         class=tw_merge!(
                             "text-sidebar-foreground/70 inline-flex flex-col items-start font-normal",

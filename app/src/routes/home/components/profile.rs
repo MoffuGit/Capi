@@ -1,3 +1,4 @@
+use api::auth::Logout;
 use api::presence::GetUserStatus;
 use common::convex::PresenceStatus;
 use convex_client::leptos::{Mutation, UseMutation, UseQuery};
@@ -6,7 +7,7 @@ use serde::Serialize;
 use strum::IntoEnumIterator;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconHeadphones, IconMic, IconSettings};
+use crate::components::icons::{IconHeadphones, IconLogOut, IconMic, IconSettings};
 use crate::components::ui::avatar::*;
 use crate::components::ui::badge::*;
 use crate::components::ui::button::*;
@@ -34,7 +35,9 @@ pub fn Profile() -> impl IntoView {
     let user = use_profile();
 
     let status = UseQuery::new(move || user.get().map(|user| GetUserStatus { user: user.id }));
-    let auth = use_auth().auth();
+    let auth_context = use_auth();
+    let auth = auth_context.auth();
+    let log_out = auth_context.log_out;
 
     let set_status = UseMutation::new::<SetUserStatus>();
 
@@ -43,7 +46,7 @@ pub fn Profile() -> impl IntoView {
     view! {
         <div class="bg-background h-8 shadow-md border rounded-lg flex items-center bottom-2 left-2 absolute group-data-[state=collapsed]:w-8 group-data-[state=expanded]:p-1 group-data-[state=expanded]:w-[calc(var(--sidebar-width)-18px)] group-data-[state=expanded]:h-13 transition-all ease-in-out-cubic duration-200 overflow-hidden">
             <DropdownMenu>
-                <DropdownMenuTrigger class="h-full active:scale-[.98] duration-150 transition-[scale] flex items-center hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-lg group-data-[state=expanded]:p-1 min-w-0">
+                <DropdownMenuTrigger class="h-full active:scale-[.98] duration-150 transition-[scale,padding] flex items-center hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-lg group-data-[state=expanded]:p-1 min-w-0">
                     <Avatar class="flex relative bg-accent aspect-square size-8 items-center justify-center rounded-lg overflow-visible">
                         {
                             move || {
@@ -90,11 +93,11 @@ pub fn Profile() -> impl IntoView {
                         </DropdownMenuLabel>
                         <DropdownMenuItem
                             on:click=move |_| {
-                                open_user_settings.set(true);
+                                log_out.dispatch(Logout{});
                             }
                         >
-                            <IconSettings/>
-                            "Settings"
+                            <IconLogOut/>
+                            "Log Out"
                         </DropdownMenuItem>
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
@@ -127,10 +130,18 @@ pub fn Profile() -> impl IntoView {
                                 }
                             </DropdownMenuSubContent>
                         </DropdownMenuSub>
+                        <DropdownMenuItem
+                            on:click=move |_| {
+                                open_user_settings.set(true);
+                            }
+                        >
+                            <IconSettings/>
+                            "Settings"
+                        </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <div class="flex justify-center w-auto group-data-[state=expanded]:shrink-0 group-data-[state=collapsed]:w-0 items-center ml-auto gap-2 overflow-hidden px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 transition-opacity ease-out duration-250">
+            <div class="flex justify-center w-auto group-data-[state=expanded]:shrink-0 group-data-[state=collapsed]:w-0 items-center ml-auto gap-2 overflow-hidden px-1 group-data-[state=collapsed]:opacity-0 group-data-[state=expanded]:opacity-100 transition-all ease-out delay-75 duration-200">
                 <Button size=ButtonSizes::Icon variant=ButtonVariants::Ghost>
                     <IconMic/>
                 </Button>

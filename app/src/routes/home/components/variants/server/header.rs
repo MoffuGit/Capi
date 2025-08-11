@@ -16,7 +16,7 @@ pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
             <SidebarHeader class="flex w-full">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size=SidebarMenuButtonSize::Lg>
+                        <SidebarMenuButton class="group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:p-2!" size=SidebarMenuButtonSize::Lg>
                             {
                                 move || {
                                     server.get().map(|server| {
