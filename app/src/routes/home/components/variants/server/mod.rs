@@ -12,7 +12,7 @@ use leptos_dom::log;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
 
-use crate::components::icons::{IconBox, IconLink, IconPlus, IconSettings};
+use icons::{IconBox, IconLink, IconPlus, IconSettings};
 use crate::components::roles::*;
 use crate::components::ui::context::*;
 use crate::components::ui::dialog::*;

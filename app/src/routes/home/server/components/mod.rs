@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::components::icons::IconSearch;
+use icons::IconSearch;
 use crate::components::ui::button::*;
 use crate::components::ui::divider::Separator;
 use crate::components::ui::sheet::*;

@@ -61,7 +61,7 @@ pub fn App() -> impl IntoView {
                 <ConvexProvider>
                     <Router>
                         <main id="app">
-                            <Routes fallback=|| "Page not found.".into_view()>
+                            <Routes fallback=|| "Page not found.".into_any()>
                                 <Route path=StaticSegment("") view=Landing/>
                                 <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
                                     <Route path=StaticSegment("login") view=Login />
@@ -80,7 +80,7 @@ pub fn App() -> impl IntoView {
                                     />
                                     <Route
                                         path=StaticSegment("me")
-                                        view=move || view! { <div class="bg-red-500">"Private conversations"</div> }
+                                        view=move || view!{<div>"private"</div>}
                                     />
                                     <ParentRoute
                                         path=ParamSegment("server")

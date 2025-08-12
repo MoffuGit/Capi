@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use serde::Serialize;
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::IconChevronDown;
+use icons::IconChevronDown;
 use crate::components::ui::collapsible::*;
 use crate::components::ui::sidebar::*;
 use crate::routes::server::channel::components::sidebar::members::MembersItems;

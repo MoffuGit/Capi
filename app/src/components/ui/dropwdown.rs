@@ -17,7 +17,7 @@ use capi_primitives::menu::{MenuAlign, MenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::{IconChevronRight, IconCircle};
+use icons::{IconChevronRight, IconCircle};
 
 #[component]
 pub fn DropdownMenu(

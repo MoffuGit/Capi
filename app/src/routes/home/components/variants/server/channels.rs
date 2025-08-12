@@ -4,7 +4,7 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::{IconEllipsis, IconTrash};
+use icons::{IconEllipsis, IconTrash};
 use crate::components::ui::dropwdown::{
     DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
     DropdownMenuTrigger,

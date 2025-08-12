@@ -1,7 +1,7 @@
 use common::convex::Channel;
 use leptos::prelude::*;
 
-use crate::components::icons::{IconSearch, IconUsers};
+use icons::{IconSearch, IconUsers};
 use crate::components::ui::breadcrumb::{
     Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage,
 };

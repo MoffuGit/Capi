@@ -31,7 +31,7 @@ use capi_primitives::menu::{MenuAlign, MenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::IconChevronRight;
+use icons::IconChevronRight;
 
 #[component]
 pub fn ContextMenu(

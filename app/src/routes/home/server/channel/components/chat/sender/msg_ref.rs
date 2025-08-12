@@ -1,7 +1,7 @@
 use common::convex::ChannelMessage;
 use leptos::prelude::*;
 
-use crate::components::icons::IconX;
+use icons::IconX;
 use crate::components::ui::button::*;
 use crate::components::ui::collapsible::*;
 use crate::routes::server::channel::components::chat::ChatContext;

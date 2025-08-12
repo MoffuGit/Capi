@@ -1,4 +1,4 @@
-use crate::components::icons::{IconMoon, IconSun};
+use icons::{IconMoon, IconSun};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::theme::use_theme;
 use crate::routes::home::components::user_settings::content::SettingAction;

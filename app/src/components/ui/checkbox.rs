@@ -5,7 +5,7 @@ use capi_primitives::checkbox::{
 };
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::IconCheck;
+use icons::IconCheck;
 
 #[component]
 pub fn Checkbox(

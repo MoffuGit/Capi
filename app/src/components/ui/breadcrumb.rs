@@ -2,7 +2,7 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::IconEllipsis;
+use icons::IconEllipsis;
 
 #[component]
 pub fn Breadcrumb(children: Children) -> impl IntoView {

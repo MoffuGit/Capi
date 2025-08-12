@@ -1,6 +1,6 @@
 use crate::components::auth::use_auth;
-use crate::components::icons::IconImage;
-use crate::components::icons::IconX;
+use icons::IconImage;
+use icons::IconX;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::tooltip::*;

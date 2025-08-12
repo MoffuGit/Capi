@@ -13,7 +13,7 @@ use wasm_bindgen::JsCast;
 use web_sys::{Event, HtmlInputElement};
 
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconImage, IconLoader, IconX};
+use icons::{IconImage, IconLoader, IconX};
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::checkbox::Checkbox;

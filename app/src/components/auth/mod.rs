@@ -14,11 +14,11 @@ use super::ui::button::{ButtonSizes, ButtonVariants};
 
 #[derive(Clone)]
 pub struct AuthContext {
-    log_out: ServerAction<Logout>,
+    pub log_out: ServerAction<Logout>,
     google_auth: ServerAction<GoogleAuth>,
     handle_google_redirect: ServerAction<HandleGoogleRedirect>,
     refresh_google_token: ServerAction<RefreshToken>,
-    auth: Resource<Result<Option<Auth>, ServerFnError>>,
+    pub auth: Resource<Result<Option<Auth>, ServerFnError>>,
     expires_in: RwSignal<u64>,
 }
 
@@ -179,6 +179,7 @@ pub struct OAuthParams {
 pub fn HandleGAuth() -> impl IntoView {
     let AuthContext {
         handle_google_redirect,
+        auth,
         expires_in,
         ..
     } = use_context().expect("shouls acces the auth context");
@@ -188,6 +189,7 @@ pub fn HandleGAuth() -> impl IntoView {
     Effect::new(move |_| {
         if let Some(Ok(_expires_in)) = handle_google_redirect.value().get() {
             expires_in.set(_expires_in);
+            auth.refetch();
             navigate("/", NavigateOptions::default());
         }
     });

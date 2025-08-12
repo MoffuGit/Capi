@@ -6,7 +6,7 @@ use super::message_content::MessageContent;
 use super::message_header::MessageHeader;
 use super::message_reactions::MessageReactions;
 use super::message_reference::{MessageReferenceButton, ReferencedMessageDisplay};
-use crate::components::icons::IconCornerUpLeft;
+use icons::IconCornerUpLeft;
 use crate::components::ui::button::*;
 use crate::components::ui::context::*;
 use crate::routes::server::channel::components::chat::ChatContext;
@@ -87,7 +87,7 @@ pub fn MessageItem(
                     {
                         move || {
                             member.get()
-                                .map(|m| view! { <MessageHeader member=m date=date /> }.into_view())
+                                .map(|m| view! { <MessageHeader member=m date=date /> }.into_any())
                         }
                     }
                 </Show>
@@ -126,8 +126,12 @@ pub fn MessageItem(
                     <ContextSubTrigger>
                         "React"
                     </ContextSubTrigger>
-                    <ContextSubContent>
-                    //NOTE: add the list of emojis as reactions
+                    <ContextSubContent
+                        side_of_set=0.0
+                        side=MenuSide::Right
+                        align=MenuAlign::Center
+                        class="grid grid-cols-8 max-h-30 overflow-y-scroll"
+                    >
                         <ContextMenuItem>
                             "a reaction"
                         </ContextMenuItem>

@@ -4,7 +4,7 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
 
-use crate::components::icons::{
+use icons::{
     IconCirclePlus, IconCompass, IconGlobe, IconInbox, IconMessageCircle, IconPencil, IconSearch,
 };
 use crate::components::ui::context::*;

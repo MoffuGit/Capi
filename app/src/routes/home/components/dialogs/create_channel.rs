@@ -6,8 +6,8 @@ use serde::Serialize;
 use std::time::Duration;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::IconChevronDown;
-use crate::components::icons::IconLoader;
+use icons::IconChevronDown;
+use icons::IconLoader;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::dialog::*;

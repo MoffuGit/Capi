@@ -5,7 +5,7 @@ use leptos::task::spawn_local;
 use wasm_bindgen::JsCast as _;
 use web_sys::{Event, HtmlInputElement};
 
-use crate::components::icons::{IconPaperClip, IconSend, IconSticker};
+use icons::{IconPaperClip, IconSend, IconSticker};
 use crate::components::ui::button::*;
 use crate::routes::server::channel::components::chat::ClientFile;
 

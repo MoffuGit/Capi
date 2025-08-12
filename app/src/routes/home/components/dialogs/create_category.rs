@@ -6,7 +6,7 @@ use leptos::prelude::*;
 use serde::Serialize;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::IconLoader;
+use icons::IconLoader;
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::dialog::{Dialog, DialogFooter, DialogHeader, DialogPopup};

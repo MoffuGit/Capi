@@ -2,7 +2,7 @@ use common::convex::Server;
 use leptos::prelude::*;
 use leptos_router::components::A;
 
-use crate::components::icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
+use icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
 use crate::components::roles::*;
 use crate::components::ui::avatar::*;
 use crate::components::ui::dropwdown::*;

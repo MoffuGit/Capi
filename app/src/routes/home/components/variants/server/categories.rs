@@ -4,7 +4,7 @@ use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::{IconChevronDown, IconPlus};
+use icons::{IconChevronDown, IconPlus};
 use crate::components::ui::collapsible::*;
 use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;

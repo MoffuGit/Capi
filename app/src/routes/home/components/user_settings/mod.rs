@@ -1,7 +1,7 @@
 mod content;
 mod sidebar;
 
-use crate::components::icons::{IconCircleUser, IconSettings2};
+use icons::{IconCircleUser, IconSettings2};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::dialog::{Dialog, DialogPopup};
 use crate::components::ui::sidebar::SidebarProvider;

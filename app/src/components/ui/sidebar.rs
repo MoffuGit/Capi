@@ -7,7 +7,7 @@ const SIDEBAR_WIDTH: &str = "16rem";
 const SIDEBAR_WIDTH_MOBILE: &str = "18rem";
 const SIDEBAR_WIDTH_ICON: &str = "3rem";
 
-use crate::components::icons::IconPanelLeft;
+use icons::IconPanelLeft;
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::divider::Separator;
 use crate::components::ui::input::Input;

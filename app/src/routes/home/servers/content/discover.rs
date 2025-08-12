@@ -85,7 +85,6 @@ pub fn ServerBanner(children: Children, server: Signal<Server>) -> impl IntoView
 #[component]
 pub fn ServerImage(server: Signal<Server>) -> impl IntoView {
     view! {
-        // Ensuring min-w-0 here as well for robustness
         <Avatar class="absolute shadow-xs left-2 size-16 bg-background p-1 rounded-lg overflow-visible min-w-0">
             <AvatarImage url=MaybeProp::derive(move || server.get().image_url) class="rounded-md w-full h-full object-cover"/>
             <AvatarFallback class="rounded-lg text-xl">

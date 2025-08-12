@@ -8,7 +8,7 @@ use leptos::prelude::*;
 use serde::Serialize;
 use tailwind_fuse::tw_merge;
 
-use crate::components::icons::IconChevronDown;
+use icons::IconChevronDown;
 use crate::components::ui::avatar::*;
 use crate::components::ui::collapsible::*;
 use crate::components::ui::sidebar::*;
@@ -59,29 +59,31 @@ pub fn MembersSideBar(
             <SidebarContent>
                 <RolesItems server=server/>
                 <Show when=move || online.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
-                    <SidebarGroup>
-                        <CollapsibleTrigger>
-                            <SidebarGroupLabel class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer">
-                                <IconChevronDown class=Signal::derive(
-                                    move || {
-                                        tw_merge!("mr-1", if is_online_open.get() {
-                                                "rotate-0"
-                                            } else {
-                                                "-rotate-90"
-                                            },
-                                            "transition-transform ease-in-out-quad duration-150"
-                                        )
-                                    }
-                                )/>
-                                "Online"
-                            </SidebarGroupLabel>
-                        </CollapsibleTrigger>
-                        <SidebarGroupContent>
-                            <CollapsiblePanel>
-                                <MembersItems members=online/>
-                            </CollapsiblePanel>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
+                    <Collapsible open=is_online_open>
+                        <SidebarGroup>
+                            <CollapsibleTrigger>
+                                <SidebarGroupLabel class="px-1 hover:text-sidebar-foreground transition-all select-none cursor-pointer">
+                                    <IconChevronDown class=Signal::derive(
+                                        move || {
+                                            tw_merge!("mr-1", if is_online_open.get() {
+                                                    "rotate-0"
+                                                } else {
+                                                    "-rotate-90"
+                                                },
+                                                "transition-transform ease-in-out-quad duration-150"
+                                            )
+                                        }
+                                    )/>
+                                    "Online"
+                                </SidebarGroupLabel>
+                            </CollapsibleTrigger>
+                            <SidebarGroupContent>
+                                <CollapsiblePanel>
+                                    <MembersItems members=online/>
+                                </CollapsiblePanel>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </Collapsible>
                 </Show>
                 <Show when=move || offline.get().and_then(|res| res.ok()).is_some_and(|members| !members.is_empty())>
                     <Collapsible open=is_offline_open>

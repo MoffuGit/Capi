@@ -7,7 +7,7 @@ use serde::Serialize;
 use strum::IntoEnumIterator;
 
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconHeadphones, IconLogOut, IconMic, IconSettings};
+use icons::{IconHeadphones, IconLogOut, IconMic, IconSettings};
 use crate::components::ui::avatar::*;
 use crate::components::ui::badge::*;
 use crate::components::ui::button::*;

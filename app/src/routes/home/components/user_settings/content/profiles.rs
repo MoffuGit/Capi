@@ -1,5 +1,5 @@
 use crate::components::auth::use_auth;
-use crate::components::icons::{IconImage, IconX};
+use icons::{IconImage, IconX};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::input::Input;
