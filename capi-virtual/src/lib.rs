@@ -18,7 +18,7 @@ pub struct Virtualizer {
 pub fn use_virtualizer(
     data_size: Signal<usize>,
     scroll_ref: NodeRef<Div>,
-    estimate_size: f64,
+    estimate_size: impl Fn(usize) -> f64 + Copy + Send + Sync + 'static,
     padding: usize,
 ) -> Virtualizer {
     let (scroll_top, set_scroll_top) = signal(0.0);
@@ -43,7 +43,7 @@ pub fn use_virtualizer(
 
                 if let Some(element) = scroll_ref.get() {
                     let _ = element.remove_event_listener_with_callback(
-                        "resize",
+                        "scroll",
                         closure_js.as_ref().unchecked_ref(),
                     );
                 }
@@ -69,30 +69,44 @@ pub fn use_virtualizer(
         });
     }
 
-    let total_height = Signal::derive(move || data_size.get() as f64 * estimate_size);
+    let all_items_data = Memo::new(move |_| {
+        let mut items = Vec::with_capacity(data_size.get());
+        let mut current_offset = 0.0;
+        for i in 0..data_size.get() {
+            let size = estimate_size(i);
+            let item_start = current_offset;
+            let item_end = current_offset + size;
+            items.push(VirtualItem {
+                key: i,
+                index: i,
+                start: item_start,
+                end: item_end,
+                size,
+            });
+            current_offset = item_end;
+        }
+        (items, current_offset)
+    });
+
+    let total_height = Signal::derive(move || all_items_data.get().1);
 
     let virtual_items = Memo::new(move |_| {
-        let start_node = ((scroll_top.get() / estimate_size).floor() as usize)
-            .saturating_sub(padding)
-            .max(0);
+        let (all_items, _) = all_items_data.get();
+        if all_items.is_empty() {
+            return Vec::new();
+        }
 
-        let visibles_nodes = ((client_height.get() / estimate_size).ceil() as usize
-            + (2 * padding))
-            .min(data_size.get() - start_node);
+        let current_scroll_top = scroll_top.get();
+        let current_client_height = client_height.get();
+        let viewport_end = current_scroll_top + current_client_height;
 
-        (start_node..(visibles_nodes + start_node))
-            .map(|idx| {
-                let item_start = idx as f64 * estimate_size;
-                let item_end = (idx + 1) as f64 * estimate_size;
-                VirtualItem {
-                    key: idx,
-                    index: idx,
-                    start: item_start,
-                    end: item_end,
-                    size: estimate_size,
-                }
-            })
-            .collect::<Vec<_>>()
+        let mut start_idx = all_items.partition_point(|item| item.end < current_scroll_top);
+        start_idx = start_idx.saturating_sub(padding).max(0);
+
+        let mut end_idx = all_items.partition_point(|item| item.start < viewport_end);
+        end_idx = end_idx.saturating_add(padding).min(all_items.len());
+
+        all_items[start_idx..end_idx].to_vec()
     });
 
     Virtualizer {
