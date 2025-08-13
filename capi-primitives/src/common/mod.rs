@@ -31,7 +31,7 @@ pub fn is_mobile() -> Memo<bool> {
 
     let is_mobile = Memo::new(move |_| window_size.get() <= 768.0);
 
-    #[cfg(not(feature = "ssr"))]
+    #[cfg(feature = "hydrate")]
     {
         use send_wrapper::SendWrapper;
         use wasm_bindgen::JsCast;
@@ -60,10 +60,10 @@ pub fn is_mobile() -> Memo<bool> {
 
             let _ = window()
                 .add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref());
-        });
-        on_cleanup({
-            let cleanup = SendWrapper::new(cleanup_fn);
-            move || cleanup.take()()
+            on_cleanup({
+                let cleanup = SendWrapper::new(cleanup_fn.clone());
+                move || cleanup.take()()
+            });
         });
     }
 

@@ -62,7 +62,7 @@ pub fn use_transition_status(
 
     let transition_duration_ms: RwSignal<u64> = RwSignal::new(150);
 
-    #[cfg(not(feature = "ssr"))]
+    #[cfg(feature = "hydrate")]
     let read_style_closure = Rc::new(Closure::new(move || {
         if let Some(element) = content_node_ref
             .get_untracked()
@@ -105,7 +105,7 @@ pub fn use_transition_status(
             if current_status == &TransitionStatus::Opening
                 || current_status == &TransitionStatus::Closing
             {
-                #[cfg(not(feature = "ssr"))]
+                #[cfg(feature = "hydrate")]
                 {
                     // Schedule the closure to run on the next animation frame
                     let cancel_frame = AnimationFrame::request(read_style_closure.clone());
@@ -134,7 +134,7 @@ pub fn use_transition_status(
         }
     });
 
-    #[cfg(not(feature = "ssr"))]
+    #[cfg(feature = "hydrate")]
     let closure_for_animation_frame = Rc::new(Closure::new(move || {
         transition_status.set(TransitionStatus::Opening);
     }));
@@ -146,7 +146,7 @@ pub fn use_transition_status(
             && (current_status == TransitionStatus::Closed
                 || current_status == TransitionStatus::Closing)
         {
-            #[cfg(not(feature = "ssr"))]
+            #[cfg(feature = "hydrate")]
             {
                 let cancel_frame = AnimationFrame::request(closure_for_animation_frame.clone());
                 on_cleanup(move || {
@@ -162,7 +162,7 @@ pub fn use_transition_status(
         let enable_idle_captured = enable_idle_state;
 
         if current_open && current_status == TransitionStatus::Opening && enable_idle_captured {
-            #[cfg(not(feature = "ssr"))]
+            #[cfg(feature = "hydrate")]
             {
                 let transition_status_setter = transition_status;
                 let timeout_handle = set_timeout_with_handle(
@@ -193,13 +193,13 @@ pub fn use_transition_status(
         }
     });
 
-    #[cfg(not(feature = "ssr"))]
+    #[cfg(feature = "hydrate")]
     let ending = Rc::new(Closure::new(move || {
         transition_status.set(TransitionStatus::Closing);
     }));
 
     Effect::new(move |_| {
-        #[cfg(not(feature = "ssr"))]
+        #[cfg(feature = "hydrate")]
         {
             let open_val = open.get();
             let mounted_val = mounted.get();
@@ -224,7 +224,7 @@ pub fn use_transition_status(
         let node_ref_clone = content_node_ref;
 
         if !current_open && current_status == TransitionStatus::Closing {
-            #[cfg(not(feature = "ssr"))]
+            #[cfg(feature = "hydrate")]
             {
                 let duration = transition_duration_ms.get_untracked();
 

@@ -7,13 +7,13 @@ const SIDEBAR_WIDTH: &str = "16rem";
 const SIDEBAR_WIDTH_MOBILE: &str = "18rem";
 const SIDEBAR_WIDTH_ICON: &str = "3rem";
 
-use icons::IconPanelLeft;
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::divider::Separator;
 use crate::components::ui::input::Input;
 use crate::components::ui::sheet::{Sheet, SheetPopup};
 use crate::components::ui::skeleton::Skeleton;
 use capi_primitives::common::{is_mobile, Side};
+use icons::IconPanelLeft;
 
 #[derive(Clone)]
 pub struct SidebarContextValue {
@@ -168,20 +168,19 @@ pub fn SidebarProvider(
                     handle_key_down.as_ref().unchecked_ref(),
                 )
                 .unwrap();
-        });
-
-        let cleanup_fn = {
-            let closure_js = closure.clone();
-            move || {
-                let _ = window().remove_event_listener_with_callback(
-                    "keydown",
-                    closure_js.as_ref().unchecked_ref(),
-                );
-            }
-        };
-        on_cleanup({
-            let cleanup = SendWrapper::new(cleanup_fn);
-            move || cleanup.take()()
+            let cleanup_fn = {
+                let closure_js = closure.clone();
+                move || {
+                    let _ = window().remove_event_listener_with_callback(
+                        "keydown",
+                        closure_js.as_ref().unchecked_ref(),
+                    );
+                }
+            };
+            on_cleanup({
+                let cleanup = SendWrapper::new(cleanup_fn);
+                move || cleanup.take()()
+            });
         });
     }
 
