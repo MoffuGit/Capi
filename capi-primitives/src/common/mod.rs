@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 pub mod floating;
-pub mod size;
 pub mod status;
 
 use leptos::prelude::*;

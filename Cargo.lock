@@ -151,6 +151,7 @@ dependencies = [
  "axum-extra",
  "base64 0.13.1",
  "capi-primitives",
+ "capi-virtual",
  "cfg-if",
  "chrono",
  "common",
@@ -600,6 +601,15 @@ dependencies = [
  "strum_macros",
  "tailwind_fuse",
  "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "capi-virtual"
+version = "0.1.0"
+dependencies = [
+ "leptos",
+ "send_wrapper",
  "web-sys",
 ]
 

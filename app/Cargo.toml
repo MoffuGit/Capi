@@ -16,6 +16,7 @@ convex-client = { path = "../convex-client", optional = true }
 
 icons = { path = "../icons" }
 capi-primitives = {path="../capi-primitives", optional = true}
+capi-virtual = { path = "../capi-virtual" }
 common = { path = "../common", optional = true }
 http.workspace = true
 cfg-if.workspace = true
@@ -49,5 +50,5 @@ reqwest.workspace = true
 
 [features]
 default = []
-hydrate = ["leptos/hydrate", "api/hydrate", "dep:common",  "convex-client/hydrate", "capi-primitives/hydrate"]
+hydrate = ["leptos/hydrate", "api/hydrate", "dep:common",  "convex-client/hydrate", "capi-primitives/hydrate", "capi-virtual/hydrate"]
 ssr = ["api/ssr", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:convex-client", "capi-primitives/ssr", "dep:leptos_axum", "dep:axum-extra", "dep:axum", "dep:common"]
