@@ -1,31 +1,65 @@
-use common::convex::Reaction;
-use convex_client::leptos::{Mutation, Query};
+use common::convex::{ChannelMessage, Member};
+use convex_client::leptos::{Mutation, UseMutation};
 use leptos::prelude::*;
 use serde::Serialize;
 
 use crate::components::ui::button::*;
 
-//NOTE: this will have at the end a button for adding more reactions,
-//it need to check if the user already have reacted with an emoji, if true, on click will remove,
-//if not then will react
 #[component]
-pub fn MessageReactions(reactions: Vec<Reaction>) -> impl IntoView {
+pub fn MessageReactions(
+    msg: StoredValue<ChannelMessage>,
+    member: Signal<Option<Member>>,
+) -> impl IntoView {
+    let add_reaction = UseMutation::new::<AddReaction>();
+    let remove_reaction = UseMutation::new::<RemoveReaction>();
+
     view! {
-        <div class="flex w-auto h-auto items-center gap-1">
+        <div class="flex w-auto h-auto items-center gap-1 pb-1">
             <For
-                each=move || reactions.clone()
+                each=move || msg.get_value().reactions
                 key=|reaction| reaction.id.clone()
-                let(
-                    reaction
-                )
-            >
-                <Button
-                    variant=ButtonVariants::Secondary
-                    class="size-4"
-                >
-                    {reaction.emoji}
-                </Button>
-            </For>
+                children=move |reaction| {
+                    let emoji = StoredValue::new(reaction.emoji);
+                    view!{
+                        <Button
+                            variant=Signal::derive(move || {
+                                if reaction.has_reacted {
+                                    ButtonVariants::Secondary
+                                } else {
+                                    ButtonVariants::Ghost
+                                }
+                            })
+                            size=ButtonSizes::Sm
+                            on:click=move |_| {
+                                if let Some(member) = member.get() {
+                                    if reaction.has_reacted {
+                                        remove_reaction.dispatch(RemoveReaction {
+                                            message: msg.get_value().id,
+                                            member: member.id,
+                                            emoji: emoji.get_value(),
+                                        });
+                                    } else {
+                                        add_reaction.dispatch(AddReaction {
+                                            message: msg.get_value().id,
+                                            member: member.id,
+                                            emoji: emoji.get_value()
+                                        });
+                                    }
+
+                                }
+                            }
+                        >
+                            <span>
+                                {emoji.get_value()}
+                            </span>
+                            <span>
+                                {reaction.count as u64}
+                            </span>
+                        </Button>
+
+                    }
+                }
+            />
         </div>
     }
 }
@@ -33,10 +67,10 @@ pub fn MessageReactions(reactions: Vec<Reaction>) -> impl IntoView {
 #[derive(Debug, Serialize, PartialEq, Clone)]
 pub struct AddReaction {
     #[serde(rename = "messageId")]
-    message: String,
+    pub message: String,
     #[serde(rename = "memberId")]
-    member: String,
-    emoji: String,
+    pub member: String,
+    pub emoji: String,
 }
 
 impl Mutation for AddReaction {
@@ -60,6 +94,6 @@ impl Mutation for RemoveReaction {
     type Output = ();
 
     fn name(&self) -> String {
-        "reaction:RemoveReaction".into()
+        "reaction:removeReaction".into()
     }
 }

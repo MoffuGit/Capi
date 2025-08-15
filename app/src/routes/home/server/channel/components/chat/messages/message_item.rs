@@ -1,15 +1,19 @@
 use capi_primitives::menu::{MenuAlign, MenuSide};
 use common::convex::{ChannelMessage, Member};
+use convex_client::leptos::UseMutation;
+use emojis::Emoji;
 use leptos::prelude::*;
 
 use super::message_content::MessageContent;
 use super::message_header::MessageHeader;
 use super::message_reactions::MessageReactions;
-use super::message_reference::{MessageReferenceButton, ReferencedMessageDisplay};
-use icons::IconCornerUpLeft;
-use crate::components::ui::button::*;
+use super::message_reference::ReferencedMessageDisplay;
+use crate::components::emojis::EmojiSelector;
 use crate::components::ui::context::*;
+use crate::routes::server::channel::components::chat::messages::message_actions::MessageActions;
+use crate::routes::server::channel::components::chat::messages::message_reactions::AddReaction;
 use crate::routes::server::channel::components::chat::ChatContext;
+use icons::IconCornerUpLeft;
 
 #[component]
 pub fn MessageItem(
@@ -30,6 +34,17 @@ pub fn MessageItem(
         .referenced_message
         .as_ref()
         .map(|m| m.sender.clone());
+
+    let add_reaction = UseMutation::new::<AddReaction>();
+    let on_select_emoji = Callback::new(move |emoji: &'static Emoji| {
+        if let Some(member) = member.get() {
+            add_reaction.dispatch(AddReaction {
+                message: msg.get_value().id,
+                member: member.id,
+                emoji: emoji.to_string(),
+            });
+        }
+    });
 
     let referenced_message_author = Signal::derive(move || {
         if let Some(author_id) = referenced_message_author_id_option.clone() {
@@ -66,9 +81,7 @@ pub fn MessageItem(
                     });
                 }
             >
-                <div class="absolute bg-popover text-popover-foreground flex items-center h-auto z-10 w-auto overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md group-hover:opacity-100 opacity-0 top-0 right-4 -translate-y-1/2">
-                    <MessageReferenceButton msg=msg.get_value() />
-                </div>
+                <MessageActions msg=msg member=member/>
 
                 <Show when=move || msg.get_value().referenced_message.is_some()>
                     { move || {
@@ -93,25 +106,9 @@ pub fn MessageItem(
                 </Show>
 
                 <MessageContent msg=msg.get_value() />
-                <MessageReactions reactions=msg.get_value().reactions />
+                <MessageReactions msg=msg member=member />
             </ContextMenuTrigger>
             <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
-                <Show when=move || context.reactions.get().is_some_and(|reac| !reac.is_empty())>
-                    <div class="flex w-full h-auto items-center">
-                        <For
-                            each=move || context.reactions.get().unwrap_or_default()
-                            key=|reaction| reaction.clone()
-                            let(reaction)
-                        >
-                            <Button
-                                variant=ButtonVariants::Secondary
-                                class="size-4"
-                            >
-                                {reaction}
-                            </Button>
-                        </For>
-                    </div>
-                </Show>
                 <ContextMenuItem
                     close_on_click=true
                     {..}
@@ -124,17 +121,10 @@ pub fn MessageItem(
                 </ContextMenuItem>
                 <ContextSubMenu>
                     <ContextSubTrigger>
-                        "React"
+                        "Reaction"
                     </ContextSubTrigger>
-                    <ContextSubContent
-                        side_of_set=0.0
-                        side=MenuSide::Right
-                        align=MenuAlign::Center
-                        class="grid grid-cols-8 max-h-30 overflow-y-scroll"
-                    >
-                        <ContextMenuItem>
-                            "a reaction"
-                        </ContextMenuItem>
+                    <ContextSubContent side=MenuSide::Right align=MenuAlign::Center>
+                        <EmojiSelector history=context.reactions class="p-1" on_select_emoji=on_select_emoji/>
                     </ContextSubContent>
                 </ContextSubMenu>
             </ContextMenuContent>

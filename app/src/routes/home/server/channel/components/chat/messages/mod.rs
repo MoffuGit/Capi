@@ -1,4 +1,5 @@
 mod group;
+mod message_actions;
 mod message_attachments;
 mod message_content;
 mod message_header;

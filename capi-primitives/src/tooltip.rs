@@ -4,9 +4,7 @@ use leptos::prelude::*;
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use tailwind_fuse::tw_merge;
 
-use crate::common::floating::{
-    HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers, use_is_hovering_area,
-};
+use crate::common::floating::{HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers};
 use crate::common::status::{TransitionStatus, TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
 

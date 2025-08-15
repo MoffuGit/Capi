@@ -5,9 +5,9 @@ use leptos::task::spawn_local;
 use wasm_bindgen::JsCast as _;
 use web_sys::{Event, HtmlInputElement};
 
-use icons::{IconPaperClip, IconSend, IconSticker};
 use crate::components::ui::button::*;
 use crate::routes::server::channel::components::chat::ClientFile;
+use icons::{IconPaperClip, IconSend, IconSmile};
 
 #[component]
 pub fn MessageActionButtons(
@@ -53,7 +53,7 @@ pub fn MessageActionButtons(
                 size=ButtonSizes::Icon variant=ButtonVariants::Ghost
                 class="size-7 text-muted-foreground hover:text-foreground"
             >
-                <IconSticker/>
+                <IconSmile/>
             </Button>
             <Button size=ButtonSizes::Icon
                 variant=ButtonVariants::Secondary

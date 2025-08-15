@@ -48,8 +48,16 @@ pub fn MenuProvider(
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
     #[prop(optional)] dismissible: bool,
+    #[prop(into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
     let transition_status = use_transition_status(open.into(), content_ref, true, true);
+    Effect::new(move |_| {
+        if let Some(on_close) = on_close
+            && !transition_status.mounted.get()
+        {
+            on_close.run(());
+        }
+    });
     view! {
         <Provider
         value=MenuProviderContext {

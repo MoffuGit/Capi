@@ -2,10 +2,8 @@ use leptos::{html, prelude::*};
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use tailwind_fuse::tw_merge;
 
-use super::{MenuAlign, MenuPositionReturn, MenuProviderContext, MenuSide, use_menu_position};
-use crate::common::floating::{
-    HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers, use_is_hovering_area,
-};
+use super::{MenuAlign, MenuPositionReturn, MenuSide, use_menu_position};
+use crate::common::floating::{HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers};
 use crate::common::status::{TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
 use leptos::context::Provider;

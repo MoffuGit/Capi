@@ -28,9 +28,11 @@ pub fn DropdownMenu(
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
     #[prop(optional)] dismissible: bool,
+    #[prop(optional, into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
     view! {
         <DropdownMenuPrimitive
+            on_close=on_close
             modal=modal
             open=open
             hidden=hidden

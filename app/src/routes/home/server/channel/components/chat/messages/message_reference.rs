@@ -3,27 +3,10 @@ use std::ops::Not;
 use common::convex::{ChannelMessage, Member};
 use leptos::prelude::*;
 
-use icons::{IconCornerUpLeft, IconImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::markdown::{Markdown, MarkdownParser};
 use crate::routes::server::channel::components::chat::ChatContext;
-
-#[component]
-pub fn MessageReferenceButton(msg: ChannelMessage) -> impl IntoView {
-    let ChatContext { msg_reference, .. } =
-        use_context::<ChatContext>().expect("should access to the chat context");
-    view! {
-        <Button
-            variant=ButtonVariants::Ghost
-            size=ButtonSizes::Icon class="size-6"
-            on:click=move |_| {
-                msg_reference.set(Some(msg.clone()));
-            }
-        >
-            <IconCornerUpLeft />
-        </Button>
-    }
-}
+use icons::{IconCornerUpLeft, IconImage};
 
 #[component]
 pub fn ReferencedMessageDisplay(

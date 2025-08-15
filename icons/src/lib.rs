@@ -30,6 +30,42 @@ pub fn IconFile(#[prop(into, optional)] class: Signal<String>) -> impl IntoView 
 }
 
 #[component]
+pub fn IconPersonStanding(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+        <circle cx="12" cy="5" r="1"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="M12 10v4"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconLamp(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+        <path d="M12 12v6"/><path d="M4.077 10.615A1 1 0 0 0 5 12h14a1 1 0 0 0 .923-1.385l-3.077-7.384A2 2 0 0 0 15 2H9a2 2 0 0 0-1.846 1.23Z"/><path d="M8 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconCircleCheck(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+        <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconFlag(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+        <path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/>
+        </Icon>
+    }
+}
+
+#[component]
 pub fn IconCircle(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
         <Icon class=class>
@@ -83,6 +119,58 @@ pub fn IconCornerUpLeft(#[prop(into, optional)] class: Signal<String>) -> impl I
     }
 }
 
+#[component]
+pub fn IconSmile(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+        <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconLeafe(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconPopCorn(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4"/>
+            <path d="M10 22 9 8"/>
+            <path d="m14 22 1-14"/>
+            <path d="M20 8c.5 0 .9.4.8 1l-2.6 12c-.1.5-.7 1-1.2 1H7c-.6 0-1.1-.4-1.2-1L3.2 9c-.1-.6.3-1 .8-1Z"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconPlane(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconWavesLadder(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M19 5a2 2 0 0 0-2 2v11"/>
+            <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+            <path d="M7 13h10"/>
+            <path d="M7 9h10"/>
+            <path d="M9 5a2 2 0 0 0-2 2v11"/>
+        </Icon>
+    }
+}
 #[component]
 pub fn IconSend(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
     view! {
@@ -313,6 +401,15 @@ pub fn IconSearch(#[prop(into, optional)] class: Signal<String>) -> impl IntoVie
         <Icon class=class>
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.3-4.3"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconClock(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/>
         </Icon>
     }
 }

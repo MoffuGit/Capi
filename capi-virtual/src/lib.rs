@@ -3,22 +3,37 @@ use leptos::prelude::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VirtualItem {
-    pub key: usize,
+    pub key: String,
     pub index: usize,
     pub start: f64,
     pub end: f64,
     pub size: f64,
 }
 
+#[derive(Clone, Copy)]
 pub struct Virtualizer {
     pub virtual_items: Memo<Vec<VirtualItem>>,
     pub total_height: Signal<f64>,
+    scroll_ref: NodeRef<Div>,
+    all_items_data: Memo<(Vec<VirtualItem>, f64)>,
+}
+
+impl Virtualizer {
+    pub fn scroll_to_key(&self, target_key: &str) {
+        let (all_items, _) = self.all_items_data.get();
+        if let Some(item) = all_items.iter().find(|item| item.key == target_key)
+            && let Some(element) = self.scroll_ref.get()
+        {
+            element.set_scroll_top(item.start as i32);
+        }
+    }
 }
 
 pub fn use_virtualizer(
     data_size: Signal<usize>,
     scroll_ref: NodeRef<Div>,
     estimate_size: impl Fn(usize) -> f64 + Copy + Send + Sync + 'static,
+    key: impl Fn(usize) -> String + Copy + Send + Sync + 'static,
     padding: usize,
 ) -> Virtualizer {
     let (scroll_top, set_scroll_top) = signal(0.0);
@@ -77,7 +92,7 @@ pub fn use_virtualizer(
             let item_start = current_offset;
             let item_end = current_offset + size;
             items.push(VirtualItem {
-                key: i,
+                key: key(i),
                 index: i,
                 start: item_start,
                 end: item_end,
@@ -112,5 +127,7 @@ pub fn use_virtualizer(
     Virtualizer {
         virtual_items,
         total_height,
+        scroll_ref,
+        all_items_data,
     }
 }
