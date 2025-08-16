@@ -4,9 +4,6 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
 
-use icons::{
-    IconCirclePlus, IconCompass, IconGlobe, IconInbox, IconMessageCircle, IconPencil, IconSearch,
-};
 use crate::components::ui::context::*;
 use crate::components::ui::dialog::*;
 use crate::components::ui::input::*;
@@ -17,6 +14,9 @@ use crate::routes::home::components::dialogs::create_server::CreateServerDialog;
 use crate::routes::home::components::servers::ServersItems;
 use crate::routes::use_profile;
 use capi_primitives::menu::{MenuAlign, MenuSide};
+use icons::{
+    IconCirclePlus, IconCompass, IconGlobe, IconInbox, IconMessageCircle, IconPencil, IconSearch,
+};
 
 use super::sidebar::{ServerData, SideBarOption};
 

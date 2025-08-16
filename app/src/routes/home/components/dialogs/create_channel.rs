@@ -6,8 +6,6 @@ use serde::Serialize;
 use std::time::Duration;
 
 use crate::components::auth::use_auth;
-use icons::IconChevronDown;
-use icons::IconLoader;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::dialog::*;
@@ -16,6 +14,8 @@ use crate::components::ui::input::*;
 use crate::components::ui::label::*;
 use capi_primitives::menu::MenuAlign;
 use capi_primitives::menu::MenuSide;
+use icons::IconChevronDown;
+use icons::IconLoader;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct CreateChannel {

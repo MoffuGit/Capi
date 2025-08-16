@@ -1,3 +1,4 @@
+use crate::common::floating::TriggerBoundingRect;
 use crate::menu::MenuProviderContext;
 
 pub use super::menu::GroupLabel as ContextMenuGroupLabel;
@@ -25,37 +26,20 @@ pub fn ContextMenuTrigger(
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
+    let set_trigger_rect = context.floating.position_ref;
     let open = context.open;
-    let hidden = context.hidden;
     let trigger_ref = context.trigger_ref;
-    #[cfg(feature = "hydrate")]
-    {
-        let UseMouseReturn { x, y, .. } = use_mouse();
-        Effect::new(move |_| {
-            if context.open.get() {
-                if !pointer {
-                    use leptos_use::{UseElementBoundingReturn, use_element_bounding};
-
-                    let UseElementBoundingReturn {
-                        width,
-                        height,
-                        x,
-                        y,
-                        ..
-                    } = use_element_bounding(trigger_ref);
-                    context.trigger_width.set(width.get_untracked());
-                    context.trigger_height.set(height.get_untracked());
-                    context.trigger_x.set(x.get_untracked());
-                    context.trigger_y.set(y.get_untracked());
-                } else {
-                    context.trigger_width.set(0.0);
-                    context.trigger_height.set(0.0);
-                    context.trigger_x.set(x.get_untracked());
-                    context.trigger_y.set(y.get_untracked());
-                }
-            }
-        });
-    }
+    let UseMouseReturn { x, y, .. } = use_mouse();
+    Effect::new(move |_| {
+        if context.open.get() && pointer {
+            set_trigger_rect.set(Some(TriggerBoundingRect {
+                x: x.get_untracked(),
+                y: y.get_untracked(),
+                width: 0.0,
+                height: 0.0,
+            }));
+        }
+    });
     view! {
         <div
             class=move || {
@@ -70,7 +54,6 @@ pub fn ContextMenuTrigger(
             on:contextmenu=move |evt| {
                 evt.prevent_default();
                 open.set(true);
-                hidden.set(false);
             }
             node_ref=trigger_ref
         >

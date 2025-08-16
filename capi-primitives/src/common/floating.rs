@@ -1,168 +1,262 @@
-use leptos::context::Provider;
+use leptos::html::Div;
 use leptos::prelude::*;
-use web_sys::PointerEvent;
+use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 
-#[derive(Clone)]
-pub struct HoverAreaContext {
-    pub active_hovers_count: RwSignal<usize>,
-    pub is_hovering: RwSignal<bool>,
-    pub(crate) timeout_handle: StoredValue<Option<TimeoutHandle>>,
-    pub(crate) timeout_open_handle: StoredValue<Option<TimeoutHandle>>,
-    pub enabled: RwSignal<bool>,
-    pub timeout_duration_ms: StoredValue<u64>,
-    pub timeout_open_duration_ms: StoredValue<u64>,
+use super::{Align, Side};
+
+#[derive(Debug, Clone, Copy)]
+pub struct FloatingPosition {
+    pub x: Memo<f64>,
+    pub y: Memo<f64>,
+    pub arrow: Option<UseArrow>,
 }
 
-#[component]
-pub fn HoverAreaProvider(
-    children: Children,
-    #[prop(default = 200)] timeout_duration_ms: u64,
-    #[prop(default = 0)] timeout_open_duration_ms: u64,
-    #[prop(into)] enabled: RwSignal<bool>,
-    #[prop(into, optional)] is_hovering: RwSignal<bool>,
-) -> impl IntoView {
-    let active_hovers_count = RwSignal::new(0);
-    let timeout_handle = StoredValue::new(None::<TimeoutHandle>);
-    let timeout_open_handle = StoredValue::new(None::<TimeoutHandle>);
-    let timeout_duration_ms_sv = StoredValue::new(timeout_duration_ms);
-    let timeout_open_duration_ms_sv = StoredValue::new(timeout_open_duration_ms);
-
-    Effect::new(move |_| {
-        let current_hover_count = active_hovers_count.get();
-        let is_area_enabled = enabled.get();
-        let is_currently_hovering_area = is_hovering.get();
-
-        if !is_area_enabled {
-            is_hovering.set(false);
-            if let Some(handle) = timeout_handle.get_value() {
-                handle.clear();
-                timeout_handle.set_value(None);
-            }
-            if let Some(handle) = timeout_open_handle.get_value() {
-                handle.clear();
-                timeout_open_handle.set_value(None);
-            }
-            return;
-        }
-
-        if current_hover_count > 0 {
-            if let Some(handle) = timeout_handle.get_value() {
-                handle.clear();
-                timeout_handle.set_value(None);
-            }
-
-            if !is_currently_hovering_area && timeout_open_handle.get_value().is_none() {
-                let open_handle = set_timeout_with_handle(
-                    move || {
-                        if active_hovers_count.get_untracked() > 0 && enabled.get_untracked() {
-                            is_hovering.set(true);
-                        }
-                        timeout_open_handle.set_value(None);
-                    },
-                    std::time::Duration::from_millis(timeout_open_duration_ms_sv.get_value()),
-                );
-                timeout_open_handle.set_value(open_handle.ok());
-            }
-        } else {
-            if let Some(handle) = timeout_open_handle.get_value() {
-                handle.clear();
-                timeout_open_handle.set_value(None);
-            }
-
-            if is_currently_hovering_area && timeout_handle.get_value().is_none() {
-                let close_handle = set_timeout_with_handle(
-                    move || {
-                        if active_hovers_count.get_untracked() == 0 && enabled.get_untracked() {
-                            is_hovering.set(false);
-                        }
-                        timeout_handle.set_value(None);
-                    },
-                    std::time::Duration::from_millis(timeout_duration_ms_sv.get_value()),
-                );
-                timeout_handle.set_value(close_handle.ok());
-            }
-        }
-    });
-
-    view! {
-        <Provider
-            value=HoverAreaContext {
-                active_hovers_count,
-                is_hovering,
-                timeout_handle,
-                timeout_open_handle,
-                enabled,
-                timeout_duration_ms: timeout_duration_ms_sv,
-                timeout_open_duration_ms: timeout_open_duration_ms_sv,
-            }
-        >
-            {children()}
-        </Provider>
-    }
+#[derive(Debug, Clone, Copy)]
+pub struct FloatingContext {
+    trigger_ref: NodeRef<Div>,
+    floating_ref: NodeRef<Div>,
+    pub position_ref: RwSignal<Option<TriggerBoundingRect>>,
 }
 
-pub struct UseHoverHandlers {
-    pub on_pointer_enter: Callback<PointerEvent>,
-    pub on_pointer_leave: Callback<PointerEvent>,
-    pub close: Callback<()>,
-    pub open: Callback<()>,
-}
+impl FloatingContext {
+    pub fn get_floating_position(
+        &self,
+        side: Signal<Side>,
+        side_of_set: Signal<f64>,
+        align: Signal<Align>,
+        align_of_set: Signal<f64>,
+        arrow: Option<UseArrowProps>,
+    ) -> FloatingPosition {
+        let FloatingContext {
+            trigger_ref,
+            floating_ref,
+            position_ref,
+        } = *self;
+        let UseElementBoundingReturn {
+            width: trigger_width,
+            height: trigger_height,
+            x: trigger_x,
+            y: trigger_y,
+            ..
+        } = use_element_bounding(trigger_ref);
 
-pub fn use_hover_area_item_handlers() -> UseHoverHandlers {
-    let context = use_context::<HoverAreaContext>()
-        .expect("`use_hover_area_item_handlers` must be used within a `HoverAreaProvider`");
-    let active_hovers_count = context.active_hovers_count;
-    let is_hovering_area = context.is_hovering;
-    let timeout_handle = context.timeout_handle;
-    let timeout_open_handle = context.timeout_open_handle;
-
-    let on_pointer_enter = Callback::new(move |_: PointerEvent| {
-        active_hovers_count.update(|count| *count += 1);
-    });
-
-    let on_pointer_leave = Callback::new(move |_: PointerEvent| {
-        active_hovers_count.update(|count| {
-            if *count > 0 {
-                *count -= 1;
+        let trigger_x = Memo::new(move |_| {
+            if let Some(rect) = position_ref.get() {
+                rect.x
+            } else {
+                trigger_x()
             }
         });
-    });
 
-    let close = Callback::new(move |_| {
-        is_hovering_area.set(false);
-        active_hovers_count.set(0);
-        if let Some(handle) = timeout_handle.get_value() {
-            handle.clear();
-            timeout_handle.set_value(None);
-        }
-        if let Some(handle) = timeout_open_handle.get_value() {
-            handle.clear();
-            timeout_open_handle.set_value(None);
-        }
-    });
+        let trigger_y = Memo::new(move |_| {
+            if let Some(rect) = position_ref.get() {
+                rect.y
+            } else {
+                trigger_y()
+            }
+        });
 
-    let open = Callback::new(move |_| {
-        is_hovering_area.set(true);
-        if let Some(handle) = timeout_handle.get_value() {
-            handle.clear();
-            timeout_handle.set_value(None);
-        }
-        if let Some(handle) = timeout_open_handle.get_value() {
-            handle.clear();
-            timeout_open_handle.set_value(None);
-        }
-    });
+        let trigger_width = Memo::new(move |_| {
+            if let Some(rect) = position_ref.get() {
+                rect.width
+            } else {
+                trigger_width()
+            }
+        });
 
-    UseHoverHandlers {
-        on_pointer_enter,
-        on_pointer_leave,
-        close,
-        open,
+        let trigger_height = Memo::new(move |_| {
+            if let Some(rect) = position_ref.get() {
+                rect.height
+            } else {
+                trigger_height()
+            }
+        });
+
+        let UseElementBoundingReturn {
+            width: content_width,
+            height: content_height,
+            ..
+        } = use_element_bounding(floating_ref);
+
+        let x = Memo::new(move |_| {
+            calculate_floating_x(
+                trigger_x.get(),
+                trigger_width.get(),
+                content_width.get(),
+                side(),
+                align(),
+                side_of_set.get(),
+                align_of_set.get(),
+            )
+        });
+
+        let y = Memo::new(move |_| {
+            calculate_floating_y(
+                trigger_y.get(),
+                trigger_height.get(),
+                content_height.get(),
+                side(),
+                align(),
+                side_of_set.get(),
+                align_of_set.get(),
+            )
+        });
+
+        let arrow = {
+            arrow.map(
+                |UseArrowProps {
+                     arrow_ref,
+                     primary_offset,
+                     secondary_offset,
+                 }| {
+                    let UseElementBoundingReturn {
+                        width: arrow_width,
+                        height: arrow_height,
+                        ..
+                    } = use_element_bounding(arrow_ref);
+
+                    let x = Memo::new(move |_| {
+                        arrow_x(
+                            x.get(),
+                            content_width.get(),
+                            arrow_width.get(),
+                            side(),
+                            align(),
+                            primary_offset.get(),
+                            secondary_offset.get(),
+                        )
+                    });
+
+                    let y = Memo::new(move |_| {
+                        calculate_arrow_y(
+                            y.get(),
+                            content_height.get(),
+                            arrow_height.get(),
+                            side(),
+                            align(),
+                            primary_offset.get(),
+                            secondary_offset.get(),
+                        )
+                    });
+                    UseArrow { x, y }
+                },
+            )
+        };
+
+        FloatingPosition { x, y, arrow }
     }
 }
 
-pub fn use_is_hovering_area() -> RwSignal<bool> {
-    let context = use_context::<HoverAreaContext>()
-        .expect("`use_is_hovering_area` must be used within a `HoverAreaProvider`");
-    context.is_hovering
+#[derive(Debug, Clone, Copy)]
+pub struct TriggerBoundingRect {
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct UseArrow {
+    pub x: Memo<f64>,
+    pub y: Memo<f64>,
+}
+
+pub fn calculate_floating_x(
+    trigger_x: f64,
+    trigger_width: f64,
+    content_width: f64,
+    side: Side,
+    align: Align,
+    side_offset: f64,
+    align_offset: f64,
+) -> f64 {
+    match side {
+        Side::Top | Side::Bottom => match align {
+            Align::Start => trigger_x + align_offset,
+            Align::Center => trigger_x + (trigger_width - content_width) / 2.0 + align_offset,
+            Align::End => trigger_x + trigger_width - content_width - align_offset,
+        },
+        Side::Left => trigger_x - content_width - side_offset,
+        Side::Right => trigger_x + trigger_width + side_offset,
+    }
+}
+
+pub fn calculate_floating_y(
+    trigger_y: f64,
+    trigger_height: f64,
+    content_height: f64,
+    side: Side,
+    align: Align,
+    side_offset: f64,
+    align_offset: f64,
+) -> f64 {
+    match side {
+        Side::Top => trigger_y - content_height - side_offset,
+        Side::Bottom => trigger_y + trigger_height + side_offset,
+        Side::Left | Side::Right => match align {
+            Align::Start => trigger_y + align_offset,
+            Align::Center => trigger_y + (trigger_height - content_height) / 2.0 + align_offset,
+            Align::End => trigger_y + trigger_height - content_height - align_offset,
+        },
+    }
+}
+
+pub fn arrow_x(
+    content_x: f64,
+    content_width: f64,
+    arrow_width: f64,
+    side: Side,
+    align: Align,
+    arrow_primary_offset: f64,
+    arrow_secondary_offset: f64,
+) -> f64 {
+    match side {
+        Side::Top | Side::Bottom => match align {
+            Align::Start => content_x + arrow_secondary_offset,
+            Align::Center => {
+                content_x + (content_width - arrow_width) / 2.0 + arrow_secondary_offset
+            }
+            Align::End => content_x + content_width - arrow_width - arrow_secondary_offset,
+        },
+        Side::Left => content_x + content_width - arrow_width - arrow_primary_offset,
+        Side::Right => content_x + arrow_primary_offset,
+    }
+}
+
+pub fn calculate_arrow_y(
+    content_y: f64,
+    content_height: f64,
+    arrow_height: f64,
+    side: Side,
+    align: Align,
+    arrow_primary_offset: f64,
+    arrow_secondary_offset: f64,
+) -> f64 {
+    match side {
+        Side::Left | Side::Right => match align {
+            Align::Start => content_y + arrow_secondary_offset,
+            Align::Center => {
+                content_y + (content_height - arrow_height) / 2.0 + arrow_secondary_offset
+            }
+            Align::End => content_y + content_height - arrow_height - arrow_secondary_offset,
+        },
+        Side::Top => content_y + content_height - arrow_height - arrow_primary_offset,
+        Side::Bottom => content_y + arrow_primary_offset,
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct UseArrowProps {
+    arrow_ref: NodeRef<Div>,
+    primary_offset: Signal<f64>,
+    secondary_offset: Signal<f64>,
+}
+
+pub fn use_floating(trigger_ref: NodeRef<Div>, floating_ref: NodeRef<Div>) -> FloatingContext {
+    let position_ref = RwSignal::new(None::<TriggerBoundingRect>);
+    FloatingContext {
+        trigger_ref,
+        floating_ref,
+        position_ref,
+    }
 }

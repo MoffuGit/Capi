@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 pub mod floating;
+pub mod hover;
 pub mod status;
 
 use leptos::prelude::*;
@@ -13,16 +14,23 @@ pub enum Orientation {
     Vertical,
 }
 
-#[derive(Clone, Copy, strum_macros::Display, PartialEq)]
+#[derive(Clone, Copy, strum_macros::Display, PartialEq, Default)]
+#[strum(serialize_all = "lowercase")]
 pub enum Side {
-    #[strum(to_string = "top")]
     Top,
-    #[strum(to_string = "bottom")]
     Bottom,
-    #[strum(to_string = "left")]
     Left,
-    #[strum(to_string = "right")]
+    #[default]
     Right,
+}
+
+#[derive(Clone, Copy, strum_macros::Display, PartialEq, Default)]
+#[strum(serialize_all = "lowercase")]
+pub enum Align {
+    Start,
+    #[default]
+    Center,
+    End,
 }
 
 pub fn is_mobile() -> Memo<bool> {

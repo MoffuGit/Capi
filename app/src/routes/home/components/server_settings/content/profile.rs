@@ -1,6 +1,4 @@
 use crate::components::auth::use_auth;
-use icons::IconImage;
-use icons::IconX;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::tooltip::*;
@@ -11,6 +9,8 @@ use api::files::RemoveServerImage;
 use api::files::SetServerImageUrl;
 use capi_primitives::tooltip::ToolTipSide;
 use convex_client::leptos::Mutation;
+use icons::IconImage;
+use icons::IconX;
 use web_sys::HtmlInputElement;
 
 use super::Title;

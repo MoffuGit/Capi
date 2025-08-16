@@ -1,5 +1,4 @@
 use crate::components::auth::use_auth;
-use icons::{IconImage, IconX};
 use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
 use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::input::Input;
@@ -13,6 +12,7 @@ use crate::routes::use_profile;
 use capi_primitives::tooltip::ToolTipSide;
 use convex_client::leptos::Mutation;
 use gloo_file::File;
+use icons::{IconImage, IconX};
 use web_sys::HtmlInputElement;
 
 use super::Title;

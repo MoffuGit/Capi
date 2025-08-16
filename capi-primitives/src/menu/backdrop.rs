@@ -22,7 +22,6 @@ pub fn MenuBackDrop(
     let children = StoredValue::new(children);
 
     let on_click_handler = move |_| {
-        // If the dialog is dismissible and not modal, close it when the overlay is clicked.
         if dismissible {
             open.set(false);
         }

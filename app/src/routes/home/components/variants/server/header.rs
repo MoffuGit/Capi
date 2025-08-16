@@ -2,12 +2,11 @@ use common::convex::Server;
 use leptos::prelude::*;
 use leptos_router::components::A;
 
-use icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
 use crate::components::roles::*;
 use crate::components::ui::avatar::*;
 use crate::components::ui::dropwdown::*;
 use crate::components::ui::sidebar::*;
-use capi_primitives::menu::{MenuAlign, MenuSide};
+use icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
 
 #[component]
 pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
@@ -63,7 +62,7 @@ pub fn ServerHeader(server: Memo<Option<Server>>) -> impl IntoView {
 #[component]
 fn ServerMenu(server: Memo<Option<Server>>) -> impl IntoView {
     view! {
-        <DropdownMenuContent side=MenuSide::Bottom align=MenuAlign::Center>
+        <DropdownMenuContent>
             <DropdownMenuGroup>
                 <DropdownMenuLabel>
                     {move || server.get().map(|server| server.name)}

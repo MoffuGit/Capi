@@ -19,4 +19,4 @@ leptos-typed-fallback-show.workspace = true
 [features]
 default = []
 hydrate = ["leptos/hydrate"]
-ssr = ["leptos/ssr"]
+ssr = ["leptos/ssr",  "leptos-use/ssr"]

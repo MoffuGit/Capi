@@ -11,6 +11,8 @@ mod trigger;
 use leptos::context::Provider;
 use leptos::{html, prelude::*};
 
+pub use super::common::Align as MenuAlign;
+pub use super::common::Side as MenuSide;
 pub use backdrop::*;
 pub use content::*;
 pub use group::*;
@@ -22,19 +24,17 @@ pub use separator::*;
 pub use sub_menu::*;
 pub use trigger::*;
 
+use crate::common::floating::{FloatingContext, use_floating};
 use crate::common::status::{TransitionStatusState, use_transition_status};
 
 #[derive(Clone)]
 pub struct MenuProviderContext {
     pub open: RwSignal<bool>,
     pub dismissible: bool,
-    pub hidden: RwSignal<bool>,
     pub modal: bool,
+    pub mount_ref: NodeRef<html::Div>,
     pub trigger_ref: NodeRef<html::Div>,
-    pub trigger_width: RwSignal<f64>,
-    pub trigger_height: RwSignal<f64>,
-    pub trigger_x: RwSignal<f64>,
-    pub trigger_y: RwSignal<f64>,
+    pub floating: FloatingContext,
     pub content_ref: NodeRef<html::Div>,
     pub transition_status: TransitionStatusState,
 }
@@ -44,13 +44,14 @@ pub fn MenuProvider(
     children: Children,
     #[prop(optional, default = true)] modal: bool,
     #[prop(optional, into)] open: RwSignal<bool>,
-    #[prop(optional, into)] hidden: RwSignal<bool>,
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
     #[prop(optional)] dismissible: bool,
     #[prop(into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
-    let transition_status = use_transition_status(open.into(), content_ref, true, true);
+    let mount_ref = NodeRef::new();
+    let transition_status = use_transition_status(open.into(), mount_ref, true, true);
+    let floating = use_floating(trigger_ref, mount_ref);
     Effect::new(move |_| {
         if let Some(on_close) = on_close
             && !transition_status.mounted.get()
@@ -61,17 +62,14 @@ pub fn MenuProvider(
     view! {
         <Provider
         value=MenuProviderContext {
+            mount_ref,
             transition_status,
             dismissible,
             open,
             modal,
-            hidden,
             trigger_ref,
             content_ref,
-            trigger_width: RwSignal::new(0.0),
-            trigger_height: RwSignal::new(0.0),
-            trigger_x: RwSignal::new(0.0),
-            trigger_y:  RwSignal::new(0.0)
+            floating
     }>{children()}</Provider>
     }
 }

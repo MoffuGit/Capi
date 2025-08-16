@@ -12,7 +12,6 @@ use leptos_dom::log;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
 
-use icons::{IconBox, IconLink, IconPlus, IconSettings};
 use crate::components::roles::*;
 use crate::components::ui::context::*;
 use crate::components::ui::dialog::*;
@@ -21,6 +20,7 @@ use crate::routes::home::components::dialogs::create_category::CreateCategoryDia
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::server_settings::DialogServerSettings;
 use capi_primitives::menu::{MenuAlign, MenuSide};
+use icons::{IconBox, IconLink, IconPlus, IconSettings};
 
 use self::categories::CategoriesItems;
 use self::channels::ChannelsItems;

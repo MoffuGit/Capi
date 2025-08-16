@@ -41,7 +41,7 @@ pub fn use_virtualizer(
 
     #[cfg(feature = "hydrate")]
     {
-        use web_sys::wasm_bindgen::prelude::Closure;
+        use web_sys::{AddEventListenerOptions, wasm_bindgen::prelude::Closure};
 
         let closure = Closure::wrap(Box::new(move || {
             if let Some(element) = scroll_ref.get() {
@@ -56,11 +56,16 @@ pub fn use_virtualizer(
             move || {
                 use web_sys::wasm_bindgen::JsCast;
 
+                let options = AddEventListenerOptions::new();
+                options.set_passive(true);
+
                 if let Some(element) = scroll_ref.get() {
-                    let _ = element.remove_event_listener_with_callback(
-                        "scroll",
-                        closure_js.as_ref().unchecked_ref(),
-                    );
+                    let _ = element
+                        .add_event_listener_with_callback_and_add_event_listener_options(
+                            "scroll",
+                            closure_js.as_ref().unchecked_ref(),
+                            &options,
+                        );
                 }
             }
         };
@@ -71,8 +76,15 @@ pub fn use_virtualizer(
 
                 set_scroll_top(element.scroll_top() as f64);
                 set_client_height(element.client_height() as f64);
-                let _ = element
-                    .add_event_listener_with_callback("scroll", closure.as_ref().unchecked_ref());
+
+                let options = AddEventListenerOptions::new();
+                options.set_passive(true);
+
+                let _ = element.add_event_listener_with_callback_and_add_event_listener_options(
+                    "scroll",
+                    closure.as_ref().unchecked_ref(),
+                    &options,
+                );
             }
 
             on_cleanup({

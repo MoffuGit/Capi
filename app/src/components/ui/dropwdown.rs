@@ -24,7 +24,6 @@ pub fn DropdownMenu(
     children: Children,
     #[prop(optional, default = true)] modal: bool,
     #[prop(optional, into)] open: RwSignal<bool>,
-    #[prop(optional, into)] hidden: RwSignal<bool>,
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
     #[prop(optional)] dismissible: bool,
@@ -35,7 +34,6 @@ pub fn DropdownMenu(
             on_close=on_close
             modal=modal
             open=open
-            hidden=hidden
             trigger_ref=trigger_ref
             content_ref=content_ref
             dismissible={dismissible}
@@ -80,28 +78,22 @@ pub fn DropdownMenuContent(
     #[prop(optional, into)] class: Signal<String>,
     children: ChildrenFn,
     #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
-    #[prop(into, optional, default = Signal::derive(|| 4.0))] side_of_set: Signal<f64>,
+    #[prop(into, optional, default = Signal::derive(|| 0.0))] side_of_set: Signal<f64>,
     #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
         MenuAlign,
     >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
-    #[prop(into, default = None)] limit_y: Option<Signal<f64>>,
-    // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
-    #[prop(optional)] arrow: bool,
 ) -> impl IntoView {
     let base_class = "bg-popover text-popover-foreground data-[state=closed]:invisible data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[12rem] origin-[var(--radix-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md duration-150";
     let children = StoredValue::new(children);
     view! {
         <DropdownMenuPortal>
             <DropdownMenuContentPrimitive
-                class=Signal::derive(move || tw_merge!(base_class, class.get()))
                 side=side
                 side_of_set=side_of_set
                 align=align
                 align_of_set=align_of_set
-                limit_y=limit_y
-                // ignore=ignore
-                arrow={arrow}
+                class=Signal::derive(move || tw_merge!(base_class, class.get()))
                 {..}
                 data-slot="dropdown-menu-content"
             >
@@ -212,7 +204,8 @@ pub fn DropdownMenuRadioItem(
 #[component]
 pub fn DropdownMenuSub(children: Children) -> impl IntoView {
     view! {
-        <DropdownMenuSubProviderPrimitive>
+        <DropdownMenuSubProviderPrimitive
+        >
             {children()}
         </DropdownMenuSubProviderPrimitive>
     }
@@ -241,9 +234,6 @@ pub fn DropdownMenuSubContent(
         MenuAlign,
     >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
-    #[prop(into, default = None)] limit_y: Option<Signal<f64>>,
-    // #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
-    #[prop(optional)] arrow: bool,
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
@@ -253,8 +243,6 @@ pub fn DropdownMenuSubContent(
                 side_of_set=side_of_set
                 align=align
                 align_of_set=align_of_set
-                limit_y=limit_y
-                arrow=arrow
                 class=Signal::derive(move || tw_merge!("bg-popover text-popover-foreground data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-[var(--radix-menu-content-transform-origin)] overflow-hidden rounded-md border p-1 shadow-lg duration-150 ease-out-quad"))
                 {..}
                 data-slot="dropdown-menu-sub-content"

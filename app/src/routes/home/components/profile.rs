@@ -7,7 +7,6 @@ use serde::Serialize;
 use strum::IntoEnumIterator;
 
 use crate::components::auth::use_auth;
-use icons::{IconHeadphones, IconLogOut, IconMic, IconSettings};
 use crate::components::ui::avatar::*;
 use crate::components::ui::badge::*;
 use crate::components::ui::button::*;
@@ -15,6 +14,7 @@ use crate::components::ui::dropwdown::*;
 use crate::routes::home::components::user_settings::DialogUserSettings;
 use crate::routes::use_profile;
 use capi_primitives::menu::{MenuAlign, MenuSide};
+use icons::{IconHeadphones, IconLogOut, IconMic, IconSettings};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SetUserStatus {

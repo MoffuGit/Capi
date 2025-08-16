@@ -4,7 +4,6 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use tailwind_fuse::tw_merge;
 
-use icons::{IconEllipsis, IconTrash};
 use crate::components::ui::dropwdown::{
     DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
     DropdownMenuTrigger,
@@ -13,6 +12,7 @@ use crate::components::ui::sidebar::{
     SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem,
 };
 use capi_primitives::menu::{MenuAlign, MenuSide};
+use icons::{IconEllipsis, IconTrash};
 
 #[component]
 pub fn ChannelsItems(channels: ReadSignal<Option<Result<Vec<Channel>, String>>>) -> impl IntoView {
