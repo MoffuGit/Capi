@@ -51,7 +51,7 @@ pub fn MenuProvider(
 ) -> impl IntoView {
     let mount_ref = NodeRef::new();
     let transition_status = use_transition_status(open.into(), mount_ref, true, true);
-    let floating = use_floating(trigger_ref, mount_ref);
+    let floating = use_floating(trigger_ref, mount_ref, open);
     Effect::new(move |_| {
         if let Some(on_close) = on_close
             && !transition_status.mounted.get()

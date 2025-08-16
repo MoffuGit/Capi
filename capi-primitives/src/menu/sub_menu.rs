@@ -3,7 +3,7 @@ use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 
 use super::{MenuAlign, MenuSide};
-use crate::common::floating::{FloatingPosition, use_floating};
+use crate::common::floating::{FloatingPosition, use_floating, use_position};
 use crate::common::hover::{HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers};
 use crate::common::status::use_transition_status;
 use crate::menu::MenuProviderContext;
@@ -22,7 +22,7 @@ pub fn SubMenuProvider(
 
     let mount_ref = NodeRef::new();
 
-    let floating = use_floating(trigger_ref, mount_ref);
+    let floating = use_floating(trigger_ref, mount_ref, open);
 
     view! {
         <Provider
@@ -106,10 +106,14 @@ pub fn SubMenuContent(
 
     let mount_ref = NodeRef::new();
 
-    let FloatingPosition { x, y, .. } =
-        context
-            .floating
-            .get_floating_position(side, side_of_set, align, align_of_set, None);
+    let FloatingPosition { x, y, .. } = use_position(
+        &context.floating,
+        side,
+        side_of_set,
+        align,
+        align_of_set,
+        None,
+    );
 
     let transition_status_state = context.transition_status;
 

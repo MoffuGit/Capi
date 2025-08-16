@@ -8,13 +8,14 @@ pub use crate::common::Side as ToolTipSide;
 use crate::common::floating::FloatingContext;
 use crate::common::floating::FloatingPosition;
 use crate::common::floating::use_floating;
+use crate::common::floating::use_position;
 use crate::common::hover::{HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers};
 use crate::common::status::{TransitionStatus, TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
 
 #[derive(Clone)]
 struct TooltipProviderContext {
-    is_open: RwSignal<bool>,
+    open: RwSignal<bool>,
     trigger_ref: NodeRef<html::Div>,
     content_ref: NodeRef<html::Div>,
     transition_state: TransitionStatusState,
@@ -26,26 +27,26 @@ pub fn ToolTipProvider(
     children: Children,
     #[prop(default = 0)] delay_duration: u64,
 ) -> impl IntoView {
-    let is_open = RwSignal::new(false);
+    let open = RwSignal::new(false);
     let trigger_ref = NodeRef::<html::Div>::new();
 
     let content_ref = NodeRef::<html::Div>::new();
 
-    let transition_state = use_transition_status(is_open.into(), content_ref, true, true);
+    let transition_state = use_transition_status(open.into(), content_ref, true, true);
 
-    let floating = use_floating(trigger_ref, content_ref);
+    let floating = use_floating(trigger_ref, content_ref, open);
 
     view! {
         <Provider
             value=TooltipProviderContext {
                 transition_state,
-                is_open,
+                open,
                 trigger_ref,
                 content_ref,
                 floating
             }
         >
-            <HoverAreaProvider is_hovering=is_open timeout_duration_ms=delay_duration enabled=RwSignal::new(true)>
+            <HoverAreaProvider is_hovering=open timeout_duration_ms=delay_duration enabled=RwSignal::new(true)>
                 {children()}
             </HoverAreaProvider>
         </Provider>
@@ -145,10 +146,14 @@ pub fn ToolTipContent(
 
     let children = StoredValue::new(children);
 
-    let FloatingPosition { x, y, .. } =
-        context
-            .floating
-            .get_floating_position(side, side_of_set, align, align_of_set, None);
+    let FloatingPosition { x, y, .. } = use_position(
+        &context.floating,
+        side,
+        side_of_set,
+        align,
+        align_of_set,
+        None,
+    );
 
     let UseHoverHandlers {
         on_pointer_enter,

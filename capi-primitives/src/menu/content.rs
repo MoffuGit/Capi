@@ -2,7 +2,7 @@ use leptos::either::Either;
 use leptos::{html, prelude::*};
 use leptos_use::{OnClickOutsideOptions, on_click_outside_with_options};
 
-use crate::common::floating::FloatingPosition;
+use crate::common::floating::{FloatingPosition, use_position};
 use crate::menu::MenuProviderContext;
 
 use super::{MenuAlign, MenuSide};
@@ -21,10 +21,14 @@ pub fn MenuContent(
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let content_ref = context.content_ref;
 
-    let FloatingPosition { x, y, .. } =
-        context
-            .floating
-            .get_floating_position(side, side_of_set, align, align_of_set, None);
+    let FloatingPosition { x, y, .. } = use_position(
+        &context.floating,
+        side,
+        side_of_set,
+        align,
+        align_of_set,
+        None,
+    );
 
     Effect::new(move |_| {
         if context.modal

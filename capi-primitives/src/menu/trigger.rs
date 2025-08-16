@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+use crate::common::floating::{ClickHandlers, use_click};
 use crate::menu::MenuProviderContext;
 
 #[component]
@@ -9,6 +10,7 @@ pub fn MenuTrigger(
 ) -> impl IntoView {
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let open = context.open;
+    let ClickHandlers { on_click } = use_click(&context.floating);
     let trigger_ref = context.trigger_ref;
     view! {
         <div
@@ -22,8 +24,8 @@ pub fn MenuTrigger(
                     },
                 )
             }
-            on:click=move |_| {
-                open.set(true);
+            on:click=move |evt| {
+                on_click.run(evt);
             }
             node_ref=trigger_ref
         >
