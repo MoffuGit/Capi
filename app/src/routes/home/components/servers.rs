@@ -131,7 +131,7 @@ pub fn ServerItem(
                                 set_option.run(())
                             }
                         >
-                            <ToolTip>
+                            <ToolTip hoverable=true>
                                 <ToolTipTrigger>
                                     <SidebarMenuButton
                                         is_active=is_active

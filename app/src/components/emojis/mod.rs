@@ -119,31 +119,11 @@ pub fn EmojiSelector(
     #[prop(optional)] on_select_emoji: Option<Callback<&'static Emoji>>,
     #[prop(optional, into)] history: MaybeProp<Vec<String>>,
 ) -> impl IntoView {
-    let (groups, set_groups) = signal(vec![]);
+    let groups = RwSignal::new(Group::iter().collect());
     let (emojis, set_emojis) = signal({
         let mut items: Vec<EmojiItem> = Vec::new();
 
-        if let Some(history) = history.get() {
-            if !history.is_empty() {
-                items.push(EmojiItem::HistoryHeader);
-                let mut current_emoji_chunk: Vec<&'static Emoji> = Vec::new();
-                for emoji in history {
-                    if let Some(emoji) = emojis::get(&emoji) {
-                        current_emoji_chunk.push(emoji);
-                        if current_emoji_chunk.len() == EMOJIS_PER_ROW {
-                            items.push(EmojiItem::HistoryRow(current_emoji_chunk));
-                            current_emoji_chunk = Vec::new();
-                        }
-                    }
-                }
-                if !current_emoji_chunk.is_empty() {
-                    items.push(EmojiItem::HistoryRow(current_emoji_chunk));
-                }
-            }
-        }
-
         for group in Group::iter() {
-            set_groups.update(|groups| groups.push(group));
             items.push(EmojiItem::from_group(group));
 
             let mut current_emoji_chunk: Vec<&'static Emoji> = Vec::new();
@@ -235,7 +215,7 @@ pub fn EmojiSelector(
         })
     };
 
-    let virtualizer = use_virtualizer(data_size, scroll_ref, estimate_size, key, 5);
+    let virtualizer = use_virtualizer(data_size, scroll_ref, estimate_size, key, 2);
 
     let virtual_items = virtualizer.virtual_items;
     let total_height = virtualizer.total_height;
@@ -311,7 +291,7 @@ pub fn EmojiSelector(
                                                         let emoji = StoredValue::new_local(emoji);
                                                         view! {
                                                             <ToolTip>
-                                                                <ToolTipTrigger>
+                                                                <ToolTipTrigger delay_duration=50>
                                                                     <Button
                                                                         class="text-xl"
                                                                         size=ButtonSizes::Icon
@@ -347,10 +327,7 @@ pub fn EmojiSelector(
 }
 
 #[component]
-pub fn GroupScroller(
-    virtualizer: Virtualizer,
-    #[prop(into)] group_keys: Signal<Vec<Group>>,
-) -> impl IntoView {
+pub fn GroupScroller(virtualizer: Virtualizer, group_keys: RwSignal<Vec<Group>>) -> impl IntoView {
     view! {
         <div class="flex overflow-x-auto p-1 gap-1 border-t border-t-border w-full items-start">
             <ToolTip>

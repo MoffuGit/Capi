@@ -44,7 +44,7 @@ pub fn use_virtualizer(
         use web_sys::{AddEventListenerOptions, wasm_bindgen::prelude::Closure};
 
         let closure = Closure::wrap(Box::new(move || {
-            if let Some(element) = scroll_ref.get() {
+            if let Some(element) = scroll_ref.get_untracked() {
                 set_scroll_top(element.scroll_top() as f64);
                 set_client_height(element.client_height() as f64);
             }
@@ -59,7 +59,7 @@ pub fn use_virtualizer(
                 let options = AddEventListenerOptions::new();
                 options.set_passive(true);
 
-                if let Some(element) = scroll_ref.get() {
+                if let Some(element) = scroll_ref.get_untracked() {
                     let _ = element
                         .add_event_listener_with_callback_and_add_event_listener_options(
                             "scroll",

@@ -21,7 +21,12 @@ pub fn MenuContent(
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let content_ref = context.content_ref;
 
-    let FloatingPosition { x, y, .. } = use_position(
+    let FloatingPosition {
+        x,
+        y,
+        transform_origin,
+        ..
+    } = use_position(
         &context.floating,
         side,
         side_of_set,
@@ -63,7 +68,7 @@ pub fn MenuContent(
         <div
             style:top=move || format!("{}px", y())
             style:left=move || format!("{}px", x())
-            style=move || format!("--radix-menu-content-transform-origin: {}", side())
+            style=move || format!("--radix-menu-content-transform-origin: {}", transform_origin())
             class="z-50 absolute"
             data-state=move || transition_status.transition_status.get().to_string()
             node_ref=context.mount_ref

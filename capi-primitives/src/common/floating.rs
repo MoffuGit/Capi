@@ -1,9 +1,7 @@
-use std::time::Duration;
-
 use leptos::html::Div;
 use leptos::prelude::*;
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
-use web_sys::{MouseEvent, PointerEvent};
+use web_sys::MouseEvent;
 
 use super::{Align, Side};
 
@@ -12,26 +10,20 @@ pub struct FloatingPosition {
     pub x: Memo<f64>,
     pub y: Memo<f64>,
     pub arrow: Option<UseArrow>,
+    pub transform_origin: Memo<String>,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct FloatingContext {
-    trigger_ref: NodeRef<Div>,
-    floating_ref: NodeRef<Div>,
-    open: RwSignal<bool>,
+    pub trigger_ref: NodeRef<Div>,
+    pub floating_ref: NodeRef<Div>,
+    pub open: RwSignal<bool>,
     pub position_ref: RwSignal<Option<TriggerBoundingRect>>,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct ClickHandlers {
     pub on_click: Callback<MouseEvent>,
-}
-
-pub struct UseHoverHandlers {
-    pub on_pointer_enter: Callback<PointerEvent>,
-    pub on_pointer_leave: Callback<PointerEvent>,
-    pub close: Callback<()>,
-    pub open: Callback<()>,
 }
 
 pub fn use_position(
@@ -159,7 +151,35 @@ pub fn use_position(
         )
     };
 
-    FloatingPosition { x, y, arrow }
+    let transform_origin = Memo::new(move |_| match side.get() {
+        Side::Top => match align.get() {
+            Align::Start => "bottom left".to_string(),
+            Align::Center => "bottom center".to_string(),
+            Align::End => "bottom right".to_string(),
+        },
+        Side::Bottom => match align.get() {
+            Align::Start => "top left".to_string(),
+            Align::Center => "top center".to_string(),
+            Align::End => "top right".to_string(),
+        },
+        Side::Left => match align.get() {
+            Align::Start => "right top".to_string(),
+            Align::Center => "right center".to_string(),
+            Align::End => "right bottom".to_string(),
+        },
+        Side::Right => match align.get() {
+            Align::Start => "left top".to_string(),
+            Align::Center => "left center".to_string(),
+            Align::End => "left bottom".to_string(),
+        },
+    });
+
+    FloatingPosition {
+        x,
+        y,
+        arrow,
+        transform_origin,
+    }
 }
 
 pub fn use_click(ctx: &FloatingContext) -> ClickHandlers {
@@ -168,121 +188,6 @@ pub fn use_click(ctx: &FloatingContext) -> ClickHandlers {
         open.update(|open| *open = !*open);
     });
     ClickHandlers { on_click }
-}
-
-pub fn use_hover(
-    ctx: &FloatingContext,
-    timeout_duration_ms: u64,
-    timeout_open_duration_ms: u64,
-    enabled: RwSignal<bool>,
-) -> UseHoverHandlers {
-    let open = ctx.open;
-    let active_hovers_count = RwSignal::new(0);
-    let timeout_handle = StoredValue::new(None::<TimeoutHandle>);
-    let timeout_open_handle = StoredValue::new(None::<TimeoutHandle>);
-    let timeout_duration_ms_sv = StoredValue::new(timeout_duration_ms);
-    let timeout_open_duration_ms_sv = StoredValue::new(timeout_open_duration_ms);
-
-    Effect::new(move |_| {
-        let current_hover_count = active_hovers_count.get();
-        let is_area_enabled = enabled.get();
-        let is_currently_hovering_area = open.get();
-
-        if !is_area_enabled {
-            open.set(false);
-            if let Some(handle) = timeout_handle.get_value() {
-                handle.clear();
-                timeout_handle.set_value(None);
-            }
-            if let Some(handle) = timeout_open_handle.get_value() {
-                handle.clear();
-                timeout_open_handle.set_value(None);
-            }
-            return;
-        }
-
-        if current_hover_count > 0 {
-            if let Some(handle) = timeout_handle.get_value() {
-                handle.clear();
-                timeout_handle.set_value(None);
-            }
-
-            if !is_currently_hovering_area && timeout_open_handle.get_value().is_none() {
-                let open_handle = set_timeout_with_handle(
-                    move || {
-                        if active_hovers_count.get_untracked() > 0 && enabled.get_untracked() {
-                            open.set(true);
-                        }
-                        timeout_open_handle.set_value(None);
-                    },
-                    Duration::from_millis(timeout_open_duration_ms_sv.get_value()),
-                );
-                timeout_open_handle.set_value(open_handle.ok());
-            }
-        } else {
-            if let Some(handle) = timeout_open_handle.get_value() {
-                handle.clear();
-                timeout_open_handle.set_value(None);
-            }
-
-            if is_currently_hovering_area && timeout_handle.get_value().is_none() {
-                let close_handle = set_timeout_with_handle(
-                    move || {
-                        if active_hovers_count.get_untracked() == 0 && enabled.get_untracked() {
-                            open.set(false);
-                        }
-                        timeout_handle.set_value(None);
-                    },
-                    Duration::from_millis(timeout_duration_ms_sv.get_value()),
-                );
-                timeout_handle.set_value(close_handle.ok());
-            }
-        }
-    });
-
-    let on_pointer_enter = Callback::new(move |_: PointerEvent| {
-        active_hovers_count.update(|count| *count += 1);
-    });
-
-    let on_pointer_leave = Callback::new(move |_: PointerEvent| {
-        active_hovers_count.update(|count| {
-            if *count > 0 {
-                *count -= 1;
-            }
-        });
-    });
-
-    let close = Callback::new(move |_| {
-        open.set(false);
-        active_hovers_count.set(0); // Ensure active_hovers_count is reset on explicit close
-        if let Some(handle) = timeout_handle.get_value() {
-            handle.clear();
-            timeout_handle.set_value(None);
-        }
-        if let Some(handle) = timeout_open_handle.get_value() {
-            handle.clear();
-            timeout_open_handle.set_value(None);
-        }
-    });
-
-    let open_cb = Callback::new(move |_| {
-        open.set(true);
-        if let Some(handle) = timeout_handle.get_value() {
-            handle.clear();
-            timeout_handle.set_value(None);
-        }
-        if let Some(handle) = timeout_open_handle.get_value() {
-            handle.clear();
-            timeout_open_handle.set_value(None);
-        }
-    });
-
-    UseHoverHandlers {
-        on_pointer_enter,
-        on_pointer_leave,
-        close,
-        open: open_cb,
-    }
 }
 
 #[derive(Debug, Clone, Copy)]

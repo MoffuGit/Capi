@@ -9,8 +9,8 @@ use crate::common::floating::FloatingContext;
 use crate::common::floating::FloatingPosition;
 use crate::common::floating::use_floating;
 use crate::common::floating::use_position;
-use crate::common::hover::{HoverAreaProvider, UseHoverHandlers, use_hover_area_item_handlers};
-use crate::common::status::{TransitionStatus, TransitionStatusState, use_transition_status};
+use crate::common::hover::use_hover;
+use crate::common::status::{TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
 
 #[derive(Clone)]
@@ -20,12 +20,13 @@ struct TooltipProviderContext {
     content_ref: NodeRef<html::Div>,
     transition_state: TransitionStatusState,
     floating: FloatingContext,
+    hoverable: Signal<bool>,
 }
 
 #[component]
 pub fn ToolTipProvider(
     children: Children,
-    #[prop(default = 0)] delay_duration: u64,
+    #[prop(optional, into)] hoverable: Signal<bool>,
 ) -> impl IntoView {
     let open = RwSignal::new(false);
     let trigger_ref = NodeRef::<html::Div>::new();
@@ -39,6 +40,7 @@ pub fn ToolTipProvider(
     view! {
         <Provider
             value=TooltipProviderContext {
+                hoverable,
                 transition_state,
                 open,
                 trigger_ref,
@@ -46,9 +48,7 @@ pub fn ToolTipProvider(
                 floating
             }
         >
-            <HoverAreaProvider is_hovering=open timeout_duration_ms=delay_duration enabled=RwSignal::new(true)>
-                {children()}
-            </HoverAreaProvider>
+            {children()}
         </Provider>
     }
 }
@@ -59,51 +59,24 @@ pub fn ToolTipTrigger(
     #[prop(optional, into)] class: Signal<String>,
     #[prop(optional, default = true)] close_on_click: bool,
     #[prop(optional, into)] on_click: Option<Callback<()>>,
+    #[prop(default = 0)] delay_duration: u64,
+    #[prop(optional, default = Signal::derive(move || true))] enabled: Signal<bool>,
 ) -> impl IntoView {
     let TooltipProviderContext {
         trigger_ref,
         transition_state,
+        floating,
+        hoverable,
         ..
     } = use_context::<TooltipProviderContext>().expect("have this context");
 
-    let UseHoverHandlers {
-        on_pointer_enter,
-        on_pointer_leave,
-        close,
-        open,
-    } = use_hover_area_item_handlers();
-
-    let is_hovering = RwSignal::new(false);
+    use_hover(&floating, delay_duration, 0, enabled, hoverable);
 
     view! {
         <div
             data-state=move || transition_state.transition_status.get().to_string()
             node_ref=trigger_ref
             class=class
-            on:pointerenter=move |evt| {
-                if !is_hovering.get() && transition_state.transition_status.get() != TransitionStatus::Closing {
-                    on_pointer_enter.run(evt);
-                }
-                is_hovering.set(true);
-            }
-            on:pointerleave=move |evt| {
-                on_pointer_leave.run(evt);
-                is_hovering.set(false);
-            }
-            on:click=move |_evt| {
-                if close_on_click {
-                    close.run(());
-                }
-                if let Some(on_click) = on_click {
-                    on_click.run(())
-                }
-            }
-            on:wheel=move |_| {
-                close.run(());
-            }
-            on:focus=move |_| {
-                open.run(())
-            }
         >
             {children()}
         </div>
@@ -146,7 +119,12 @@ pub fn ToolTipContent(
 
     let children = StoredValue::new(children);
 
-    let FloatingPosition { x, y, .. } = use_position(
+    let FloatingPosition {
+        x,
+        y,
+        transform_origin,
+        ..
+    } = use_position(
         &context.floating,
         side,
         side_of_set,
@@ -155,12 +133,6 @@ pub fn ToolTipContent(
         None,
     );
 
-    let UseHoverHandlers {
-        on_pointer_enter,
-        on_pointer_leave,
-        ..
-    } = use_hover_area_item_handlers();
-
     view! {
         <div
             data-state=move || transition_status.transition_status.get().to_string()
@@ -168,15 +140,7 @@ pub fn ToolTipContent(
             style:position="absolute"
             style:left=move || format!("{}px", x())
             style:top=move || format!("{}px",  y())
-            style=move || format!("--radix-tooltip-content-transform-origin: {}", side())
-            on:pointerenter=move |evt| {
-                if transition_status.transition_status.get() != TransitionStatus::Closing {
-                    on_pointer_enter.run(evt);
-                }
-            }
-            on:pointerleave=move |evt| {
-                on_pointer_leave.run(evt);
-            }
+            style=move || format!("--radix-tooltip-content-transform-origin: {}", transform_origin())
             class=format!("absolute z-50 left-0 top-0 font-normal")
         >
             <div

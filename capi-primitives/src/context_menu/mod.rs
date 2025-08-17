@@ -15,8 +15,6 @@ pub use super::menu::SubMenuProvider as ContextSubMenuProvider;
 pub use super::menu::SubMenuTrigger as ContextSubMenuTrigger;
 
 use leptos::prelude::*;
-use leptos_use::UseMouseReturn;
-use leptos_use::use_mouse;
 use tailwind_fuse::tw_merge;
 
 #[component]
@@ -29,17 +27,6 @@ pub fn ContextMenuTrigger(
     let set_trigger_rect = context.floating.position_ref;
     let open = context.open;
     let trigger_ref = context.trigger_ref;
-    let UseMouseReturn { x, y, .. } = use_mouse();
-    Effect::new(move |_| {
-        if context.open.get() && pointer {
-            set_trigger_rect.set(Some(TriggerBoundingRect {
-                x: x.get_untracked(),
-                y: y.get_untracked(),
-                width: 0.0,
-                height: 0.0,
-            }));
-        }
-    });
     view! {
         <div
             class=move || {
@@ -53,6 +40,14 @@ pub fn ContextMenuTrigger(
             }
             on:contextmenu=move |evt| {
                 evt.prevent_default();
+                if pointer {
+                set_trigger_rect.set(Some(TriggerBoundingRect {
+                    x: evt.client_x().into(),
+                    y: evt.client_y().into(),
+                    width: 0.0,
+                    height: 0.0,
+                }));
+                }
                 open.set(true);
             }
             node_ref=trigger_ref

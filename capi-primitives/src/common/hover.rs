@@ -1,177 +1,109 @@
-use leptos::context::Provider;
+use leptos::ev::{mousemove, pointerenter, pointerleave};
 use leptos::prelude::*;
-use web_sys::PointerEvent;
+use leptos_use::{
+    UseElementHoverOptions, UseEventListenerOptions, use_element_bounding,
+    use_element_hover_with_options, use_event_listener_with_options,
+};
 
-#[derive(Clone, Copy)]
-pub struct HoverAreaContext {
-    pub active_hovers_count: RwSignal<usize>,
-    pub is_hovering: RwSignal<bool>,
-    pub(crate) timeout_handle: StoredValue<Option<TimeoutHandle>>,
-    pub(crate) timeout_open_handle: StoredValue<Option<TimeoutHandle>>,
-    pub enabled: RwSignal<bool>,
-    pub timeout_duration_ms: StoredValue<u64>,
-    pub timeout_open_duration_ms: StoredValue<u64>,
-    pub prev_context: StoredValue<Option<HoverAreaContext>>,
-}
+use super::floating::FloatingContext;
 
-#[component]
-pub fn HoverAreaProvider(
-    children: Children,
-    #[prop(default = 200)] timeout_duration_ms: u64,
-    #[prop(default = 0)] timeout_open_duration_ms: u64,
-    #[prop(into)] enabled: RwSignal<bool>,
-    #[prop(into, optional)] is_hovering: RwSignal<bool>,
-) -> impl IntoView {
-    let parent_hover_context = StoredValue::new(use_context::<HoverAreaContext>());
+pub fn use_hover(
+    ctx: &FloatingContext,
+    open_delay: u64,
+    close_delay: u64,
+    enabled: Signal<bool>,
+    hoverable: Signal<bool>,
+) {
+    let FloatingContext {
+        open,
+        floating_ref,
+        trigger_ref,
+        ..
+    } = *ctx;
 
-    let active_hovers_count = RwSignal::new(0);
-    let timeout_handle = StoredValue::new(None::<TimeoutHandle>);
-    let timeout_open_handle = StoredValue::new(None::<TimeoutHandle>);
-    let timeout_duration_ms_sv = StoredValue::new(timeout_duration_ms);
-    let timeout_open_duration_ms_sv = StoredValue::new(timeout_open_duration_ms);
+    let options = UseElementHoverOptions::default()
+        .delay_enter(open_delay)
+        .delay_leave(close_delay);
+
+    let is_trigger_hovered = use_element_hover_with_options(trigger_ref, options);
+
+    let (is_floating_hovered, set_is_floating_hovered) = signal(false);
+    let (is_safe_polygon, set_is_safe_polygon) = signal(false);
+
+    let is_hovered =
+        Memo::new(move |_| is_trigger_hovered() || is_floating_hovered() || is_safe_polygon());
 
     Effect::new(move |_| {
-        let current_hover_count = active_hovers_count.get();
-        let is_area_enabled = enabled.get();
-        let is_currently_hovering_area = is_hovering.get();
-
-        if !is_area_enabled {
-            is_hovering.set(false);
-            if let Some(handle) = timeout_handle.get_value() {
-                handle.clear();
-                timeout_handle.set_value(None);
-            }
-            if let Some(handle) = timeout_open_handle.get_value() {
-                handle.clear();
-                timeout_open_handle.set_value(None);
-            }
-            return;
+        if enabled() && is_hovered() && hoverable() {
+            let listener_options = UseEventListenerOptions::default().passive(true);
+            let _ = use_event_listener_with_options(
+                floating_ref,
+                pointerenter,
+                move |_| set_is_floating_hovered(true),
+                listener_options,
+            );
+            let _ = use_event_listener_with_options(
+                floating_ref,
+                pointerleave,
+                move |_| set_is_floating_hovered(false),
+                listener_options,
+            );
         }
+    });
 
-        if current_hover_count > 0 {
-            if let Some(handle) = timeout_handle.get_value() {
-                handle.clear();
-                timeout_handle.set_value(None);
-            }
+    Effect::new(move |_| {
+        if enabled() && hoverable() {
+            let floating_bounding_rect = use_element_bounding(floating_ref);
+            let trigger_bounding_rect = use_element_bounding(trigger_ref);
+            let listener_options = UseEventListenerOptions::default().passive(true);
+            let _ = use_event_listener_with_options(
+                window(),
+                mousemove,
+                move |evt| {
+                    let mouse_x = evt.client_x() as f64;
+                    let mouse_y = evt.client_y() as f64;
 
-            if !is_currently_hovering_area && timeout_open_handle.get_value().is_none() {
-                let open_handle = set_timeout_with_handle(
-                    move || {
-                        if active_hovers_count.get_untracked() > 0 && enabled.get_untracked() {
-                            is_hovering.set(true);
-                        }
-                        timeout_open_handle.set_value(None);
-                    },
-                    std::time::Duration::from_millis(timeout_open_duration_ms_sv.get_value()),
-                );
-                timeout_open_handle.set_value(open_handle.ok());
-            }
+                    let t_x = trigger_bounding_rect.x;
+                    let t_y = trigger_bounding_rect.y;
+                    let t_width = trigger_bounding_rect.width;
+                    let t_height = trigger_bounding_rect.height;
+
+                    let f_x = floating_bounding_rect.x;
+                    let f_y = floating_bounding_rect.y;
+                    let f_width = floating_bounding_rect.width;
+                    let f_height = floating_bounding_rect.height;
+
+                    if t_width() == 0.0
+                        || t_height() == 0.0
+                        || f_width() == 0.0
+                        || f_height() == 0.0
+                    {
+                        set_is_safe_polygon(false);
+                        return;
+                    }
+
+                    let min_x = t_x().min(f_x());
+                    let max_x = (t_x() + t_width()).max(f_x() + f_width());
+                    let min_y = t_y().min(f_y());
+                    let max_y = (t_y() + t_height()).max(f_y() + f_height());
+
+                    let is_in_combined_rect = mouse_x >= min_x
+                        && mouse_x <= max_x
+                        && mouse_y >= min_y
+                        && mouse_y <= max_y;
+
+                    set_is_safe_polygon(is_in_combined_rect);
+                },
+                listener_options,
+            );
         } else {
-            if let Some(handle) = timeout_open_handle.get_value() {
-                handle.clear();
-                timeout_open_handle.set_value(None);
-            }
-
-            if is_currently_hovering_area && timeout_handle.get_value().is_none() {
-                let close_handle = set_timeout_with_handle(
-                    move || {
-                        if active_hovers_count.get_untracked() == 0 && enabled.get_untracked() {
-                            is_hovering.set(false);
-                        }
-                        timeout_handle.set_value(None);
-                    },
-                    std::time::Duration::from_millis(timeout_duration_ms_sv.get_value()),
-                );
-                timeout_handle.set_value(close_handle.ok());
-            }
+            set_is_safe_polygon(false);
         }
     });
 
-    view! {
-        <Provider
-            value=HoverAreaContext {
-                active_hovers_count,
-                is_hovering,
-                timeout_handle,
-                timeout_open_handle,
-                enabled,
-                timeout_duration_ms: timeout_duration_ms_sv,
-                timeout_open_duration_ms: timeout_open_duration_ms_sv,
-                prev_context: parent_hover_context,
-            }
-        >
-            {children()}
-        </Provider>
-    }
-}
-
-pub struct UseHoverHandlers {
-    pub on_pointer_enter: Callback<PointerEvent>,
-    pub on_pointer_leave: Callback<PointerEvent>,
-    pub close: Callback<()>,
-    pub open: Callback<()>,
-}
-
-pub fn use_hover_area_item_handlers() -> UseHoverHandlers {
-    let context = use_context::<HoverAreaContext>().expect("should acces to the use hover context");
-
-    let active_hovers_count = context.active_hovers_count;
-    let is_hovering_area = context.is_hovering;
-    let timeout_handle = context.timeout_handle;
-    let timeout_open_handle = context.timeout_open_handle;
-    let prev_context = context.prev_context;
-
-    let on_pointer_enter = Callback::new(move |_: PointerEvent| {
-        active_hovers_count.update(|count| *count += 1);
-        if let Some(prev_ctx) = prev_context.get_value() {
-            prev_ctx.active_hovers_count.update(|count| *count += 1);
+    Effect::new(move |_| {
+        if enabled() {
+            open.set(is_hovered());
         }
     });
-
-    let on_pointer_leave = Callback::new(move |_: PointerEvent| {
-        active_hovers_count.update(|count| {
-            if *count > 0 {
-                *count -= 1;
-            }
-        });
-        if let Some(prev_ctx) = prev_context.get_value() {
-            prev_ctx.active_hovers_count.update(|count| {
-                if *count > 0 {
-                    *count -= 1;
-                }
-            });
-        }
-    });
-
-    let close = Callback::new(move |_| {
-        is_hovering_area.set(false);
-        active_hovers_count.set(0);
-        if let Some(handle) = timeout_handle.get_value() {
-            handle.clear();
-            timeout_handle.set_value(None);
-        }
-        if let Some(handle) = timeout_open_handle.get_value() {
-            handle.clear();
-            timeout_open_handle.set_value(None);
-        }
-    });
-
-    let open = Callback::new(move |_| {
-        is_hovering_area.set(true);
-        if let Some(handle) = timeout_handle.get_value() {
-            handle.clear();
-            timeout_handle.set_value(None);
-        }
-        if let Some(handle) = timeout_open_handle.get_value() {
-            handle.clear();
-            timeout_open_handle.set_value(None);
-        }
-    });
-
-    UseHoverHandlers {
-        on_pointer_enter,
-        on_pointer_leave,
-        close,
-        open,
-    }
 }

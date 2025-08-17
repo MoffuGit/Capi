@@ -50,7 +50,7 @@ pub fn MenuProvider(
     #[prop(into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
     let mount_ref = NodeRef::new();
-    let transition_status = use_transition_status(open.into(), mount_ref, true, true);
+    let transition_status = use_transition_status(open.into(), content_ref, true, true);
     let floating = use_floating(trigger_ref, mount_ref, open);
     Effect::new(move |_| {
         if let Some(on_close) = on_close

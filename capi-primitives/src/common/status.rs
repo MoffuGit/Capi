@@ -1,7 +1,6 @@
 use leptos::html::Div;
 use leptos::logging::{error, warn};
 use leptos::prelude::*;
-use send_wrapper::SendWrapper;
 use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
@@ -22,7 +21,6 @@ impl AnimationFrame {
             .request_animation_frame((*f).as_ref().unchecked_ref())
             .unwrap();
 
-        // Return a cleanup function for manual cancellation
         move || {
             if let Some(window) = web_sys::window() {
                 window.cancel_animation_frame(handle).unwrap_or_default();
@@ -107,7 +105,6 @@ pub fn use_transition_status(
             {
                 #[cfg(feature = "hydrate")]
                 {
-                    // Schedule the closure to run on the next animation frame
                     let cancel_frame = AnimationFrame::request(read_style_closure.clone());
                     on_cleanup(move || {
                         cancel_frame();
@@ -301,23 +298,6 @@ pub fn use_transition_status(
 
                     setup_event_listener("animationend", &element, js_closures.clone());
                     setup_event_listener("transitionend", &element, js_closures.clone());
-
-                    let timeout_handle = set_timeout_with_handle(
-                        move || {
-                            set_status_to_closed();
-                            warn!("Fallback timeout hit for {}ms.", duration);
-                        },
-                        std::time::Duration::from_millis(duration),
-                    )
-                    .expect("Failed to set fallback timeout");
-
-                    on_cleanup({
-                        let closures_to_drop = SendWrapper::new(js_closures.clone());
-                        move || {
-                            closures_to_drop.take().borrow_mut().clear();
-                            timeout_handle.clear();
-                        }
-                    });
                 } else {
                     warn!(
                         "Element for animationend/transitionend listener not found for closing transition, falling back to timeout."

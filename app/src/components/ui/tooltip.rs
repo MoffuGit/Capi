@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-use tailwind_fuse::tw_join;
 use tailwind_fuse::tw_merge;
 
 use capi_primitives::tooltip::ToolTipAlign;
@@ -10,9 +9,13 @@ use capi_primitives::tooltip::ToolTipSide;
 use capi_primitives::tooltip::ToolTipTrigger as ToolTriggerPrimitive;
 
 #[component]
-pub fn ToolTip(children: ChildrenFn) -> impl IntoView {
+pub fn ToolTip(
+    children: ChildrenFn,
+    #[prop(optional, into)] hoverable: Signal<bool>,
+) -> impl IntoView {
     view! {
         <ToolProviderPrimitive
+            hoverable={hoverable}
             {..}
             data-slot="tooltip-provider"
         >
@@ -26,12 +29,12 @@ pub fn ToolTipTrigger(
     children: ChildrenFn,
     #[prop(optional, into)] class: Signal<String>,
     #[prop(optional, default = true)] close_on_click: bool,
-    // #[prop(optional)] on_click: Option<Callback<()>>,
-    // #[prop(optional)] as_child: bool,
+    #[prop(default = 0)] delay_duration: u64,
 ) -> impl IntoView {
     view! {
         <ToolTriggerPrimitive
             class=class
+            delay_duration=delay_duration
             close_on_click={close_on_click}
             {..}
             data-slot="tooltip-trigger"
@@ -46,7 +49,7 @@ pub fn ToolTipContent(
     children: ChildrenFn,
     #[prop(optional, into)] class: Signal<String>,
     #[prop(optional, into)] side: ToolTipSide,
-    #[prop(optional, into)] side_of_set: Signal<f64>,
+    #[prop(optional, default = Signal::derive(move || 2.0), into)] side_of_set: Signal<f64>,
     #[prop(optional, into)] align: Signal<ToolTipAlign>,
     #[prop(optional, into)] align_of_set: Signal<f64>,
 ) -> impl IntoView {

@@ -210,7 +210,6 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
 
     let reactions = Signal::derive(move || member_reactions.get().and_then(|res| res.ok()));
     view! {
-        <div/>
         <Provider value=ChatContext {
             msg_reference: RwSignal::new(None),
             attachments: RwSignal::new(vec![]),

@@ -74,7 +74,7 @@ pub fn Direct(set_option: Callback<()>, option: RwSignal<Option<SideBarOption>>)
         Signal::derive(move || location.pathname.get() == "/servers/me" && option.get().is_none());
     view! {
         <SidebarMenuItem>
-            <ToolTip>
+            <ToolTip hoverable=true>
                 <ToolTipTrigger>
                     <A href="/servers/me"
                         {..}
@@ -102,7 +102,7 @@ pub fn Direct(set_option: Callback<()>, option: RwSignal<Option<SideBarOption>>)
 pub fn InboxOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
     view! {
         <SidebarMenuItem>
-            <ToolTip>
+            <ToolTip hoverable=true>
                 <ToolTipTrigger>
                     <SidebarMenuButton
                         class="px-2.5 md:px-2 group/button"
@@ -128,7 +128,7 @@ pub fn InboxOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
 pub fn SearchOption(option: RwSignal<Option<SideBarOption>>) -> impl IntoView {
     view! {
         <SidebarMenuItem>
-            <ToolTip>
+            <ToolTip hoverable=true>
                 <ToolTipTrigger>
                     <SidebarMenuButton
                         class="px-2.5 md:px-2 group/button"
@@ -169,7 +169,7 @@ pub fn ServerMenu(
                     on:click=move |_| set_option.run(())
                 >
                     <ContextMenuTrigger pointer=false >
-                        <ToolTip>
+                        <ToolTip hoverable=true>
                             <ToolTipTrigger>
                             <SidebarMenuButton
                                 is_active=is_current_route
