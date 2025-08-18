@@ -147,15 +147,17 @@ pub fn ToolTipContent(
             style:left=move || format!("{}px", x())
             style:top=move || format!("{}px",  y())
             style=move || format!("--radix-tooltip-content-transform-origin: {}", transform_origin())
-            class=format!("absolute z-50 left-0 top-0 font-normal")
+            class="absolute z-50 left-0 top-0 pointer-events-none"
         >
             <div
                 node_ref=content_ref
                 data-side=side.get().to_string()
                 data-state=move || transition_status.transition_status.get().to_string()
-                class=move || tw_merge!(
-                class.get(),
-            )>{children.get_value()()}</div>
+                data-hoverable=move || context.hoverable.get().to_string()
+                class=class
+            >
+                {children.get_value()()}
+            </div>
         </div>
     }
 }

@@ -64,7 +64,7 @@ pub fn ToolTipContent(
                 arrow=false
                 class=Signal::derive(
                     move || tw_merge!(
-                        "bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=closing]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance duration-150",
+                        "bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[hoverable=true]:pointer-events-auto data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=closing]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance duration-150",
                         class.get()
                     ))
             >
