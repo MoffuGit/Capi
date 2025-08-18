@@ -49,7 +49,7 @@ pub fn ToolTipContent(
     children: ChildrenFn,
     #[prop(optional, into)] class: Signal<String>,
     #[prop(optional, into)] side: ToolTipSide,
-    #[prop(optional, default = Signal::derive(move || 2.0), into)] side_of_set: Signal<f64>,
+    #[prop(optional, default = Signal::derive(move || 4.0), into)] side_of_set: Signal<f64>,
     #[prop(optional, into)] align: Signal<ToolTipAlign>,
     #[prop(optional, into)] align_of_set: Signal<f64>,
 ) -> impl IntoView {

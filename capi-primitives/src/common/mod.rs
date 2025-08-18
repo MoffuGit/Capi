@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 pub mod floating;
+pub mod floating_tree;
 pub mod hover;
 pub mod status;
 

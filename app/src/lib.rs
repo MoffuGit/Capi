@@ -1,8 +1,10 @@
 mod components;
 mod routes;
 
+use capi_primitives::common::floating_tree::{provide_floating_tree, use_floating_tree};
 use convex_client::leptos::ConvexProvider;
 use leptos::prelude::*;
+use leptos_dom::warn;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
     components::{Outlet, ParentRoute, ProtectedParentRoute, Route, Router, Routes},
@@ -50,6 +52,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
+    provide_floating_tree();
 
     view! {
         <Stylesheet id="leptos" href="/pkg/capi.css"/>

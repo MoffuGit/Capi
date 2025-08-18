@@ -601,6 +601,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "tailwind_fuse",
+ "uuid",
  "wasm-bindgen",
  "web-sys",
 ]

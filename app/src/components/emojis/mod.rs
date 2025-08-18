@@ -330,7 +330,7 @@ pub fn EmojiSelector(
 pub fn GroupScroller(virtualizer: Virtualizer, group_keys: RwSignal<Vec<Group>>) -> impl IntoView {
     view! {
         <div class="flex overflow-x-auto p-1 gap-1 border-t border-t-border w-full items-start">
-            <ToolTip>
+            <ToolTip hoverable=true>
                 <ToolTipTrigger>
                     <Button
                         class="text-muted-foreground"
@@ -350,7 +350,7 @@ pub fn GroupScroller(virtualizer: Virtualizer, group_keys: RwSignal<Vec<Group>>)
                 key=|group| *group
                 children=move |group| {
                     view! {
-                        <ToolTip>
+                        <ToolTip hoverable=true>
                             <ToolTipTrigger>
                                 <Button
                                     class="text-muted-foreground"

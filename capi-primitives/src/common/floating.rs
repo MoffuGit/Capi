@@ -1,8 +1,10 @@
 use leptos::html::Div;
 use leptos::prelude::*;
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
+use uuid::Uuid;
 use web_sys::MouseEvent;
 
+use super::floating_tree::use_floating_tree;
 use super::{Align, Side};
 
 #[derive(Debug, Clone, Copy)]
@@ -19,6 +21,7 @@ pub struct FloatingContext {
     pub floating_ref: NodeRef<Div>,
     pub open: RwSignal<bool>,
     pub position_ref: RwSignal<Option<TriggerBoundingRect>>,
+    pub id: Option<StoredValue<Uuid>>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -299,12 +302,28 @@ pub fn use_floating(
     trigger_ref: NodeRef<Div>,
     floating_ref: NodeRef<Div>,
     open: RwSignal<bool>,
+    id: Option<StoredValue<Uuid>>,
 ) -> FloatingContext {
     let position_ref = RwSignal::new(None::<TriggerBoundingRect>);
-    FloatingContext {
+    let context = FloatingContext {
         open,
         trigger_ref,
         floating_ref,
         position_ref,
-    }
+        id,
+    };
+
+    let tree = use_floating_tree();
+
+    Effect::new(move |_| {
+        if let (Some(tree), Some(id)) = (tree, id) {
+            tree.0.update(|tree| {
+                if let Some(node) = tree.get_mut(&id.get_value()) {
+                    node.context = Some(context)
+                }
+            });
+        };
+    });
+
+    context
 }

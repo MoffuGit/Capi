@@ -9,6 +9,8 @@ use crate::common::floating::FloatingContext;
 use crate::common::floating::FloatingPosition;
 use crate::common::floating::use_floating;
 use crate::common::floating::use_position;
+use crate::common::floating_tree::FloatingNode;
+use crate::common::floating_tree::use_floating_node_id;
 use crate::common::hover::use_hover;
 use crate::common::status::{TransitionStatusState, use_transition_status};
 use crate::portal::Portal;
@@ -35,21 +37,25 @@ pub fn ToolTipProvider(
 
     let transition_state = use_transition_status(open.into(), content_ref, true, true);
 
-    let floating = use_floating(trigger_ref, content_ref, open);
+    let id = use_floating_node_id();
+
+    let floating = use_floating(trigger_ref, content_ref, open, Some(id));
 
     view! {
-        <Provider
-            value=TooltipProviderContext {
-                hoverable,
-                transition_state,
-                open,
-                trigger_ref,
-                content_ref,
-                floating
-            }
-        >
-            {children()}
-        </Provider>
+        <FloatingNode id=id.get_value()>
+            <Provider
+                value=TooltipProviderContext {
+                    hoverable,
+                    transition_state,
+                    open,
+                    trigger_ref,
+                    content_ref,
+                    floating
+                }
+            >
+                {children()}
+            </Provider>
+        </FloatingNode>
     }
 }
 

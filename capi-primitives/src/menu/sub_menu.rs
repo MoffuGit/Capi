@@ -21,7 +21,7 @@ pub fn SubMenuProvider(
 
     let mount_ref = NodeRef::new();
 
-    let floating = use_floating(trigger_ref, content_ref, open);
+    let floating = use_floating(trigger_ref, content_ref, open, None);
 
     view! {
         <Provider

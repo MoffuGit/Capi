@@ -25,6 +25,7 @@ pub use sub_menu::*;
 pub use trigger::*;
 
 use crate::common::floating::{FloatingContext, use_floating};
+use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
 use crate::common::status::{TransitionStatusState, use_transition_status};
 
 #[derive(Clone)]
@@ -51,7 +52,8 @@ pub fn MenuProvider(
 ) -> impl IntoView {
     let mount_ref = NodeRef::new();
     let transition_status = use_transition_status(open.into(), content_ref, true, true);
-    let floating = use_floating(trigger_ref, mount_ref, open);
+    let id = use_floating_node_id();
+    let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
     Effect::new(move |_| {
         if let Some(on_close) = on_close
             && !transition_status.mounted.get()
@@ -60,16 +62,21 @@ pub fn MenuProvider(
         }
     });
     view! {
-        <Provider
-        value=MenuProviderContext {
-            mount_ref,
-            transition_status,
-            dismissible,
-            open,
-            modal,
-            trigger_ref,
-            content_ref,
-            floating
-    }>{children()}</Provider>
+        <FloatingNode id=id.get_value()>
+            <Provider
+                value=MenuProviderContext {
+                    mount_ref,
+                    transition_status,
+                    dismissible,
+                    open,
+                    modal,
+                    trigger_ref,
+                    content_ref,
+                    floating
+                }
+            >
+                {children()}
+            </Provider>
+        </FloatingNode>
     }
 }
