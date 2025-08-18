@@ -40,7 +40,7 @@ pub fn ContextMenu(
     #[prop(optional, into)] open: RwSignal<bool>,
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
-    #[prop(optional)] dismissible: bool,
+    #[prop(optional, default = true)] dismissible: bool,
     #[prop(optional, into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
     view! {

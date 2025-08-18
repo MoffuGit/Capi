@@ -4,6 +4,7 @@ use tailwind_fuse::tw_merge;
 
 use super::{MenuAlign, MenuSide};
 use crate::common::floating::{FloatingPosition, use_floating, use_position};
+use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
 use crate::common::hover::use_hover;
 use crate::common::status::use_transition_status;
 use crate::menu::MenuProviderContext;
@@ -21,23 +22,27 @@ pub fn SubMenuProvider(
 
     let mount_ref = NodeRef::new();
 
-    let floating = use_floating(trigger_ref, content_ref, open, None);
+    let id = use_floating_node_id();
+
+    let floating = use_floating(trigger_ref, content_ref, open, Some(id));
 
     view! {
-        <Provider
-            value=MenuProviderContext {
-                transition_status,
-                open,
-                trigger_ref,
-                content_ref,
-                mount_ref,
-                dismissible: true,
-                modal: true,
-                floating
-            }
-        >
-            {children()}
-        </Provider>
+        <FloatingNode id=id.get_value()>
+            <Provider
+                value=MenuProviderContext {
+                    transition_status,
+                    open,
+                    trigger_ref,
+                    content_ref,
+                    mount_ref,
+                    dismissible: true,
+                    modal: true,
+                    floating
+                }
+            >
+                {children()}
+            </Provider>
+        </FloatingNode>
     }
 }
 

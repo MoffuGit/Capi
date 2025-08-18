@@ -1,6 +1,7 @@
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
+use crate::common::floating::{ClickHandlers, use_click};
 use crate::dialog::root::use_dialog_root::DialogRootContext;
 use crate::dialog::root::use_dialog_root_context;
 use crate::primitive::Primitive;
@@ -12,7 +13,8 @@ pub fn DialogTrigger(
     #[prop(optional)] children: Option<ChildrenFn>,
 ) -> impl IntoView {
     let children = StoredValue::new(children);
-    let DialogRootContext { open, set_open, .. } = use_dialog_root_context();
+    let DialogRootContext { open, floating, .. } = use_dialog_root_context();
+    let ClickHandlers { on_click } = use_click(&floating);
     view! {
         <Primitive
             element=html::div
@@ -20,8 +22,8 @@ pub fn DialogTrigger(
             node_ref={node_ref}
             // {..attrs}
             {..}
-            on:click=move |_| {
-                set_open.update(|open| *open = !*open);
+            on:click=move |evt| {
+                on_click.run(evt);
             }
         >
             {children.get_value().map(|children| children())}

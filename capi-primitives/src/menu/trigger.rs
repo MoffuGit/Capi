@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+use crate::common::dismissible::use_dismiss;
 use crate::common::floating::{ClickHandlers, use_click};
 use crate::menu::MenuProviderContext;
 
@@ -12,6 +13,7 @@ pub fn MenuTrigger(
     let open = context.open;
     let ClickHandlers { on_click } = use_click(&context.floating);
     let trigger_ref = context.trigger_ref;
+    use_dismiss(&context.floating, context.dismissible);
     view! {
         <div
             class=move || {

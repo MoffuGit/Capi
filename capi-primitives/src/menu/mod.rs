@@ -53,7 +53,7 @@ pub fn MenuProvider(
     let mount_ref = NodeRef::new();
     let transition_status = use_transition_status(open.into(), content_ref, true, true);
     let id = use_floating_node_id();
-    let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
+    let floating = use_floating(trigger_ref, content_ref, open, Some(id));
     Effect::new(move |_| {
         if let Some(on_close) = on_close
             && !transition_status.mounted.get()

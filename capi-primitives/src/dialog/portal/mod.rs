@@ -25,11 +25,9 @@ pub fn DialogPortal(
     let transition_status = transition_state.transition_status;
     view! {
         <Show when=move || mounted.get()>
-            <Provider value=transition_status>
-                <Portal container=container container_ref=container_ref as_child=as_child node_ref=node_ref>
-                        {children.get_value()()}
-                </Portal>
-            </Provider>
+            <Portal container=container container_ref=container_ref as_child=as_child node_ref=node_ref>
+                    {children.get_value()()}
+            </Portal>
         </Show>
     }
 }

@@ -1,3 +1,4 @@
+use crate::common::dismissible::use_dismiss;
 use crate::common::floating::TriggerBoundingRect;
 use crate::menu::MenuProviderContext;
 
@@ -26,6 +27,7 @@ pub fn ContextMenuTrigger(
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let set_trigger_rect = context.floating.position_ref;
     let open = context.open;
+    use_dismiss(&context.floating, context.dismissible);
     let trigger_ref = context.trigger_ref;
     view! {
         <div

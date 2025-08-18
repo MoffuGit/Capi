@@ -1,6 +1,5 @@
 use leptos::either::Either;
-use leptos::{html, prelude::*};
-use leptos_use::{OnClickOutsideOptions, on_click_outside_with_options};
+use leptos::prelude::*;
 
 use crate::common::floating::{FloatingPosition, use_position};
 use crate::menu::MenuProviderContext;
@@ -11,7 +10,6 @@ use super::{MenuAlign, MenuSide};
 pub fn MenuContent(
     #[prop(optional, into)] class: Signal<String>,
     #[prop(optional)] children: Option<ChildrenFn>,
-    #[prop(optional)] ignore: Vec<NodeRef<html::Div>>,
     #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
     #[prop(into,optional, default = Signal::derive(|| 0.0))] side_of_set: Signal<f64>,
     #[prop(into,optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<MenuAlign>,
@@ -35,32 +33,23 @@ pub fn MenuContent(
         None,
     );
 
-    Effect::new(move |_| {
-        if context.modal
-            && let Some(app) = document().get_element_by_id("app")
-        {
-            if context.open.get() {
-                let _ = app.class_list().add_1("pointer-events-none");
-            } else {
-                let _ = app.class_list().remove_1("pointer-events-none");
-            }
-        }
-    });
-    on_cleanup(move || {
-        if let Some(app) = document().get_element_by_id("app") {
-            let _ = app.class_list().remove_1("pointer-events-none");
-        }
-    });
-
-    let _ = on_click_outside_with_options(
-        context.content_ref,
-        move |_| {
-            if context.open.get() {
-                context.open.set(false)
-            }
-        },
-        OnClickOutsideOptions::default().ignore(ignore),
-    );
+    // Effect::new(move |_| {
+    //     if context.modal
+    //         && let Some(app) = document().get_element_by_id("app")
+    //     {
+    //         if context.open.get() {
+    //             let _ = app.class_list().add_1("pointer-events-none");
+    //         } else {
+    //             let _ = app.class_list().remove_1("pointer-events-none");
+    //         }
+    //     }
+    // });
+    //
+    // on_cleanup(move || {
+    //     if let Some(app) = document().get_element_by_id("app") {
+    //         let _ = app.class_list().remove_1("pointer-events-none");
+    //     }
+    // });
 
     let transition_status = context.transition_status;
 

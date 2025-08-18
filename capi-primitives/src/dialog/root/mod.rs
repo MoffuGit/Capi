@@ -3,6 +3,10 @@ pub mod use_dialog_root;
 use leptos::context::Provider;
 use leptos::prelude::*;
 
+use crate::common::dismissible::use_dismiss;
+use crate::common::floating::use_floating;
+use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
+
 use self::use_dialog_root::{DialogRootContext, DialogRootParams, use_dialog_root};
 
 pub fn use_dialog_root_context() -> DialogRootContext {
@@ -17,15 +21,22 @@ pub fn DialogRoot(
     #[prop(into)] on_open_change: Option<Callback<bool>>,
     children: Children,
 ) -> impl IntoView {
-    let dialog_root = use_dialog_root(DialogRootParams {
-        on_open_change,
-        open,
-        modal,
-        dismissible,
-    });
+    let id = use_floating_node_id();
+    let context = use_dialog_root(
+        DialogRootParams {
+            on_open_change,
+            open,
+            modal,
+            dismissible,
+        },
+        id,
+    );
+    use_dismiss(&context.floating, dismissible);
     view! {
-        <Provider value=dialog_root>
-            {children()}
-        </Provider>
+        <FloatingNode id=id.get_value()>
+            <Provider value=context>
+                {children()}
+            </Provider>
+        </FloatingNode>
     }
 }

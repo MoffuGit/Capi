@@ -1,7 +1,6 @@
 use leptos::context::Provider;
 use leptos::html;
 use leptos::prelude::*;
-use tailwind_fuse::tw_merge;
 
 pub use crate::common::Align as ToolTipAlign;
 pub use crate::common::Side as ToolTipSide;

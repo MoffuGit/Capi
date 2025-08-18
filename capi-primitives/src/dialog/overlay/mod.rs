@@ -1,3 +1,4 @@
+use leptos::either::Either;
 use leptos::{html, prelude::*};
 use leptos_node_ref::AnyNodeRef;
 
@@ -14,7 +15,6 @@ pub fn DialogOverlay(
     #[prop(optional)] children: Option<ChildrenFn>,
 ) -> impl IntoView {
     let DialogRootContext {
-        set_open,
         modal,
         dismissible,
         transition_status,
@@ -22,12 +22,6 @@ pub fn DialogOverlay(
     } = use_dialog_root_context();
 
     let children = StoredValue::new(children);
-
-    let on_click_handler = move |_| {
-        if dismissible {
-            set_open.set(false);
-        }
-    };
 
     view! {
         <Primitive
@@ -38,9 +32,12 @@ pub fn DialogOverlay(
             class=class
             data-state=move || transition_status.transition_status.get().to_string()
             data-modal=move || modal.to_string()
-            on:click=on_click_handler
         >
-            {children.get_value().map(|children| children())}
+            {if let Some(children) = children.get_value() {
+                Either::Left(children())
+            } else {
+                Either::Right(())
+            }}
         </Primitive>
     }
 }
