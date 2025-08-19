@@ -1,10 +1,9 @@
 mod components;
 mod routes;
 
-use capi_primitives::common::floating_tree::{provide_floating_tree, use_floating_tree};
+use capi_primitives::common::floating_tree::provide_floating_tree;
 use convex_client::leptos::ConvexProvider;
 use leptos::prelude::*;
-use leptos_dom::warn;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
     components::{Outlet, ParentRoute, ProtectedParentRoute, Route, Router, Routes},

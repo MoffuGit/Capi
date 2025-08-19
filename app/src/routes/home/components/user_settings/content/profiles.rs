@@ -28,13 +28,19 @@ pub fn Profiles() -> impl IntoView {
         </Title>
         <Tabs tab=RwSignal::new("main".to_string())>
             <TabsList>
-                <Tab value="main">
+                <Tab
+                    class="z-20"
+                    value="main"
+                >
                     "Account"
                 </Tab>
-                <Tab value="member">
+                <Tab
+                    class="z-20"
+                    value="member"
+                >
                     "Members"
                 </Tab>
-                <TabIndicator/>
+                <TabIndicator class="z-10"/>
             </TabsList>
             <TabPanel value="main">
                 <Profile/>

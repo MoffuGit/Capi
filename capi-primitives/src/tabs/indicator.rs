@@ -40,10 +40,10 @@ pub fn TabIndicator(
         Signal::derive(move || tabs.with(|tabs| tabs.get(&selected_tab.get()).cloned()));
 
     Effect::new(move |_| {
-        if let Some(tab) = selected_ref.get() {
-            if let Some(trigger) = tab.get() {
-                position.set(Some(get_indicator_position(trigger)));
-            }
+        if let Some(tab) = selected_ref.get()
+            && let Some(trigger) = tab.get()
+        {
+            position.set(Some(get_indicator_position(trigger)));
         }
     });
 
