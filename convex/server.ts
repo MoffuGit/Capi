@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { ConvexError } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 export const create = mutation({
   args: {
@@ -440,5 +441,54 @@ export const getPublicServers = query({
       .query("servers")
       .filter((q) => q.eq(q.field("type"), "public"))
       .collect();
+  },
+});
+
+export const joinServer = mutation({
+  args: {
+    serverId: v.id("servers"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { serverId, userId }) => {
+    const user = await ctx.db.get(userId);
+    if (user === null) {
+      throw new Error("User not found.");
+    }
+
+    const serverDoc = await ctx.db.get(serverId);
+    if (!serverDoc) {
+      throw new Error("Server not found.");
+    }
+
+    const existingMember = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", serverId).eq("user", userId),
+      )
+      .first();
+
+    if (existingMember) {
+      return existingMember._id;
+    }
+
+    let defaultRoleForNewMember: Id<"roles">[] = [];
+    let mostImportantRoleForNewMember: Id<"roles"> | undefined = undefined;
+
+    if (serverDoc.defaultRole) {
+      defaultRoleForNewMember.push(serverDoc.defaultRole);
+      mostImportantRoleForNewMember = serverDoc.defaultRole;
+    }
+
+    const newMemberId = await ctx.db.insert("members", {
+      user: userId,
+      server: serverId,
+      roles: defaultRoleForNewMember,
+      name: user.name,
+      image_url: user.image_url,
+      online: true,
+      mostImportantRole: mostImportantRoleForNewMember,
+    });
+
+    return newMemberId;
   },
 });
