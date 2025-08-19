@@ -24,7 +24,7 @@ pub fn SubMenuProvider(
 
     let id = use_floating_node_id();
 
-    let floating = use_floating(trigger_ref, content_ref, open, Some(id));
+    let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
 
     view! {
         <FloatingNode id=id.get_value()>
@@ -98,8 +98,6 @@ pub fn SubMenuContent(
     let context = use_context::<MenuProviderContext>().expect("should access the sub menu context");
     let content_ref = context.content_ref;
 
-    let mount_ref = NodeRef::new();
-
     let FloatingPosition {
         x,
         y,
@@ -118,13 +116,11 @@ pub fn SubMenuContent(
 
     view! {
         <div
-            style:position="absolute"
-            style:left=move || format!("{}px", x())
-            style:top=move || format!("{}px",  y())
+            class="top-0 left-0 z-50 absolute"
+            style:transform=move || format!("translate({}px, {}px)", x(), y())
             style=move || format!("--radix-menu-content-transform-origin: {}", transform_origin())
-            class="z-50"
-            node_ref=mount_ref
             data-state=move || transition_status_state.transition_status.get().to_string()
+            node_ref=context.mount_ref
         >
             <div
                 data-side=move || side.get().to_string()

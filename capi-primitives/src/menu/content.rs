@@ -55,10 +55,9 @@ pub fn MenuContent(
 
     view! {
         <div
-            style:top=move || format!("{}px", y())
-            style:left=move || format!("{}px", x())
+            class="top-0 left-0 z-50 absolute"
+            style:transform=move || format!("translate({}px, {}px)", x(), y())
             style=move || format!("--radix-menu-content-transform-origin: {}", transform_origin())
-            class="z-50 absolute"
             data-state=move || transition_status.transition_status.get().to_string()
             node_ref=context.mount_ref
         >
