@@ -104,5 +104,19 @@ pub fn use_dismiss(ctx: &FloatingContext, enabled: bool) {
             },
             UseEventListenerOptions::default().passive(true),
         );
+
+        let _ = use_event_listener_with_options(
+            window(),
+            ev::keydown,
+            move |evt| {
+                if !enabled {
+                    return;
+                }
+                if evt.key() == "Escape" {
+                    open.set(false);
+                }
+            },
+            UseEventListenerOptions::default().passive(true),
+        );
     });
 }
