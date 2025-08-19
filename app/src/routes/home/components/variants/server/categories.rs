@@ -4,11 +4,12 @@ use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
-use icons::{IconChevronDown, IconPlus};
+use crate::components::roles::CanManageCategories;
 use crate::components::ui::collapsible::*;
 use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::variants::server::channels::ChannelsItems;
+use icons::{IconChevronDown, IconPlus};
 
 #[component]
 pub fn CategoriesItems(
@@ -51,12 +52,14 @@ pub fn CategoriesItems(
                                     {name.get_value()}
                                 </SidebarGroupLabel>
                             </CollapsibleTrigger>
-                            <SidebarGroupAction on:click=move |_| {
-                                open_create_channel.set(true);
-                            }>
-                                <IconPlus class="text-sidebar-foreground/70"/>
-                                <span class="sr-only">Add channel</span>
-                            </SidebarGroupAction>
+                            <CanManageCategories>
+                                <SidebarGroupAction on:click=move |_| {
+                                    open_create_channel.set(true);
+                                }>
+                                    <IconPlus class="text-sidebar-foreground/70"/>
+                                    <span class="sr-only">Add channel</span>
+                                </SidebarGroupAction>
+                            </CanManageCategories>
                             <SidebarGroupContent>
                                 <CollapsiblePanel>
                                     <ChannelsItems channels=channels />

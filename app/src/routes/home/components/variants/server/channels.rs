@@ -4,6 +4,7 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use tailwind_fuse::tw_merge;
 
+use crate::components::roles::CanManageChannels;
 use crate::components::ui::dropwdown::{
     DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
     DropdownMenuTrigger,
@@ -79,10 +80,12 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
                         <DropdownMenuLabel>
                             {name.get_value()}
                         </DropdownMenuLabel>
-                        <DropdownMenuItem class="hover:text-destructive/70 group">
-                            <IconTrash class="group-hover:text-destructive/70"/>
-                            "Delete Channel"
-                        </DropdownMenuItem>
+                        <CanManageChannels>
+                            <DropdownMenuItem class="hover:text-destructive/70 group">
+                                <IconTrash class="group-hover:text-destructive/70"/>
+                                "Delete Channel"
+                            </DropdownMenuItem>
+                        </CanManageChannels>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
