@@ -24,9 +24,9 @@ pub fn MessageReactions(
                         <Button
                             variant=Signal::derive(move || {
                                 if reaction.has_reacted {
-                                    ButtonVariants::Secondary
+                                    ButtonVariants::Outline
                                 } else {
-                                    ButtonVariants::Ghost
+                                    ButtonVariants::Secondary
                                 }
                             })
                             size=ButtonSizes::Sm
@@ -52,7 +52,7 @@ pub fn MessageReactions(
                             <span>
                                 {emoji.get_value()}
                             </span>
-                            <span>
+                            <span class="tabular-nums">
                                 {reaction.count as u64}
                             </span>
                         </Button>

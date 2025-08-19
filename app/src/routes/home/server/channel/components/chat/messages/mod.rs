@@ -22,9 +22,11 @@ use super::MessageDisplayItem;
 #[component]
 fn DateSeparator(date_string: String) -> impl IntoView {
     view! {
-        <Separator class="flex items-center justify-center">
-            <Label class="bg-background text-muted-foreground px-1 text-xs">{date_string}</Label>
-        </Separator>
+        <div class="py-2">
+            <Separator class="flex items-center justify-center">
+                <Label class="bg-background text-muted-foreground px-1 text-xs">{date_string}</Label>
+            </Separator>
+        </div>
     }
 }
 
@@ -42,7 +44,7 @@ pub fn Messages(
         });
     }
     view! {
-        <div style=move || style.get()  class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto pt-4 scrollbar-thin scrollbar-track-background pb-[var(--sender-height)]">
+        <div style=move || style.get()  class="flex min-h-0 flex-1 flex-col overflow-auto pt-4 scrollbar-thin scrollbar-track-background pb-[var(--sender-height)]">
             {
                 move || {
                     messages.get().into_iter().map(|item| {

@@ -20,11 +20,12 @@ pub fn MessageItem(
     idx: usize,
     date: f64,
     msg: ChannelMessage,
-    member: Signal<Option<Member>>,
+    sender: Signal<Option<Member>>,
 ) -> impl IntoView {
     let msg = StoredValue::new(msg);
 
     let context: ChatContext = use_context().expect("should return teh chat context");
+    let member = context.member;
     let msg_ref = context.msg_reference;
     let cached_members = context.cached_members;
 
@@ -99,7 +100,7 @@ pub fn MessageItem(
                 <Show when=move || idx == 0>
                     {
                         move || {
-                            member.get()
+                            sender.get()
                                 .map(|m| view! { <MessageHeader member=m date=date /> }.into_any())
                         }
                     }

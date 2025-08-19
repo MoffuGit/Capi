@@ -30,6 +30,7 @@ impl Query<Vec<String>> for GetMemberEmojis {
 
 #[derive(Debug, Clone)]
 pub struct ChatContext {
+    pub member: Signal<Option<Member>>,
     pub msg_reference: RwSignal<Option<ChannelMessage>>,
     pub attachments: RwSignal<Vec<ClientFile>>,
     pub cached_members: Memo<Option<HashMap<String, Member>>>,
@@ -211,6 +212,7 @@ pub fn Chat(channel: Signal<Option<Channel>>, member: Signal<Option<Member>>) ->
     let reactions = Signal::derive(move || member_reactions.get().and_then(|res| res.ok()));
     view! {
         <Provider value=ChatContext {
+            member,
             msg_reference: RwSignal::new(None),
             attachments: RwSignal::new(vec![]),
             cached_members,
