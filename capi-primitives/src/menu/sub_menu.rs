@@ -3,6 +3,7 @@ use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 
 use super::{MenuAlign, MenuSide};
+use crate::common::dismissible::DismissibleOptions;
 use crate::common::floating::{FloatingPosition, use_floating, use_position};
 use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
 use crate::common::hover::use_hover;
@@ -37,7 +38,8 @@ pub fn SubMenuProvider(
                     mount_ref,
                     dismissible: true,
                     modal: true,
-                    floating
+                    floating,
+                    dismiss_opts: DismissibleOptions::default()
                 }
             >
                 {children()}

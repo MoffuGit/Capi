@@ -1,9 +1,9 @@
+use capi_primitives::common::dismissible::DismissibleOptions;
 use capi_primitives::dialog::DialogOverlay as DialogOverlayPrimitive;
 use capi_primitives::dialog::DialogPopup as DialogPopupPrimitive;
 use capi_primitives::dialog::DialogPortal as DialogPortalPrimitive;
 use capi_primitives::dialog::DialogRoot as DialogPrimitive;
 use capi_primitives::dialog::DialogTrigger as DialogTriggerPrimitive;
-use leptos::attribute_interceptor::AttributeInterceptor;
 use leptos::either::Either;
 use leptos::html::Div;
 use leptos::prelude::*;
@@ -19,10 +19,11 @@ pub fn Dialog(
     #[prop(optional, into)] on_open_change: Option<Callback<bool>>,
     #[prop(into, optional)] trigger_ref: NodeRef<Div>,
     #[prop(into, optional)] popup_ref: NodeRef<Div>,
+    #[prop(optional)] dismiss_opts: DismissibleOptions,
     children: Children,
 ) -> impl IntoView {
     view! {
-        <DialogPrimitive trigger_ref=trigger_ref popup_ref=popup_ref on_open_change=on_open_change open=open modal=modal dismissible=dismissible>
+        <DialogPrimitive dismiss_opts=dismiss_opts trigger_ref=trigger_ref popup_ref=popup_ref on_open_change=on_open_change open=open modal=modal dismissible=dismissible>
             {children()}
         </DialogPrimitive>
     }

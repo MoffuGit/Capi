@@ -13,7 +13,6 @@ pub fn MenuTrigger(
     let open = context.open;
     let ClickHandlers { on_click } = use_click(&context.floating);
     let trigger_ref = context.trigger_ref;
-    use_dismiss(&context.floating, context.dismissible);
     view! {
         <div
             class=move || {

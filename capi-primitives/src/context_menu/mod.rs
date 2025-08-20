@@ -27,7 +27,7 @@ pub fn ContextMenuTrigger(
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let set_trigger_rect = context.floating.position_ref;
     let open = context.open;
-    use_dismiss(&context.floating, context.dismissible);
+    use_dismiss(&context.floating, context.dismissible, context.dismiss_opts);
     let trigger_ref = context.trigger_ref;
     view! {
         <div

@@ -1,3 +1,4 @@
+use capi_primitives::common::dismissible::DismissibleOptions;
 use capi_primitives::dialog::DialogPopup;
 use common::convex::{Attachment, FileType};
 use icons::{IconDownLoad, IconExpand2, IconFile, IconMinimize2};
@@ -29,7 +30,10 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                         >
                                             <IconDownLoad/>
                                         </Button>
-                                        <Dialog open=open dismissible=false>
+                                        <Dialog open=open dismiss_opts=DismissibleOptions {
+                                            escape_key: true,
+                                            outside_press: false
+                                        }>
                                             <DialogTrigger>
                                                 <Button
                                                     size=ButtonSizes::IconXs

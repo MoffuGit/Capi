@@ -2,7 +2,7 @@ use leptos::context::Provider;
 use leptos::html::Div;
 use leptos::prelude::*;
 
-use crate::common::dismissible::use_dismiss;
+use crate::common::dismissible::{DismissibleOptions, use_dismiss};
 use crate::common::floating::{FloatingContext, use_floating};
 use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
 use crate::common::status::{TransitionStatusState, use_transition_status};
@@ -35,6 +35,7 @@ pub fn DialogRoot(
     #[prop(into, optional)] trigger_ref: NodeRef<Div>,
     #[prop(into, optional)] popup_ref: NodeRef<Div>,
     #[prop(into, optional)] backdrop_ref: NodeRef<Div>,
+    #[prop(optional)] dismiss_opts: DismissibleOptions,
     children: Children,
 ) -> impl IntoView {
     let id = use_floating_node_id();
@@ -64,7 +65,7 @@ pub fn DialogRoot(
         dismissible,
         floating,
     };
-    use_dismiss(&context.floating, dismissible);
+    use_dismiss(&context.floating, dismissible, dismiss_opts);
     view! {
         <FloatingNode id=id.get_value()>
             <Provider value=context>

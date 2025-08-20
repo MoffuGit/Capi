@@ -24,6 +24,7 @@ pub use separator::*;
 pub use sub_menu::*;
 pub use trigger::*;
 
+use crate::common::dismissible::{DismissibleOptions, use_dismiss};
 use crate::common::floating::{FloatingContext, use_floating};
 use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
 use crate::common::status::{TransitionStatusState, use_transition_status};
@@ -32,6 +33,7 @@ use crate::common::status::{TransitionStatusState, use_transition_status};
 pub struct MenuProviderContext {
     pub open: RwSignal<bool>,
     pub dismissible: bool,
+    pub dismiss_opts: DismissibleOptions,
     pub modal: bool,
     pub mount_ref: NodeRef<html::Div>,
     pub trigger_ref: NodeRef<html::Div>,
@@ -48,12 +50,14 @@ pub fn MenuProvider(
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
     #[prop(optional)] dismissible: bool,
+    #[prop(optional)] dismiss_opts: DismissibleOptions,
     #[prop(into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
     let mount_ref = NodeRef::new();
     let transition_status = use_transition_status(open.into(), content_ref, true, true);
     let id = use_floating_node_id();
     let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
+    use_dismiss(&floating, dismissible, dismiss_opts);
     Effect::new(move |_| {
         if let Some(on_close) = on_close
             && !transition_status.mounted.get()
@@ -65,6 +69,7 @@ pub fn MenuProvider(
         <FloatingNode id=id.get_value()>
             <Provider
                 value=MenuProviderContext {
+                    dismiss_opts,
                     mount_ref,
                     transition_status,
                     dismissible,
