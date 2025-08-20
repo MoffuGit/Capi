@@ -92,7 +92,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
 
                             view! {
                                 <div
-                                    class="flex group items-center p-2 w-fit gap-4 justify-center rounded-lg border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 cursor-pointer mb-2"
+                                    class="flex group items-center p-4 w-fit gap-4 justify-center rounded-lg border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 cursor-pointer mb-2"
                                 >
                                     <IconFile class="size-4 text-muted-foreground"/>
                                     <div class="flex flex-col items-start">
