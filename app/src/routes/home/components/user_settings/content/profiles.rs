@@ -1,9 +1,9 @@
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::ui::input::Input;
-use crate::components::ui::tabs::{Tab, TabIndicator, TabPanel, Tabs, TabsList};
-use crate::components::ui::tooltip::{ToolTip, ToolTipContent, ToolTipTrigger};
+use crate::components::ui::avatar::*;
+use crate::components::ui::button::*;
+use crate::components::ui::input::*;
+use crate::components::ui::tabs::*;
+use crate::components::ui::tooltip::*;
 use crate::components::uploadthing::{upload_file, UploadResult};
 use crate::routes::home::components::user_settings::content::{
     Setting, SettingAction, SettingData, SettingDescription, SettingTitle,
@@ -186,7 +186,6 @@ pub fn ProfileBanner(
                     {
                         move || {
                             if banner_url.get().is_none() {
-                                // If no banner, show "Add cover image" button
                                 view! {
                                     <Button class="absolute right-2 top-2" size=ButtonSizes::Sm variant=ButtonVariants::Outline
                                         on:click=move |_| { if let Some(input) = input_ref.get() { input.click(); } }
@@ -196,9 +195,7 @@ pub fn ProfileBanner(
                                     </Button>
                                 }.into_any()
                             } else {
-                                // If banner exists, show overlay for editing and remove button
                                 view! {
-                                    // Overlay for changing banner
                                     <div
                                         class="absolute inset-0 cursor-pointer group-hover:bg-black/50 transition-colors flex items-center justify-center"
                                         on:click=move |_| { if let Some(input) = input_ref.get() { input.click(); } }
@@ -206,9 +203,8 @@ pub fn ProfileBanner(
                                     >
                                         <IconImage class="size-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"/>
                                     </div>
-                                    // Remove button
                                     <Button
-                                        size=ButtonSizes::Icon
+                                        size=ButtonSizes::IconXs
                                         variant=ButtonVariants::Outline
                                         class="absolute opacity-0 size-7 group-hover:opacity-100 transition-opacity ease-out top-2 right-2 rounded-md p-0"
                                         on:pointerenter=move |_| {
@@ -269,7 +265,7 @@ pub fn ProfileImageSetting(
                         class="hidden"
                     />
                     <Button
-                        size=ButtonSizes::Icon
+                        size=ButtonSizes::IconXs
                         variant=ButtonVariants::Outline
                         class="absolute opacity-0 size-5 group-hover:opacity-100 transition-opacity ease-out top-0 right-0 -translate-y-1/2 translate-x-1/2 rounded-md p-0"
                         on:pointerenter=move |_| {

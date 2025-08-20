@@ -238,6 +238,7 @@ pub struct Attachment {
     pub storage_id: String,
     pub url: Option<String>,
     pub metadata: Option<FileMetaData>,
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -290,6 +291,8 @@ pub enum FileType {
     Csv,
     #[strum(serialize = "text/html")]
     Html,
+    #[strum(serialize = "text/markdown")]
+    Md,
     #[default]
     Unknown,
 }

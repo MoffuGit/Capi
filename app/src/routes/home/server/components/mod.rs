@@ -1,11 +1,11 @@
 use leptos::prelude::*;
 
-use icons::IconSearch;
 use crate::components::ui::button::*;
 use crate::components::ui::divider::Separator;
 use crate::components::ui::sheet::*;
 use crate::components::ui::sidebar::SidebarTrigger;
 use capi_primitives::common::{Orientation, Side};
+use icons::IconSearch;
 
 #[component]
 pub fn Header() -> impl IntoView {
@@ -18,7 +18,7 @@ pub fn Header() -> impl IntoView {
             />
             <div class="ml-auto mr-0 space-x-1">
                 <Sheet>
-                    <SheetTrigger as_child=true >
+                    <SheetTrigger  >
                         <Button
                             variant=ButtonVariants::Ghost
                             size=ButtonSizes::Icon

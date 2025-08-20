@@ -2,12 +2,12 @@ use common::convex::FileType;
 use common::files::FileMetaData;
 use leptos::prelude::*;
 
-use icons::IconFile;
-use icons::IconTrash;
 use crate::components::ui::avatar::*;
 use crate::components::ui::button::*;
 use crate::components::ui::collapsible::*;
 use crate::routes::server::channel::components::chat::ClientFile;
+use icons::IconFile;
+use icons::IconTrash;
 
 #[component]
 pub fn AttachmentPreviewList(attachments: RwSignal<Vec<ClientFile>>) -> impl IntoView {
@@ -57,7 +57,7 @@ pub fn Attachment(
     view! {
         <Avatar class="relative size-20 border border-input shadow-md rounded-md flex flex-col items-center justify-center isolate group/attachment">
             <Button
-                size=ButtonSizes::Icon
+                size=ButtonSizes::IconXs
                 variant=ButtonVariants::Outline
                 on:click=move |_| {
                     attachments.update(|attachments| {

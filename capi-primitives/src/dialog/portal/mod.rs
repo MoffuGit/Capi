@@ -20,9 +20,9 @@ pub fn DialogPortal(
     children: StoredValue<Arc<dyn Fn() -> AnyView + Send + Sync + 'static>>,
 ) -> impl IntoView {
     let context = use_dialog_root_context();
-    let transition_state = context.transition_status;
-    let mounted = transition_state.mounted;
-    let transition_status = transition_state.transition_status;
+    let popup_mounted = context.popup_status.mounted;
+    let backdrop_mounted = context.overlay_status.mounted;
+    let mounted = Memo::new(move |_| popup_mounted() || backdrop_mounted());
     view! {
         <Show when=move || mounted.get()>
             <Portal container=container container_ref=container_ref as_child=as_child node_ref=node_ref>

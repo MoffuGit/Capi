@@ -25,15 +25,13 @@ pub fn Sheet(
 
 #[component]
 pub fn SheetTrigger(
-    #[prop(into, optional)] as_child: MaybeProp<bool>,
-    #[prop(optional)] node_ref: AnyNodeRef,
     #[prop(optional)] children: Option<ChildrenFn>,
     #[prop(optional, into)] class: Signal<String>,
 ) -> impl IntoView {
     view! {
         <SheetTriggerPrimitive
-            as_child=as_child node_ref={node_ref}
-            {..} class=move || class.get()>
+            class=class
+        >
             {children.clone().map(|children| children())}
         </SheetTriggerPrimitive>
     }
@@ -57,14 +55,12 @@ const SHEET_OVERLAY: &str = "data-[state=opening]:animate-in data-[state=closed]
 
 #[component]
 pub fn SheetOverlay(
-    #[prop(into, optional)] as_child: MaybeProp<bool>,
-    #[prop(optional)] node_ref: AnyNodeRef,
     #[prop(into, optional)] class: Signal<String>,
     #[prop(optional)] children: Option<ChildrenFn>,
 ) -> impl IntoView {
     let children = StoredValue::new(children);
     view! {
-        <SheetOverlayPrimitive as_child=as_child node_ref=node_ref class=Signal::derive(move || format!("{} {}", SHEET_OVERLAY, class.get()))>
+        <SheetOverlayPrimitive class=Signal::derive(move || format!("{} {}", SHEET_OVERLAY, class.get()))>
             {children.get_value().map(|children| children())}
         </SheetOverlayPrimitive>
     }

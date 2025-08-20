@@ -47,6 +47,7 @@ pub struct AddAttachment {
     message: String,
     #[serde(rename = "storageId")]
     storage: String,
+    name: String,
 }
 
 impl Mutation for AddAttachment {
@@ -79,6 +80,7 @@ pub fn Sender(
                         if let Ok(Some(url)) = url {
                             if let Ok(UploadResult { storage_id }) = upload_file(&file, url).await {
                                 let add_attachment = AddAttachment {
+                                    name: file.name(),
                                     message: message.clone(),
                                     storage: storage_id,
                                 };

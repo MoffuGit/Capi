@@ -21,15 +21,51 @@ pub struct FileMetaData {
     pub url: String,
 }
 
+fn infer_file_type_from_name(file_name: &str) -> FileType {
+    file_name
+        .rsplit('.')
+        .next()
+        .map(|ext| match ext.to_lowercase().as_str() {
+            "jpg" | "jpeg" => FileType::Jpeg,
+            "png" => FileType::Png,
+            "gif" => FileType::Gif,
+            "webp" => FileType::Webp,
+            "pdf" => FileType::Pdf,
+            "txt" => FileType::Text,
+            "doc" => FileType::Doc,
+            "docx" => FileType::Docx,
+            "xls" => FileType::Xls,
+            "xlsx" => FileType::Xlsx,
+            "zip" => FileType::Zip,
+            "mp3" => FileType::Mp3,
+            "wav" => FileType::Wav,
+            "mp4" => FileType::Mp4,
+            "webm" => FileType::Webm,
+            "json" => FileType::Json,
+            "csv" => FileType::Csv,
+            "html" | "htm" => FileType::Html,
+            "md" => FileType::Md,
+            _ => FileType::Unknown,
+        })
+        .unwrap_or(FileType::Unknown)
+}
+
 pub fn read_file<F>(file: File, callback: F)
 where
     F: FnOnce(anyhow::Result<ClientFile>) + 'static,
 {
     let name = file.name();
-    let content_type = FileType::from_str(&file.raw_mime_type()).unwrap_or_default();
+    let raw_mime_type = file.raw_mime_type();
+
+    let mut content_type = FileType::from_str(&raw_mime_type).unwrap_or_default();
+
+    if content_type == FileType::Unknown {
+        content_type = infer_file_type_from_name(&name);
+    }
+
     let size = file.size() as usize;
-    let file_blob: Blob = file.into(); // Convert gloo_file::File to gloo_file::Blob
-    let file_blob_clone = file_blob.clone(); // Clone for creating object URL
+    let file_blob: Blob = file.into();
+    let file_blob_clone = file_blob.clone();
 
     spawn_local_scoped_with_cancellation(async move {
         let result: Result<ClientFile, anyhow::Error> = async {

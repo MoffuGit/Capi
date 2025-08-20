@@ -167,11 +167,13 @@ export const addAttachmentToMessage = mutation({
   args: {
     messageId: v.id("messages"),
     storageId: v.id("_storage"),
+    name: v.string(),
   },
   handler: async (ctx, args) => {
     const newAttachment = {
       message: args.messageId,
       storageId: args.storageId,
+      name: args.name,
     };
     return await ctx.db.insert("attachments", newAttachment);
   },

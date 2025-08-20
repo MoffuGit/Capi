@@ -113,3 +113,16 @@ pub fn Empty() -> impl IntoView {
         <Outlet/>
     }
 }
+
+//TOOD:
+//  expand and download for attachments
+//  add animations for icons
+//  add embeds
+//  add pinned messages
+//  add private conversations and friends
+//  improve the markdown
+//  add mentions for users, roles and everyone
+//  add notifications
+//  add the toasts
+//  add inbox
+//  add live calls
