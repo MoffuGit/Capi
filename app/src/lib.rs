@@ -115,7 +115,7 @@ pub fn Empty() -> impl IntoView {
 }
 
 //TOOD:
-//  expand and download for attachments
+//  download for attachments
 //  add animations for icons
 //  add embeds
 //  add pinned messages

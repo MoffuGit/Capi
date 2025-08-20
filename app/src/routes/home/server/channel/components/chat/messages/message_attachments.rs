@@ -1,7 +1,6 @@
 use capi_primitives::dialog::DialogPopup;
 use common::convex::{Attachment, FileType};
-use icons::IconMinimize2;
-use icons::{IconDownLoad, IconExpand2, IconFile};
+use icons::{IconDownLoad, IconExpand2, IconFile, IconMinimize2};
 use leptos::prelude::*;
 
 use crate::components::ui::button::*;
@@ -15,6 +14,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                 .into_iter()
                 .filter_map(|att| {
                     let url = StoredValue::new(att.url.clone()?);
+                    let name = StoredValue::new(att.name);
                     let data = att.metadata?;
 
                     Some(match data.content_type {
@@ -92,7 +92,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                 >
                                     <IconFile class="size-4 text-muted-foreground"/>
                                     <div class="flex flex-col items-start">
-                                        <span>{att.name.unwrap_or(data.content_type.to_string())}</span>
+                                        <span>{name.get_value().unwrap_or(data.content_type.to_string())}</span>
                                         {
                                             if !display_size.is_empty() {
                                                 view! { <span class="text-xs text-muted-foreground">{display_size}</span> }
