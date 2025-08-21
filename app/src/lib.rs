@@ -115,14 +115,15 @@ pub fn Empty() -> impl IntoView {
 }
 
 //TOOD:
-//  download for attachments
-//  add animations for icons
+//  add the toasts
+//  add the copy for url and text with cool animation
+//  improve the markdown render and editor
 //  add embeds
 //  add pinned messages
 //  add private conversations and friends
-//  improve the markdown
+//  download for attachments
 //  add mentions for users, roles and everyone
 //  add notifications
-//  add the toasts
 //  add inbox
+//  add read and unread messages
 //  add live calls

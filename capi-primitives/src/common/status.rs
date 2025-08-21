@@ -1,6 +1,7 @@
 use leptos::ev::{animationend, transitionend};
 use leptos::html::Div;
 use leptos::prelude::*;
+use leptos_dom::warn;
 use leptos_use::use_event_listener;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
@@ -54,12 +55,15 @@ pub fn use_transition_status(
         transition_status.set(TransitionStatus::Opening);
     }));
 
-    Effect::new(move |_| {
-        #[cfg(feature = "hydrate")]
-        if open.get()
+    let opening = Memo::new(move |_| {
+        open.get()
             && (transition_status.get() == TransitionStatus::Closed
                 || transition_status.get() == TransitionStatus::Closing)
-        {
+    });
+
+    Effect::new(move |_| {
+        #[cfg(feature = "hydrate")]
+        if opening() {
             let cancel_frame = AnimationFrame::request(closure_for_animation_frame.clone());
             on_cleanup(move || {
                 cancel_frame();
@@ -72,11 +76,14 @@ pub fn use_transition_status(
         transition_status.set(TransitionStatus::Closing);
     }));
 
+    let closing = Memo::new(move |_| {
+        !open.get() && mounted.get() && transition_status.get() != TransitionStatus::Closing
+    });
+
     Effect::new(move |_| {
         #[cfg(feature = "hydrate")]
         {
-            if !open.get() && mounted.get() && transition_status.get() != TransitionStatus::Closing
-            {
+            if closing() {
                 let cancel_frame = AnimationFrame::request(ending.clone());
                 on_cleanup(move || {
                     cancel_frame();
@@ -85,9 +92,12 @@ pub fn use_transition_status(
         }
     });
 
+    let idle =
+        Memo::new(move |_| open.get() && transition_status.get() == TransitionStatus::Opening);
+
     Effect::new(move |_| {
-        if open.get() && transition_status.get() == TransitionStatus::Opening {
-            let _ = use_event_listener(content_node_ref, animationend, move |evt| {
+        if idle() {
+            let tr_cleanup = use_event_listener(content_node_ref, animationend, move |evt| {
                 if let Some(target) = evt.target()
                     && let Ok(html_element) = target.dyn_into::<web_sys::HtmlElement>()
                     && let Some(node) = content_node_ref.get()
@@ -97,7 +107,7 @@ pub fn use_transition_status(
                 }
             });
 
-            let _ = use_event_listener(content_node_ref, transitionend, move |evt| {
+            let an_cleanup = use_event_listener(content_node_ref, transitionend, move |evt| {
                 if let Some(target) = evt.target()
                     && let Ok(html_element) = target.dyn_into::<web_sys::HtmlElement>()
                     && let Some(node) = content_node_ref.get()
@@ -105,16 +115,21 @@ pub fn use_transition_status(
                 {
                     transition_status.set(TransitionStatus::Open);
                 }
+            });
+
+            on_cleanup(move || {
+                tr_cleanup();
+                an_cleanup();
             });
         }
     });
 
-    Effect::new(move |_| {
-        let current_open = open.get();
-        let current_status = transition_status.get();
+    let closed =
+        Memo::new(move |_| !open.get() && transition_status.get() == TransitionStatus::Closing);
 
-        if !current_open && current_status == TransitionStatus::Closing {
-            let _ = use_event_listener(content_node_ref, animationend, move |evt| {
+    Effect::new(move |_| {
+        if closed() {
+            let tr_cleanup = use_event_listener(content_node_ref, animationend, move |evt| {
                 if let Some(target) = evt.target()
                     && let Ok(html_element) = target.dyn_into::<web_sys::HtmlElement>()
                     && let Some(node) = content_node_ref.get()
@@ -124,7 +139,7 @@ pub fn use_transition_status(
                 }
             });
 
-            let _ = use_event_listener(content_node_ref, transitionend, move |evt| {
+            let an_cleanup = use_event_listener(content_node_ref, transitionend, move |evt| {
                 if let Some(target) = evt.target()
                     && let Ok(html_element) = target.dyn_into::<web_sys::HtmlElement>()
                     && let Some(node) = content_node_ref.get()
@@ -132,6 +147,10 @@ pub fn use_transition_status(
                 {
                     transition_status.set(TransitionStatus::Closed);
                 }
+            });
+            on_cleanup(move || {
+                tr_cleanup();
+                an_cleanup();
             });
         }
     });

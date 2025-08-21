@@ -35,7 +35,7 @@ pub fn use_dismiss(ctx: &FloatingContext, enabled: bool, options: DismissibleOpt
     Effect::new(move |_| {
         if open.get() {
             if options.outside_press {
-                let _ = use_event_listener_with_options(
+                let pd_cleanup = use_event_listener_with_options(
                     window(),
                     ev::pointerdown,
                     move |evt| {
@@ -121,10 +121,12 @@ pub fn use_dismiss(ctx: &FloatingContext, enabled: bool, options: DismissibleOpt
                     },
                     UseEventListenerOptions::default().passive(true),
                 );
+
+                on_cleanup(pd_cleanup);
             }
 
             if options.escape_key {
-                let _ = use_event_listener_with_options(
+                let kd_cleanup = use_event_listener_with_options(
                     window(),
                     ev::keydown,
                     move |evt| {
@@ -137,6 +139,7 @@ pub fn use_dismiss(ctx: &FloatingContext, enabled: bool, options: DismissibleOpt
                     },
                     UseEventListenerOptions::default().passive(true),
                 );
+                on_cleanup(kd_cleanup);
             }
         }
     });
