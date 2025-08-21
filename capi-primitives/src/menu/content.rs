@@ -33,24 +33,6 @@ pub fn MenuContent(
         None,
     );
 
-    // Effect::new(move |_| {
-    //     if context.modal
-    //         && let Some(app) = document().get_element_by_id("app")
-    //     {
-    //         if context.open.get() {
-    //             let _ = app.class_list().add_1("pointer-events-none");
-    //         } else {
-    //             let _ = app.class_list().remove_1("pointer-events-none");
-    //         }
-    //     }
-    // });
-    //
-    // on_cleanup(move || {
-    //     if let Some(app) = document().get_element_by_id("app") {
-    //         let _ = app.class_list().remove_1("pointer-events-none");
-    //     }
-    // });
-
     let transition_status = context.transition_status;
 
     view! {

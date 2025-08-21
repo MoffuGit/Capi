@@ -12,6 +12,7 @@ pub fn MenuTrigger(
     let context = use_context::<MenuProviderContext>().expect("acces to menu context");
     let open = context.open;
     let ClickHandlers { on_click } = use_click(&context.floating);
+    use_dismiss(&context.floating, context.dismissible, context.dismiss_opts);
     let trigger_ref = context.trigger_ref;
     view! {
         <div

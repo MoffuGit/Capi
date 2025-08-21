@@ -1,5 +1,6 @@
 use leptos::ev;
 use leptos::prelude::*;
+use leptos_dom::warn;
 use leptos_use::{UseEventListenerOptions, use_event_listener_with_options};
 use uuid::Uuid;
 use web_sys::Node;

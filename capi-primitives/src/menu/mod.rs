@@ -24,7 +24,7 @@ pub use separator::*;
 pub use sub_menu::*;
 pub use trigger::*;
 
-use crate::common::dismissible::{DismissibleOptions, use_dismiss};
+use crate::common::dismissible::DismissibleOptions;
 use crate::common::floating::{FloatingContext, use_floating};
 use crate::common::floating_tree::{FloatingNode, use_floating_node_id};
 use crate::common::status::{TransitionStatusState, use_transition_status};
@@ -56,8 +56,7 @@ pub fn MenuProvider(
     let mount_ref = NodeRef::new();
     let transition_status = use_transition_status(open.into(), content_ref);
     let id = use_floating_node_id();
-    let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
-    use_dismiss(&floating, dismissible, dismiss_opts);
+    let floating = use_floating(trigger_ref, content_ref, open, Some(id));
     Effect::new(move |_| {
         if let Some(on_close) = on_close
             && !transition_status.mounted.get()
