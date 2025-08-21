@@ -19,7 +19,7 @@ fn use_collapsible_context() -> CollapsibleContext {
     use_context().expect("should acces to teh collapsible context")
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)] // Derive PartialEq for comparison in Effect
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Dimensions {
     width: Option<i32>,
     height: Option<i32>,
@@ -29,7 +29,6 @@ pub struct Dimensions {
 pub fn CollapsibleRoot(
     #[prop(into, optional, default = RwSignal::new(false))] open: RwSignal<bool>,
     children: Children,
-    // open_duration and close_duration are removed
 ) -> impl IntoView {
     let dimensions = RwSignal::new(Dimensions {
         width: None,
@@ -39,8 +38,7 @@ pub fn CollapsibleRoot(
     let trigger_ref = NodeRef::new();
     let content_ref = NodeRef::new();
 
-    // Pass content_ref to use_transition_status to read the CSS duration
-    let state = use_transition_status(open.into(), content_ref, true, true);
+    let state = use_transition_status(open.into(), content_ref);
 
     view! {
         <Provider value=CollapsibleContext {

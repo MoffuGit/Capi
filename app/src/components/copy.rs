@@ -18,7 +18,7 @@ pub fn Copy(
     let (copied, set_copied) = signal(false);
     let button_ref = NodeRef::new();
 
-    let transition_status_state = use_transition_status(copied.into(), button_ref, true, true);
+    let transition_status_state = use_transition_status(copied.into(), button_ref);
 
     let on_click_handler = move |_| {
         let text_to_copy = text.get();

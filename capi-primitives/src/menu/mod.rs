@@ -54,7 +54,7 @@ pub fn MenuProvider(
     #[prop(into)] on_close: Option<Callback<()>>,
 ) -> impl IntoView {
     let mount_ref = NodeRef::new();
-    let transition_status = use_transition_status(open.into(), content_ref, true, true);
+    let transition_status = use_transition_status(open.into(), content_ref);
     let id = use_floating_node_id();
     let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
     use_dismiss(&floating, dismissible, dismiss_opts);

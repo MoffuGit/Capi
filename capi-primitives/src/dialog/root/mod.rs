@@ -41,8 +41,8 @@ pub fn DialogRoot(
     let id = use_floating_node_id();
     let description_element_id = RwSignal::new(None);
     let title_element_id = RwSignal::new(None);
-    let popup_status = use_transition_status(open.into(), popup_ref, true, true);
-    let overlay_status = use_transition_status(open.into(), backdrop_ref, true, true);
+    let popup_status = use_transition_status(open.into(), popup_ref);
+    let overlay_status = use_transition_status(open.into(), backdrop_ref);
 
     Effect::new(move |_| {
         if let Some(callback) = on_open_change {

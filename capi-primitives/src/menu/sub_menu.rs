@@ -19,7 +19,7 @@ pub fn SubMenuProvider(
     #[prop(optional, into)] trigger_ref: NodeRef<html::Div>,
     #[prop(optional, into)] content_ref: NodeRef<html::Div>,
 ) -> impl IntoView {
-    let transition_status = use_transition_status(open.into(), content_ref, true, true);
+    let transition_status = use_transition_status(open.into(), content_ref);
 
     let mount_ref = NodeRef::new();
 

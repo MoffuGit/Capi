@@ -34,7 +34,7 @@ pub fn ToolTipProvider(
 
     let content_ref = NodeRef::<html::Div>::new();
 
-    let transition_state = use_transition_status(open.into(), content_ref, true, true);
+    let transition_state = use_transition_status(open.into(), content_ref);
 
     let id = use_floating_node_id();
 

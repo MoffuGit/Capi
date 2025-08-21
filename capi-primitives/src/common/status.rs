@@ -5,7 +5,7 @@ use leptos_use::use_event_listener;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::Closure;
-use web_sys::{AnimationEvent, Event, window};
+use web_sys::window;
 
 #[derive(Clone, Copy)]
 pub struct AnimationFrame;
@@ -41,8 +41,6 @@ pub enum TransitionStatus {
 pub fn use_transition_status(
     open: Signal<bool>,
     content_node_ref: NodeRef<Div>,
-    enable_idle_state: bool,
-    defer_ending_state: bool,
 ) -> TransitionStatusState {
     let transition_status: RwSignal<TransitionStatus> = RwSignal::new(TransitionStatus::Closed);
     let mounted = Memo::new(move |_| {
@@ -77,10 +75,7 @@ pub fn use_transition_status(
     Effect::new(move |_| {
         #[cfg(feature = "hydrate")]
         {
-            if !open.get()
-                && mounted.get()
-                && transition_status.get() != TransitionStatus::Closing
-                && defer_ending_state
+            if !open.get() && mounted.get() && transition_status.get() != TransitionStatus::Closing
             {
                 let cancel_frame = AnimationFrame::request(ending.clone());
                 on_cleanup(move || {
