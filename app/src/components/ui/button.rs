@@ -1,4 +1,5 @@
 use leptos::either::Either;
+use leptos::html::Button as ButtonPrimitive;
 use leptos::prelude::*;
 use tailwind_fuse::*;
 
@@ -27,15 +28,15 @@ pub enum ButtonVariants {
 
 #[derive(Debug, PartialEq, TwVariant)]
 pub enum ButtonSizes {
-    #[tw(default, class = "h-9 px-4 py-2 has-[>svg]:px-3")]
+    #[tw(default, class = "h-9 px-4 py-2 has-[>svg]:px-3 active:scale-[0.97]")]
     Default,
-    #[tw(class = "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5")]
+    #[tw(class = "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 active:scale-[0.97]")]
     Sm,
-    #[tw(class = "h-10 rounded-md px-6 has-[>svg]:px-4")]
+    #[tw(class = "h-10 rounded-md px-6 has-[>svg]:px-4 active:scale-[0.97]")]
     Lg,
-    #[tw(class = "size-8")]
+    #[tw(class = "size-8 active:scale-[0.97]")]
     Icon,
-    #[tw(class = "size-6")]
+    #[tw(class = "size-6 active:scale-[0.95]")]
     IconXs,
 }
 
@@ -46,13 +47,15 @@ pub fn Button(
     #[prop(optional, into)] class: Signal<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional)] children: Option<Children>,
+    #[prop(into, optional)] node_ref: NodeRef<ButtonPrimitive>,
 ) -> impl IntoView {
     view! {
         <button
+            node_ref=node_ref
             data-slot="button"
             class=move || {
                 tw_join!(
-                    "inline-flex active:scale-[0.97] duration-150 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                    "inline-flex duration-150 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
                     variant.get(),
                     size.get(),
                     class.get()

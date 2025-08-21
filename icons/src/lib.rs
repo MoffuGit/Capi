@@ -1,9 +1,15 @@
 use leptos::prelude::*;
+use leptos::svg::Svg;
 
 #[component]
-pub fn Icon(children: Children, #[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+pub fn Icon(
+    children: Children,
+    #[prop(into, optional)] class: Signal<String>,
+    #[prop(into, optional)] node_ref: NodeRef<Svg>,
+) -> impl IntoView {
     view! {
         <svg
+            node_ref=node_ref
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
@@ -25,6 +31,15 @@ pub fn IconFile(#[prop(into, optional)] class: Signal<String>) -> impl IntoView 
     view! {
         <Icon class=class>
             <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+        </Icon>
+    }
+}
+
+#[component]
+pub fn IconCopy(#[prop(into, optional)] class: Signal<String>) -> impl IntoView {
+    view! {
+        <Icon class=class>
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
         </Icon>
     }
 }

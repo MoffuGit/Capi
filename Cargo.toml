@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual"]
+members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual", "open_graph"]
 
 # need to be applied only to wasm build
 [profile.release]
@@ -43,8 +43,11 @@ urlencoding = "2.1.3"
 tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["full"] }
 wasm-bindgen = "=0.2.100"
-web-sys = { version = "0.3", features = ["HtmlDocument","MediaQueryList",
- "ResizeObserver",
+web-sys = { version = "0.3", features = [
+    "HtmlDocument",
+    "MediaQueryList",
+    "ResizeObserver",
+    "Clipboard",
     "ResizeObserverBoxOptions",
     "ResizeObserverEntry",
     "ResizeObserverOptions",
@@ -84,6 +87,7 @@ rand = "0.9.1"
 imbl = "5.0.0"
 regex = "1.11.1"
 gloo-file = { version =  "0.3.0", features = ["futures"] }
+scraper = {version =  "0.23.1"}
 
 # See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
 

@@ -1,10 +1,10 @@
 use common::convex::ChannelMessage;
 use leptos::prelude::*;
 
-use icons::IconX;
 use crate::components::ui::button::*;
 use crate::components::ui::collapsible::*;
 use crate::routes::server::channel::components::chat::ChatContext;
+use icons::IconX;
 
 #[component]
 pub fn MsgRefDisplay(

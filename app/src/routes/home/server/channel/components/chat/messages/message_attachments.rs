@@ -1,3 +1,4 @@
+use crate::components::copy::Copy;
 use capi_primitives::common::dismissible::DismissibleOptions;
 use capi_primitives::dialog::DialogPopup;
 use common::convex::{Attachment, FileType};
@@ -30,6 +31,11 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                         >
                                             <IconDownLoad/>
                                         </Button>
+                                        <Copy
+                                            size=ButtonSizes::IconXs
+                                            variant=ButtonVariants::Ghost
+                                            text=url.get_value()
+                                        />
                                         <Dialog open=open dismiss_opts=DismissibleOptions {
                                             escape_key: true,
                                             outside_press: false
@@ -56,6 +62,11 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                                         >
                                                             <IconDownLoad/>
                                                         </Button>
+                                                        <Copy
+                                                            size=ButtonSizes::IconXs
+                                                            variant=ButtonVariants::Ghost
+                                                            text=url.get_value()
+                                                        />
                                                         <Button
                                                             on:click=move |_| {
                                                                 open.set(false);
