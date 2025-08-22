@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use leptos::context::Provider;
 use leptos::prelude::*;
+use send_wrapper::SendWrapper;
 
 use crate::common::status::use_transition_status;
 use crate::toasts::ToastContext;
@@ -22,6 +23,7 @@ pub fn ToastRoot(
         hovering,
         toasts,
         limit,
+        close,
         ..
     } = use_context().expect("should acces to the toast context");
     let offset_y = Memo::new(move |_| {
@@ -45,20 +47,35 @@ pub fn ToastRoot(
 
     let mounted = RwSignal::new(false);
 
+    let removed = RwSignal::new(false);
+
     Effect::new(move |_| {
         mounted.set(true);
     });
 
     Effect::new(move |_| {
-        set_timeout(
-            move || {
-                mounted.set(false);
-            },
-            Duration::from_millis(toast.timeout),
-        );
+        if !hovering.get() {
+            let handler = set_timeout_with_handle(
+                move || {
+                    mounted.set(false);
+                    removed.set(true);
+                },
+                Duration::from_millis(toast.timeout),
+            );
+            let handler = SendWrapper::new(handler);
+            on_cleanup(move || {
+                let _ = handler.take().map(|handler| handler.clear());
+            });
+        }
     });
 
     let state = use_transition_status(mounted.into(), toast.node_ref);
+
+    Effect::new(move |_| {
+        if removed() && !state.mounted.get() {
+            close.run(toast.id);
+        }
+    });
 
     let front = Memo::new(move |_| index() == 0);
 
