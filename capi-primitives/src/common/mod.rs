@@ -7,6 +7,12 @@ pub mod status;
 
 use leptos::prelude::*;
 
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Point {
+    pub x: f64,
+    pub y: f64,
+}
+
 #[derive(Clone, strum_macros::Display, Default, Debug, Copy)]
 pub enum Orientation {
     #[strum(to_string = "horizontal")]

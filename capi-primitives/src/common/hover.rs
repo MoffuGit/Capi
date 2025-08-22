@@ -3,14 +3,9 @@ use leptos::prelude::*;
 use leptos_use::{UseEventListenerOptions, use_event_listener_with_options};
 use web_sys::{MouseEvent, Node};
 
+use super::Point;
 use super::floating::FloatingContext;
 use super::floating_tree::{use_floating_tree, use_tree_node};
-
-#[derive(Debug, Clone, Copy, Default)]
-pub struct Point {
-    x: f64,
-    y: f64,
-}
 
 fn sign(p1: Point, p2: Point, p3: Point) -> f64 {
     (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)

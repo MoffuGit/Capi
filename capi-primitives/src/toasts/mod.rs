@@ -20,6 +20,7 @@ pub struct Toast {
     pub title: MaybeProp<String>,
     pub _type: MaybeProp<String>,
     pub description: MaybeProp<String>,
+    pub removed: RwSignal<bool>,
     pub timeout: u64,
 }
 
