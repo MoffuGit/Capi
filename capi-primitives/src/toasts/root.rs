@@ -25,8 +25,17 @@ pub fn ToastRoot(
         toasts
             .get()
             .iter()
+            .rev()
             .take_while(|t| t.id != toast.id)
             .fold(0, |acc, _| acc + 24)
+    });
+    let index = Memo::new(move |_| {
+        toasts
+            .get()
+            .iter()
+            .rev()
+            .position(|t| t.id == toast.id)
+            .unwrap()
     });
     view! {
         <Provider value=ToastRootContext {
@@ -37,7 +46,7 @@ pub fn ToastRoot(
                 class=class
                 data-expanded=move || hovering.get().to_string()
                 style=move || {
-                    format!("--toast-offset-y: {}px", offset_y())
+                    format!("--toast-offset-y: {}px; --toast-index: {}", offset_y(), index())
                 }
             >
                 {children()}
