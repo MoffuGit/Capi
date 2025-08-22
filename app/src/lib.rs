@@ -14,7 +14,10 @@ use routes::Landing;
 use self::{
     components::{
         auth::{use_auth, AuthProvider},
-        ui::theme::ThemeProvider,
+        ui::{
+            theme::ThemeProvider,
+            toast::{ToastButton, Toasts},
+        },
     },
     routes::{
         server::{channel::Channel, Server},
@@ -61,46 +64,48 @@ pub fn App() -> impl IntoView {
         <ThemeProvider>
             <AuthProvider>
                 <ConvexProvider>
-                    <Router>
-                        <main id="app">
-                            <Routes fallback=|| "Page not found.".into_any()>
-                                <Route path=StaticSegment("") view=Landing/>
-                                <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
-                                    <Route path=StaticSegment("login") view=Login />
-                                    <Route path=StaticSegment("signup") view=SignUp />
-                                    <Route path=StaticSegment("google")  view=GoogleAuth/>
-                                </ParentRoute>
-                                <ProtectedParentRoute
-                                    condition=move || use_auth().auth().get().and_then(|res| res.ok()).map(|res| res.is_some())
-                                    path=StaticSegment("servers")
-                                    redirect_path= || "/"
-                                    view=Home
-                                >
-                                    <Route
-                                        path=StaticSegment("")
-                                        view=Servers
-                                    />
-                                    <Route
-                                        path=StaticSegment("me")
-                                        view=move || view!{<div>"private"</div>}
-                                    />
-                                    <ParentRoute
-                                        path=ParamSegment("server")
-                                        view=Empty
+                    <Toasts>
+                        <Router>
+                            <main id="app">
+                                <Routes fallback=|| "Page not found.".into_any()>
+                                    <Route path=StaticSegment("") view=Landing/>
+                                    <ParentRoute path=StaticSegment("auth") view=|| view!{<Outlet/>}>
+                                        <Route path=StaticSegment("login") view=Login />
+                                        <Route path=StaticSegment("signup") view=SignUp />
+                                        <Route path=StaticSegment("google")  view=GoogleAuth/>
+                                    </ParentRoute>
+                                    <ProtectedParentRoute
+                                        condition=move || use_auth().auth().get().and_then(|res| res.ok()).map(|res| res.is_some())
+                                        path=StaticSegment("servers")
+                                        redirect_path= || "/"
+                                        view=Home
                                     >
                                         <Route
                                             path=StaticSegment("")
-                                            view=Server
+                                            view=Servers
                                         />
                                         <Route
-                                            path=ParamSegment("channel")
-                                            view=Channel
+                                            path=StaticSegment("me")
+                                            view=move || view!{<div><ToastButton/></div>}
                                         />
-                                    </ParentRoute>
-                                </ProtectedParentRoute>
-                            </Routes>
-                        </main>
-                    </Router>
+                                        <ParentRoute
+                                            path=ParamSegment("server")
+                                            view=Empty
+                                        >
+                                            <Route
+                                                path=StaticSegment("")
+                                                view=Server
+                                            />
+                                            <Route
+                                                path=ParamSegment("channel")
+                                                view=Channel
+                                            />
+                                        </ParentRoute>
+                                    </ProtectedParentRoute>
+                                </Routes>
+                            </main>
+                        </Router>
+                    </Toasts>
                 </ConvexProvider>
             </AuthProvider>
         </ThemeProvider>
@@ -116,7 +121,6 @@ pub fn Empty() -> impl IntoView {
 
 //TOOD:
 //  add the toasts
-//  add the copy for url and text with cool animation
 //  improve the markdown render and editor
 //  add embeds
 //  add pinned messages

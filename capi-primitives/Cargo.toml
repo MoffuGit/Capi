@@ -16,6 +16,7 @@ leptos-use.workspace = true
 tailwind_fuse.workspace = true
 leptos-typed-fallback-show.workspace = true
 uuid.workspace = true
+futures.workspace = true
 
 [features]
 default = []

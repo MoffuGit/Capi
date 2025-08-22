@@ -13,5 +13,5 @@ pub mod primitive;
 pub mod separator;
 pub mod switch;
 pub mod tabs;
-pub mod toast;
+pub mod toasts;
 pub mod tooltip;
