@@ -22,6 +22,7 @@ pub struct Toast {
     pub description: MaybeProp<String>,
     pub removed: RwSignal<bool>,
     pub timeout: u64,
+    pub height: f64,
 }
 
 #[derive(Debug, Clone, Copy)]

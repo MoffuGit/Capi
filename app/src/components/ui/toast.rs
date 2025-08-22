@@ -74,6 +74,7 @@ pub fn ToastButton() -> impl IntoView {
                     description: format!("this is a toast: {}", count.get_untracked()).into(),
                     removed: RwSignal::new(false),
                     timeout: 4000,
+                    height: 0.0
                 });
                 set_count.update(|count| *count += 1);
             }

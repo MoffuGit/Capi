@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use leptos_use::{UseElementBoundingReturn, use_element_bounding};
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use web_time::Instant;
@@ -30,6 +31,14 @@ pub fn ToastRoot(
         close,
         ..
     } = use_context().expect("should acces to the toast context");
+    let UseElementBoundingReturn { height, .. } = use_element_bounding(toast.node_ref);
+    Effect::new(move |_| {
+        toasts.update(|toasts| {
+            if let Some(toast) = toasts.iter_mut().find(|t| t.id == toast.id) {
+                toast.height = height.get();
+            }
+        });
+    });
     let offset_y = Memo::new(move |_| {
         toasts
             .get()
@@ -37,7 +46,7 @@ pub fn ToastRoot(
             .rev()
             .filter(|toast| !toast.removed.get())
             .take_while(|t| t.id != toast.id)
-            .fold(0.0, |acc, _| acc + 42.0)
+            .fold(0.0, |acc, t| acc + t.height)
     });
     let index = Memo::new(move |_| {
         toasts
