@@ -1,7 +1,12 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::time::Duration;
+
+use web_time::Instant;
 
 use leptos::context::Provider;
 use leptos::prelude::*;
+use leptos_use::{UseTimeoutFnReturn, use_timeout_fn};
 use send_wrapper::SendWrapper;
 
 use crate::common::status::use_transition_status;
@@ -53,19 +58,40 @@ pub fn ToastRoot(
         mounted.set(true);
     });
 
-    Effect::new(move |_| {
-        if !hovering.get() {
-            let handler = set_timeout_with_handle(
+    let timeout_start_time: RwSignal<Option<Instant>> = RwSignal::new(None);
+    let timeout_remaining_duration: RwSignal<Option<Duration>> = RwSignal::new(None);
+
+    Effect::new(move |prev_handler: Option<Option<TimeoutHandle>>| {
+        if let Some(handle) = prev_handler.flatten() {
+            handle.clear();
+        }
+
+        if hovering() {
+            if let Some(start) = timeout_start_time.get_untracked() {
+                let elapsed = Instant::now().duration_since(start);
+                let full_duration = Duration::from_millis(toast.timeout);
+                let remaining = full_duration.saturating_sub(elapsed);
+                timeout_remaining_duration.set(Some(remaining));
+            }
+            timeout_start_time.set(None);
+            None
+        } else {
+            let duration_to_use = timeout_remaining_duration
+                .get_untracked()
+                .unwrap_or_else(|| Duration::from_millis(toast.timeout));
+
+            timeout_start_time.set(Some(Instant::now()));
+            timeout_remaining_duration.set(None);
+
+            let new_handler = set_timeout_with_handle(
                 move || {
                     mounted.set(false);
                     removed.set(true);
                 },
-                Duration::from_millis(toast.timeout),
+                duration_to_use,
             );
-            let handler = SendWrapper::new(handler);
-            on_cleanup(move || {
-                let _ = handler.take().map(|handler| handler.clear());
-            });
+
+            new_handler.ok()
         }
     });
 
