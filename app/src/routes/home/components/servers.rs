@@ -23,22 +23,6 @@ pub fn ServersItems(
     set_option: Callback<()>,
 ) -> impl IntoView {
     view! {
-        <Show when=move || data.get().is_none()>
-            <For
-                each=move || 0..5
-                key=|i| *i
-                let(_)
-            >
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        size=crate::components::ui::sidebar::SidebarMenuButtonSize::Sm
-                        class="md:h-8 md:p-0 flex items-center justify-center"
-                    >
-                        <Skeleton class="h-8 w-8 rounded-lg" />
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </For>
-        </Show>
         <Show when=move || data.get().is_some()>
             <div
                 class="flex w-full min-w-0 flex-col gap-2 pt-1"
