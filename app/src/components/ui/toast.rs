@@ -53,7 +53,7 @@ pub fn ToastList() -> impl IntoView {
 #[component]
 pub fn Toast(toast: ToastData) -> impl IntoView {
     view! {
-        <ToastRootPrimitive class="absolute bottom-0 my-0 mx-auto w-full bg-popover data-[expanded=true]:translate-y-[calc(var(--toast-offset-y)*-1+var(--toast-index)*0.75rem*-1)] translate-y-[calc(min(var(--toast-index),10)*-20%)] data-[expanded=false]:scale-[calc(max(0,1-(var(--toast-index)*0.1)))] duration-500 transition-transform ease-out-quint after:content-[' '] after:absolute after:w-full after:left-0 after:h-[calc(0.75rem+1px)] after:top-full border border-border rounded-md p-2" toast=toast>
+        <ToastRootPrimitive class="absolute bottom-0 my-0 mx-auto w-full bg-popover data-[mounted=false]:opacity-0 data-[mounted=false]:translate-y-full data-[expanded=true]:translate-y-[calc(var(--toast-offset-y)*-1+var(--toast-index)*0.75rem*-1)] translate-y-[calc(min(var(--toast-index),10)*-20%)] data-[expanded=false]:scale-[calc(max(0,1-(var(--toast-index)*0.1)))] duration-500 transition-all ease-out-quint after:content-[' '] after:absolute after:w-full after:left-0 after:h-[calc(0.75rem+1px)] after:top-full border border-border rounded-md p-2 data-[limited=true]:opacity-0 data-[state=closed]:opacity-0 data-[state=closed]:translate-y-full data-[state=closing]:opacity-0 data-[front=true]:data-[state=closing]:translate-y-full" toast=toast>
             {move || toast.description.get()}
         </ToastRootPrimitive>
     }
@@ -72,7 +72,7 @@ pub fn ToastButton() -> impl IntoView {
                     title: "".into(),
                     _type: "".into(),
                     description: format!("this is a toast: {}", count.get_untracked()).into(),
-                    timeout: 0,
+                    timeout: 4000,
                 });
                 set_count.update(|count| *count += 1);
             }

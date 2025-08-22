@@ -30,7 +30,7 @@ pub struct ToastContext {
     pub add: Callback<Toast>,
     pub close: Callback<Uuid>,
     pub view_ref: NodeRef<Div>,
-    // pub timer_refs: RwSignal<HashMap<Uuid, TimeoutHandle>>,
+    pub limit: u64,
 }
 
 #[component]
@@ -39,6 +39,7 @@ pub fn ToastProvider(
     #[prop(into, optional)] view_ref: NodeRef<Div>,
     #[prop(into, optional)] toasts: RwSignal<Vec<Toast>>,
     #[prop(into, optional)] hovering: RwSignal<bool>,
+    #[prop(into, optional, default = 3)] limit: u64,
 ) -> impl IntoView {
     Effect::new(move |_| {
         if toasts.get().is_empty() {
@@ -59,6 +60,7 @@ pub fn ToastProvider(
             });
         }),
         view_ref,
+        limit,
     };
     view! {
         <Provider value=context>
