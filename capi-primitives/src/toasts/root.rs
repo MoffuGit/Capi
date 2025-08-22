@@ -27,7 +27,7 @@ pub fn ToastRoot(
             .iter()
             .rev()
             .take_while(|t| t.id != toast.id)
-            .fold(0, |acc, _| acc + 24)
+            .fold(0, |acc, _| acc + 42)
     });
     let index = Memo::new(move |_| {
         toasts

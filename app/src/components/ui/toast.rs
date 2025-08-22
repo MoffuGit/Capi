@@ -27,7 +27,7 @@ pub fn Toasts(children: Children) -> impl IntoView {
 pub fn ToastView(children: Children) -> impl IntoView {
     view! {
         <ToastViewportPrimitive
-            class="absolute botom-1 right-1 w-[250px]"
+            class="absolute bottom-4 right-4 w-[250px]"
         >
             {children()}
         </ToastViewportPrimitive>
@@ -53,7 +53,7 @@ pub fn ToastList() -> impl IntoView {
 #[component]
 pub fn Toast(toast: ToastData) -> impl IntoView {
     view! {
-        <ToastRootPrimitive class="absolute bottom-0 my-0 mx-auto w-full bg-popover data-[expanded=true]:translate-y-[calc(var(--toast-offset-y)*-1+var(--toast-index)*0.75rem*-1)] translate-y-[calc(min(var(--toast-index),10)*-20%)] data-[expanded=false]:scale-[calc(max(0,1-(var(--toast-index)*0.1)))] duration-500 transition-transform ease-out-quint after:content-[' '] after:absolute after:w-full after:left-0 after:h-[calc(0.75rem+1px)] after:top-full" toast=toast>
+        <ToastRootPrimitive class="absolute bottom-0 my-0 mx-auto w-full bg-popover data-[expanded=true]:translate-y-[calc(var(--toast-offset-y)*-1+var(--toast-index)*0.75rem*-1)] translate-y-[calc(min(var(--toast-index),10)*-20%)] data-[expanded=false]:scale-[calc(max(0,1-(var(--toast-index)*0.1)))] duration-500 transition-transform ease-out-quint after:content-[' '] after:absolute after:w-full after:left-0 after:h-[calc(0.75rem+1px)] after:top-full border border-border rounded-md p-2" toast=toast>
             {move || toast.description.get()}
         </ToastRootPrimitive>
     }
