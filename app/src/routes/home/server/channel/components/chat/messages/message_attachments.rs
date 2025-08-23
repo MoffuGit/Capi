@@ -1,15 +1,33 @@
 use crate::components::copy::Copy;
 use capi_primitives::common::dismissible::DismissibleOptions;
 use capi_primitives::dialog::DialogPopup;
+use capi_primitives::toasts::manager::use_toast_store;
+use capi_primitives::toasts::Toast;
+use capi_primitives::toasts::ToastStoreStoreFields;
 use common::convex::{Attachment, FileType};
 use icons::{IconDownLoad, IconExpand2, IconFile, IconMinimize2};
 use leptos::prelude::*;
+use uuid::Uuid;
 
 use crate::components::ui::button::*;
 use crate::components::ui::dialog::*;
 
 #[component]
 pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
+    let store = use_toast_store();
+    let on_copy = Callback::new(move |_| {
+        store.toasts().update(move |toasts| {
+            toasts.push(Toast {
+                id: Uuid::new_v4().as_u128(),
+                title: "".into(),
+                _type: "".into(),
+                description: "Copy image URL to clipboard.".into(),
+                removed: false,
+                timeout: 2000,
+                height: 0.0,
+            });
+        });
+    });
     view! {
         {
             attachments
@@ -32,6 +50,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                             <IconDownLoad/>
                                         </Button>
                                         <Copy
+                                            on_copy=on_copy
                                             size=ButtonSizes::IconXs
                                             variant=ButtonVariants::Ghost
                                             text=url.get_value()
@@ -63,6 +82,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                                             <IconDownLoad/>
                                                         </Button>
                                                         <Copy
+                                                            on_copy=on_copy
                                                             size=ButtonSizes::IconXs
                                                             variant=ButtonVariants::Ghost
                                                             text=url.get_value()

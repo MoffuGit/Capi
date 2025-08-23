@@ -14,10 +14,7 @@ use routes::Landing;
 use self::{
     components::{
         auth::{use_auth, AuthProvider},
-        ui::{
-            theme::ThemeProvider,
-            toast::{ToastButton, Toasts},
-        },
+        ui::{theme::ThemeProvider, toast::Toasts},
     },
     routes::{
         server::{channel::Channel, Server},
@@ -86,7 +83,7 @@ pub fn App() -> impl IntoView {
                                         />
                                         <Route
                                             path=StaticSegment("me")
-                                            view=move || view!{<div><ToastButton/></div>}
+                                            view=move || view!{<div>"private"</div>}
                                         />
                                         <ParentRoute
                                             path=ParamSegment("server")

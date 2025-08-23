@@ -18,6 +18,7 @@ leptos-typed-fallback-show.workspace = true
 uuid.workspace = true
 futures.workspace = true
 web-time.workspace = true
+reactive_stores.workspace = true
 
 [features]
 default = []

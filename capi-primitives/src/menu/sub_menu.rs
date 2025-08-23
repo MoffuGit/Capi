@@ -25,7 +25,7 @@ pub fn SubMenuProvider(
 
     let id = use_floating_node_id();
 
-    let floating = use_floating(trigger_ref, content_ref, open, Some(id));
+    let floating = use_floating(trigger_ref, mount_ref, open, Some(id));
 
     view! {
         <FloatingNode id=id.get_value()>

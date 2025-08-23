@@ -1,71 +1,84 @@
 use std::time::Duration;
 
+use leptos::context::Provider;
 use leptos_use::{UseElementBoundingReturn, use_element_bounding};
+use reactive_stores::{Field, Patch};
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use web_time::Instant;
 
-use leptos::context::Provider;
 use leptos::prelude::*;
 
 use crate::common::Point;
 use crate::common::status::use_transition_status;
-use crate::toasts::ToastContext;
+use crate::toasts::{ToastContext, ToastStoreFields, ToastStoreStoreFields};
 
 use super::Toast;
 
+#[derive(Clone, Copy)]
 pub struct ToastRootContext {
-    toast: Toast,
+    pub toast: Field<Toast>,
+    pub remove: Callback<()>,
 }
 
 #[component]
 pub fn ToastRoot(
     children: Children,
     #[prop(into, optional)] class: Signal<String>,
-    toast: Toast,
+    #[prop(into)] toast: Field<Toast>,
 ) -> impl IntoView {
     let ToastContext {
         hovering,
-        toasts,
+        store,
         limit,
-        close,
         ..
     } = use_context().expect("should acces to the toast context");
-    let UseElementBoundingReturn { height, .. } = use_element_bounding(toast.node_ref);
+
+    let node_ref = NodeRef::new();
+
+    let UseElementBoundingReturn { height, .. } = use_element_bounding(node_ref);
+
     Effect::new(move |_| {
-        toasts.update(|toasts| {
-            if let Some(toast) = toasts.iter_mut().find(|t| t.id == toast.id) {
-                toast.height = height.get();
-            }
-        });
+        toast.height().patch(height.get());
     });
+
+    let id = toast.id().get_untracked();
+
     let offset_y = Memo::new(move |_| {
-        toasts
+        store
+            .toasts()
             .get()
             .iter()
             .rev()
-            .filter(|toast| !toast.removed.get())
-            .take_while(|t| t.id != toast.id)
+            .filter(|toast| !toast.removed)
+            .take_while(|t| t.id != id)
             .fold(0.0, |acc, t| acc + t.height)
     });
+
     let index = Memo::new(move |_| {
-        toasts
+        store
+            .toasts()
             .get()
             .iter()
             .rev()
-            .filter(|toast| !toast.removed.get())
-            .position(|t| t.id == toast.id)
+            .filter(|toast| !toast.removed)
+            .position(|t| t.id == id)
+    });
+
+    let index_before_removed = RwSignal::new(0);
+
+    Effect::new(move |_| {
+        if let Some(index) = index() {
+            index_before_removed.set(index);
+        }
     });
 
     let limited = Memo::new(move |_| index().is_some_and(|index| index + 1 > limit as usize));
 
+    let removed = toast.removed();
+    let safe_removed = RwSignal::new(false);
+
     let mounted = RwSignal::new(false);
-
-    let removed = toast.removed;
-
-    Effect::new(move |_| {
-        mounted.set(true);
-    });
 
     let timeout_start_time: RwSignal<Option<Instant>> = RwSignal::new(None);
     let timeout_remaining_duration: RwSignal<Option<Duration>> = RwSignal::new(None);
@@ -78,7 +91,7 @@ pub fn ToastRoot(
         if hovering() {
             if let Some(start) = timeout_start_time.get_untracked() {
                 let elapsed = Instant::now().duration_since(start);
-                let full_duration = Duration::from_millis(toast.timeout);
+                let full_duration = Duration::from_millis(toast.timeout().get_untracked());
                 let remaining = full_duration.saturating_sub(elapsed);
                 timeout_remaining_duration.set(Some(remaining));
             }
@@ -87,7 +100,7 @@ pub fn ToastRoot(
         } else {
             let duration_to_use = timeout_remaining_duration
                 .get_untracked()
-                .unwrap_or_else(|| Duration::from_millis(toast.timeout));
+                .unwrap_or_else(|| Duration::from_millis(toast.timeout().get_untracked()));
 
             timeout_start_time.set(Some(Instant::now()));
             timeout_remaining_duration.set(None);
@@ -97,6 +110,7 @@ pub fn ToastRoot(
                 move || {
                     mounted.set(false);
                     removed.set(true);
+                    safe_removed.set(true)
                 },
                 duration_to_use,
             );
@@ -105,15 +119,23 @@ pub fn ToastRoot(
         }
     });
 
-    let state = use_transition_status(mounted.into(), toast.node_ref);
+    let state = use_transition_status(mounted.into(), node_ref);
+
+    let remove = Callback::new(move |_| {
+        store.toasts().update(|toasts| {
+            toasts.retain(|t| t.id != id);
+        });
+    });
 
     Effect::new(move |_| {
-        if removed() && !state.mounted.get() {
-            close.run(toast.id);
+        if safe_removed.get() && !state.mounted.get() {
+            remove.run(());
         }
     });
 
-    let front = Memo::new(move |_| index().is_some_and(|index| index == 0));
+    let front = Memo::new(move |_| {
+        index().is_some_and(|index| index == 0) || index_before_removed.get() == 0
+    });
 
     let pointer_start = RwSignal::new(None::<Point>);
     let (swiping, set_swiping) = signal(false);
@@ -121,21 +143,24 @@ pub fn ToastRoot(
     let drag_start_time = RwSignal::new(None::<Instant>);
     let offset_before_removed = RwSignal::new(0.0);
 
+    Effect::new(move |_| {
+        mounted.set(true);
+    });
+
     view! {
-        <Provider value=ToastRootContext {
-            toast,
-        }>
+        <Provider value=ToastRootContext { toast, remove }>
             <div
-                node_ref=toast.node_ref
+                node_ref=node_ref
                 class=class
                 data-expanded=move || hovering.get().to_string()
                 data-limited=move || limited.get().to_string()
                 data-state=move || state.transition_status.get().to_string()
                 data-front=move || front.get().to_string()
                 data-swiping=move || swiping.get().to_string()
-                data-removed=move || removed.get().to_string()
+                data-removed=move || safe_removed.get().to_string()
+                data-type=move || toast._type().get()
                 style=move || {
-                    format!("--toast-offset-y: {}px; --toast-index: {}; --toast-swipe-movement-y: {}px", if removed() { offset_before_removed() } else { offset_y() }, index().unwrap_or_default(), swipe_amount())
+                    format!("--toast-offset-y: {}px; --toast-index: {}; --toast-swipe-movement-y: {}px", if safe_removed.get() { offset_before_removed() } else { offset_y() }, index().unwrap_or_default(), swipe_amount())
                 }
                 on:dragend=move |_| {
                     pointer_start.set(None);
@@ -168,7 +193,8 @@ pub fn ToastRoot(
                     if swipe_amount.abs() >= 45.0 || velocity > 0.11 {
                         offset_before_removed.set(offset_y.get_untracked());
                         mounted.set(false);
-                        removed.set(true);
+                        removed.patch(true);
+                        safe_removed.set(true);
                         return;
                     }
                     set_swipe_amount(0.0);

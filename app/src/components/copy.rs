@@ -14,6 +14,7 @@ pub fn Copy(
     #[prop(optional, into)] variant: Signal<ButtonVariants>,
     #[prop(optional, into)] size: Signal<ButtonSizes>,
     #[prop(optional, into)] disabled: Signal<bool>,
+    #[prop(optional, into)] on_copy: Option<Callback<()>>,
 ) -> impl IntoView {
     let (copied, set_copied) = signal(false);
     let button_ref = NodeRef::new();
@@ -22,6 +23,9 @@ pub fn Copy(
 
     let on_click_handler = move |_| {
         let text_to_copy = text.get();
+        if let Some(c) = on_copy {
+            c.run(())
+        }
         spawn_local(async move {
             if let Some(clipboard) = window().map(|win| win.navigator().clipboard()) {
                 match JsFuture::from(clipboard.write_text(&text_to_copy)).await {

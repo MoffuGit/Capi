@@ -599,6 +599,7 @@ dependencies = [
  "leptos-typed-fallback-show",
  "leptos-use",
  "leptos_dom",
+ "reactive_stores",
  "send_wrapper",
  "strum",
  "strum_macros",

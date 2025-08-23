@@ -8,12 +8,7 @@ pub fn ToastViewport(
     #[prop(into, optional)] class: Signal<String>,
 ) -> impl IntoView {
     let ToastContext {
-        toasts,
-        add,
-        close,
-        hovering,
-        view_ref,
-        ..
+        hovering, view_ref, ..
     } = use_context().expect("should acces to the toast context");
 
     let handle_mouse_enter = move |_| {

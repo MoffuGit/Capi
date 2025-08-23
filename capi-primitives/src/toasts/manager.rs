@@ -1,7 +1,8 @@
 use leptos::prelude::*;
+use reactive_stores::Store;
 use uuid::Uuid;
 
-use super::{Toast, ToastContext};
+use super::{Toast, ToastContext, ToastStore};
 
 pub struct ToastManager {
     pub toasts: RwSignal<Vec<Toast>>,
@@ -9,9 +10,7 @@ pub struct ToastManager {
     pub close: Callback<Uuid>,
 }
 
-pub fn use_toast_manager() -> ToastManager {
-    let ToastContext {
-        toasts, add, close, ..
-    } = use_context().expect("should acces to the toast context");
-    ToastManager { toasts, add, close }
+pub fn use_toast_store() -> Store<ToastStore> {
+    let ToastContext { store, .. } = use_context().expect("should acces to the toast context");
+    store
 }
