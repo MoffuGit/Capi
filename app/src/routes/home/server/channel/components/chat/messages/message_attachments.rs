@@ -23,7 +23,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                 _type: "".into(),
                 description: "Copy image URL to clipboard.".into(),
                 removed: false,
-                timeout: 2000,
+                timeout: 2500,
                 height: 0.0,
             });
         });
