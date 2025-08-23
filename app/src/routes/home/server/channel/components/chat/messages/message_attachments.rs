@@ -68,6 +68,7 @@ pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
                                             </DialogTrigger>
                                             <DialogPortal>
                                                 <DialogPopup
+                                                    overlay=false
                                                     class="bg-background data-[state=closed]:invisible data-[state=opening]:animate-in data-[state=closing]:animate-out data-[state=closing]:fade-out-0 data-[state=opening]:fade-in-0 data-[state=closing]:zoom-out-95 data-[state=opening]:zoom-in-95 fixed top-[50%] left-[50%] z-60 grid max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4  border shadow-lg duration-200 ease-out-cubic sm:max-w-lg max-h-[715px] rounded-xl overflow-hidden p-0 w-[1150px] md:max-w-[700px] lg:max-w-[800px] xl:max-w-[1150px] h-auto"
                                                 >
                                                     <img class="w-full max-h-full object-contain rounded-lg" src=url.get_value()/>
