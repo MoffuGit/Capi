@@ -4,16 +4,15 @@ use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 use serde::Serialize;
 
-use crate::components::ui::context::*;
-use crate::components::ui::dialog::*;
-use crate::components::ui::input::*;
-use crate::components::ui::label::*;
 use crate::components::ui::sidebar::*;
-use crate::components::ui::tooltip::*;
 use crate::routes::home::components::dialogs::create_server::CreateServerDialog;
 use crate::routes::home::components::servers::ServersItems;
 use crate::routes::use_profile;
-use capi_primitives::menu::{MenuAlign, MenuSide};
+use capi_ui::context::*;
+use capi_ui::dialog::*;
+use capi_ui::input::*;
+use capi_ui::label::*;
+use capi_ui::tooltip::*;
 use icons::{
     IconCirclePlus, IconCompass, IconGlobe, IconInbox, IconMessageCircle, IconPencil, IconSearch,
 };
@@ -184,7 +183,7 @@ pub fn ServerMenu(
                         </ToolTip>
                     </ContextMenuTrigger>
                 </A>
-                <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                <ContextMenuContent side=ContextMenuSide::Right align=ContextMenuAlign::Start>
                     <ContextMenuLabel>
                         "Servers"
                     </ContextMenuLabel>

@@ -3,7 +3,6 @@ use std::ops::Not;
 use common::convex::{ChannelMessage, Member};
 use leptos::prelude::*;
 
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::markdown::{Markdown, MarkdownParser};
 use crate::routes::server::channel::components::chat::ChatContext;
 use icons::{IconCornerUpLeft, IconImage};

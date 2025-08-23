@@ -5,7 +5,7 @@ use serde::Serialize;
 use tailwind_fuse::tw_merge;
 
 use icons::IconChevronDown;
-use crate::components::ui::collapsible::*;
+use capi_ui::collapsible::*;
 use crate::components::ui::sidebar::*;
 use crate::routes::server::channel::components::sidebar::members::MembersItems;
 use crate::routes::server::channel::components::sidebar::GetOnlineMembersByRole;

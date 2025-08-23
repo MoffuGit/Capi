@@ -7,7 +7,7 @@ use leptos_dom::warn;
 use wasm_bindgen::JsCast as _;
 use web_sys::{Event, HtmlInputElement};
 
-use crate::components::ui::button::*;
+use capi_ui::button::*;
 use crate::routes::server::channel::components::chat::ClientFile;
 use icons::{IconPaperClip, IconSend, IconSmile};
 

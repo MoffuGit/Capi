@@ -7,11 +7,12 @@ use serde::Serialize;
 
 use crate::components::auth::use_auth;
 use icons::IconLoader;
-use crate::components::ui::avatar::{Avatar, AvatarFallback, AvatarImage};
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::ui::dialog::{Dialog, DialogFooter, DialogHeader, DialogPopup};
-use crate::components::ui::input::Input;
-use crate::components::ui::label::Label;
+
+use capi_ui::avatar::*;
+use capi_ui::button::*;
+use capi_ui::dialog::*;
+use capi_ui::input::Input;
+use capi_ui::label::Label;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct CreateCategory {

@@ -1,12 +1,10 @@
-use capi_primitives::menu::MenuAlign;
-use capi_primitives::menu::MenuSide;
 use common::convex::Member;
 use leptos::prelude::*;
 
 use super::card::MemberCard;
-use crate::components::ui::avatar::*;
-use crate::components::ui::dropwdown::*;
 use crate::components::ui::sidebar::*;
+use capi_ui::avatar::*;
+use capi_ui::dropwdown::*;
 
 #[component]
 pub fn MembersItems(members: ReadSignal<Option<Result<Vec<Member>, String>>>) -> impl IntoView {
@@ -37,7 +35,7 @@ pub fn MembersItems(members: ReadSignal<Option<Result<Vec<Member>, String>>>) ->
 
                                 </SidebarMenuItem>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent side=MenuSide::Left align=MenuAlign::Start>
+                            <DropdownMenuContent side=DropdownMenuSide::Left align=DropdownMenuAlign::Start>
                                 <MemberCard member=member.get_value()/>
                             </DropdownMenuContent>
                         </DropdownMenu>

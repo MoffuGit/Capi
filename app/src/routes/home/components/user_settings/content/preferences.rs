@@ -1,6 +1,6 @@
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
 use crate::components::ui::theme::use_theme;
 use crate::routes::home::components::user_settings::content::SettingAction;
+use capi_ui::button::{Button, ButtonSizes, ButtonVariants};
 use icons::{IconMoon, IconSun};
 
 use super::{Setting, SettingData, SettingDescription, SettingTitle};

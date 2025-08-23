@@ -7,9 +7,9 @@ use leptos::prelude::*;
 use serde::Serialize;
 
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::*;
-use crate::components::ui::button::*;
-use crate::components::ui::card::*;
+use capi_ui::avatar::*;
+use capi_ui::button::*;
+use capi_ui::card::*;
 use crate::routes::use_profile;
 
 #[derive(Debug, PartialEq, Serialize, Clone)]

@@ -3,7 +3,7 @@ use convex_client::leptos::{Mutation, UseMutation};
 use leptos::prelude::*;
 use serde::Serialize;
 
-use crate::components::ui::button::*;
+use capi_ui::button::*;
 
 #[component]
 pub fn MessageReactions(

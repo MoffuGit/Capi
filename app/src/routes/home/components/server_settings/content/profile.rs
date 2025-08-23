@@ -1,13 +1,12 @@
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::*;
-use crate::components::ui::button::*;
-use crate::components::ui::tooltip::*;
 use crate::components::uploadthing::upload_file;
 use crate::components::uploadthing::UploadResult;
 use api::files::RemoveServerBanner;
 use api::files::RemoveServerImage;
 use api::files::SetServerImageUrl;
-use capi_primitives::tooltip::ToolTipSide;
+use capi_ui::avatar::*;
+use capi_ui::button::*;
+use capi_ui::tooltip::*;
 use convex_client::leptos::Mutation;
 use icons::IconImage;
 use icons::IconX;

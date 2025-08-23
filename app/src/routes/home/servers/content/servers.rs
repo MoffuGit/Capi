@@ -5,8 +5,8 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::*;
-use crate::components::ui::card::*;
+use capi_ui::avatar::*;
+use capi_ui::card::*;
 use crate::routes::home::components::dialogs::create_server::CreateServerDialog;
 
 #[component]

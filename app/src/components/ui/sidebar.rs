@@ -7,12 +7,12 @@ const SIDEBAR_WIDTH: &str = "16rem";
 const SIDEBAR_WIDTH_MOBILE: &str = "18rem";
 const SIDEBAR_WIDTH_ICON: &str = "3rem";
 
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::ui::divider::Separator;
-use crate::components::ui::input::Input;
-use crate::components::ui::sheet::{Sheet, SheetPopup};
-use crate::components::ui::skeleton::Skeleton;
-use capi_primitives::common::{is_mobile, Side};
+use capi_ui::button::*;
+use capi_ui::divider::Separator;
+use capi_ui::input::Input;
+use capi_ui::sheet::{Sheet, SheetPopup};
+use capi_ui::skeleton::Skeleton;
+use capi_ui::{is_mobile, Side};
 use icons::IconPanelLeft;
 
 #[derive(Clone)]

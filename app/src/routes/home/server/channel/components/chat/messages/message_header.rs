@@ -1,14 +1,12 @@
-use capi_primitives::menu::MenuAlign;
-use capi_primitives::menu::MenuSide;
 use chrono::{Duration, Local};
 use leptos::prelude::*;
 
 use common::convex::Member;
 
-use crate::components::ui::avatar::*;
-use crate::components::ui::dropwdown::*;
 use crate::routes::home::server::channel::components::chat::messages::utils::get_date;
 use crate::routes::server::channel::components::sidebar::card::MemberCard;
+use capi_ui::avatar::*;
+use capi_ui::dropwdown::*;
 
 #[component]
 pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
@@ -48,8 +46,8 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
                     </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                    side=MenuSide::Right
-                    align=MenuAlign::Start
+                    side=DropdownMenuSide::Right
+                    align=DropdownMenuAlign::Start
                 >
                     <MemberCard member=member.get_value() />
                 </DropdownMenuContent>

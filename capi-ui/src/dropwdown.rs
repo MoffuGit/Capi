@@ -13,7 +13,7 @@ use capi_primitives::dropdown_menu::{
     DropdownSubMenuContent as DropdownMenuSubContentPrimitive,
     DropdownSubMenuProvider as DropdownMenuSubProviderPrimitive, DropdownSubMenuTrigger,
 };
-use capi_primitives::menu::{MenuAlign, MenuSide};
+pub use capi_primitives::menu::{MenuAlign as DropdownMenuAlign, MenuSide as DropdownMenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 
@@ -77,10 +77,12 @@ pub fn DropdownMenuTrigger(
 pub fn DropdownMenuContent(
     #[prop(optional, into)] class: Signal<String>,
     children: ChildrenFn,
-    #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
+    #[prop(into, optional, default = Signal::derive(|| DropdownMenuSide::Bottom))] side: Signal<
+        DropdownMenuSide,
+    >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] side_of_set: Signal<f64>,
-    #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
-        MenuAlign,
+    #[prop(into, optional, default = Signal::derive(|| DropdownMenuAlign::Center))] align: Signal<
+        DropdownMenuAlign,
     >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
 ) -> impl IntoView {
@@ -232,10 +234,12 @@ pub fn DropdownMenuSubTrigger(
 #[component]
 pub fn DropdownMenuSubContent(
     children: ChildrenFn,
-    #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
+    #[prop(into, optional, default = Signal::derive(|| DropdownMenuSide::Bottom))] side: Signal<
+        DropdownMenuSide,
+    >,
     #[prop(into, optional, default = Signal::derive(|| 4.0))] side_of_set: Signal<f64>,
-    #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
-        MenuAlign,
+    #[prop(into, optional, default = Signal::derive(|| DropdownMenuAlign::Center))] align: Signal<
+        DropdownMenuAlign,
     >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
 ) -> impl IntoView {

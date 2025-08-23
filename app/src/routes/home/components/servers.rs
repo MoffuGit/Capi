@@ -8,11 +8,11 @@ use serde::Serialize;
 
 use crate::components::auth::use_auth;
 use crate::components::roles::RolesProvider;
-use crate::components::ui::avatar::*;
-use crate::components::ui::context::*;
+use capi_ui::avatar::*;
+use capi_ui::context::*;
 use crate::components::ui::sidebar::*;
-use crate::components::ui::skeleton::*;
-use crate::components::ui::tooltip::*;
+use capi_ui::skeleton::*;
+use capi_ui::tooltip::*;
 use crate::routes::home::components::variants::ServerContextMenuData;
 
 use super::sidebar::ServerData;

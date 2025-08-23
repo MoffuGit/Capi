@@ -1,14 +1,12 @@
 use common::convex::Channel;
 use leptos::prelude::*;
 
-use crate::components::ui::breadcrumb::{
-    Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage,
-};
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
-use crate::components::ui::divider::Separator;
-use crate::components::ui::sheet::{Sheet, SheetPopup, SheetTrigger};
 use crate::components::ui::sidebar::SidebarTrigger;
-use capi_primitives::common::{Orientation, Side};
+use capi_ui::breadcrumb::{Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage};
+use capi_ui::button::{Button, ButtonSizes, ButtonVariants};
+use capi_ui::divider::Separator;
+use capi_ui::sheet::{Sheet, SheetPopup, SheetTrigger};
+use capi_ui::{Orientation, Side};
 use icons::{IconSearch, IconUsers};
 
 #[component]

@@ -6,14 +6,12 @@ use serde::Serialize;
 use std::time::Duration;
 
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::*;
-use crate::components::ui::button::*;
-use crate::components::ui::dialog::*;
-use crate::components::ui::dropwdown::*;
-use crate::components::ui::input::*;
-use crate::components::ui::label::*;
-use capi_primitives::menu::MenuAlign;
-use capi_primitives::menu::MenuSide;
+use capi_ui::avatar::*;
+use capi_ui::button::*;
+use capi_ui::dialog::*;
+use capi_ui::dropwdown::*;
+use capi_ui::input::*;
+use capi_ui::label::*;
 use icons::IconChevronDown;
 use icons::IconLoader;
 
@@ -121,7 +119,7 @@ pub fn CreateChannelDialog(
                                     <IconChevronDown />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent side=MenuSide::Bottom align=MenuAlign::Center>
+                            <DropdownMenuContent side=DropdownMenuSide::Bottom align=DropdownMenuAlign::Center>
                                 <DropdownMenuGroup>
                                     <DropdownMenuLabel>
                                         "Categories"

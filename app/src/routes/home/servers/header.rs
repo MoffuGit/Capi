@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use leptos_router::components::A;
 
-use crate::components::ui::tabs::*;
+use capi_ui::tabs::*;
 
 #[component]
 pub fn Header() -> impl IntoView {

@@ -1,8 +1,8 @@
 mod content;
 mod sidebar;
 
-use crate::components::ui::avatar::*;
-use crate::components::ui::dialog::*;
+use capi_ui::avatar::*;
+use capi_ui::dialog::*;
 use crate::components::ui::sidebar::SidebarProvider;
 use common::convex::Server;
 use leptos::prelude::*;

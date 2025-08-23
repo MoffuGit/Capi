@@ -12,8 +12,8 @@ use leptos::html::Div;
 use leptos::prelude::*;
 use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 
-use crate::components::ui::divider::Separator;
-use crate::components::ui::label::Label;
+use capi_ui::divider::Separator;
+use capi_ui::label::Label;
 
 use self::group::MessageGroup;
 

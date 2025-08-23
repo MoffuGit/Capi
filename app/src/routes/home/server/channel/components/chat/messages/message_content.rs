@@ -1,5 +1,5 @@
-use leptos::prelude::*;
 use common::convex::ChannelMessage;
+use leptos::prelude::*;
 
 use crate::components::ui::markdown::{Markdown, MarkdownParser};
 use crate::routes::home::server::channel::components::chat::messages::message_attachments::MessageAttachments;

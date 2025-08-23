@@ -1,4 +1,3 @@
-use capi_primitives::tooltip::ToolTipSide;
 use capi_virtual::{use_virtualizer, Virtualizer};
 use emojis::{Emoji, Group};
 use icons::{
@@ -11,10 +10,10 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 use tailwind_fuse::tw_merge;
 
-use crate::components::ui::button::*;
-use crate::components::ui::input::Input;
-use crate::components::ui::label::Label;
-use crate::components::ui::tooltip::*;
+use capi_ui::button::*;
+use capi_ui::input::Input;
+use capi_ui::label::Label;
+use capi_ui::tooltip::*;
 
 struct TrieNode {
     children: HashMap<char, TrieNode>,

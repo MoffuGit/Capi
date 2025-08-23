@@ -1,5 +1,5 @@
-use crate::components::ui::avatar::*;
-use crate::components::ui::card::*;
+use capi_ui::avatar::*;
+use capi_ui::card::*;
 use common::convex::Member;
 use leptos::prelude::*;
 

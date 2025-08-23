@@ -1,23 +1,22 @@
 use crate::components::copy::Copy;
-use capi_primitives::common::dismissible::DismissibleOptions;
-use capi_primitives::dialog::DialogPopup;
-use capi_primitives::toasts::manager::use_toast_store;
-use capi_primitives::toasts::Toast;
-use capi_primitives::toasts::ToastStoreStoreFields;
+use capi_ui::dialog::DialogPopup;
+use capi_ui::dismissible::DismissibleOptions;
+use capi_ui::toast::use_toast_store;
+use capi_ui::toast::*;
 use common::convex::{Attachment, FileType};
 use icons::{IconDownLoad, IconExpand2, IconFile, IconMinimize2};
 use leptos::prelude::*;
 use uuid::Uuid;
 
-use crate::components::ui::button::*;
-use crate::components::ui::dialog::*;
+use capi_ui::button::*;
+use capi_ui::dialog::*;
 
 #[component]
 pub fn MessageAttachments(attachments: Vec<Attachment>) -> impl IntoView {
     let store = use_toast_store();
     let on_copy = Callback::new(move |_| {
         store.toasts().update(move |toasts| {
-            toasts.push(Toast {
+            toasts.push(ToastData {
                 id: Uuid::new_v4().as_u128(),
                 title: "".into(),
                 _type: "".into(),

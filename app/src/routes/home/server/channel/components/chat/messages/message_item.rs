@@ -1,4 +1,3 @@
-use capi_primitives::menu::{MenuAlign, MenuSide};
 use common::convex::{ChannelMessage, Member};
 use convex_client::leptos::UseMutation;
 use emojis::Emoji;
@@ -9,10 +8,10 @@ use super::message_header::MessageHeader;
 use super::message_reactions::MessageReactions;
 use super::message_reference::ReferencedMessageDisplay;
 use crate::components::emojis::EmojiSelector;
-use crate::components::ui::context::*;
 use crate::routes::server::channel::components::chat::messages::message_actions::MessageActions;
 use crate::routes::server::channel::components::chat::messages::message_reactions::AddReaction;
 use crate::routes::server::channel::components::chat::ChatContext;
+use capi_ui::context::*;
 use icons::IconCornerUpLeft;
 
 #[component]
@@ -109,7 +108,7 @@ pub fn MessageItem(
                 <MessageContent msg=msg.get_value() />
                 <MessageReactions msg=msg member=member />
             </ContextMenuTrigger>
-            <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+            <ContextMenuContent side=ContextMenuSide::Right align=ContextMenuAlign::Start>
                 <ContextMenuItem
                     close_on_click=true
                     {..}
@@ -124,7 +123,7 @@ pub fn MessageItem(
                     <ContextSubTrigger>
                         "Reaction"
                     </ContextSubTrigger>
-                    <ContextSubContent side=MenuSide::Right align=MenuAlign::Center>
+                    <ContextSubContent side=ContextMenuSide::Right align=ContextMenuAlign::Center>
                         <EmojiSelector history=context.reactions class="p-1" on_select_emoji=on_select_emoji/>
                     </ContextSubContent>
                 </ContextSubMenu>

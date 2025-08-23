@@ -1,15 +1,14 @@
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::*;
-use crate::components::ui::button::*;
-use crate::components::ui::input::*;
-use crate::components::ui::tabs::*;
-use crate::components::ui::tooltip::*;
 use crate::components::uploadthing::{upload_file, UploadResult};
 use crate::routes::home::components::user_settings::content::{
     Setting, SettingAction, SettingData, SettingDescription, SettingTitle,
 };
 use crate::routes::use_profile;
-use capi_primitives::tooltip::ToolTipSide;
+use capi_ui::avatar::*;
+use capi_ui::button::*;
+use capi_ui::input::*;
+use capi_ui::tabs::*;
+use capi_ui::tooltip::*;
 use convex_client::leptos::Mutation;
 use gloo_file::File;
 use icons::{IconImage, IconX};

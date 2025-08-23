@@ -2,8 +2,8 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::auth::Google;
-use crate::components::ui::button::ButtonVariants;
-use crate::components::ui::card::{Card, CardContent, CardDescription, CardHeader, CardTitle};
+use capi_ui::button::ButtonVariants;
+use capi_ui::card::{Card, CardContent, CardDescription, CardHeader, CardTitle};
 
 #[component]
 pub fn LoginForm() -> impl IntoView {

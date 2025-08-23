@@ -1,7 +1,7 @@
 mod components;
 mod routes;
 
-use capi_primitives::common::floating_tree::provide_floating_tree;
+use capi_ui::floating_tree::provide_floating_tree;
 use convex_client::leptos::ConvexProvider;
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
@@ -14,7 +14,7 @@ use routes::Landing;
 use self::{
     components::{
         auth::{use_auth, AuthProvider},
-        ui::{theme::ThemeProvider, toast::Toasts},
+        ui::theme::ThemeProvider,
     },
     routes::{
         server::{channel::Channel, Server},
@@ -22,6 +22,8 @@ use self::{
         GoogleAuth, Home, Login, SignUp,
     },
 };
+
+use capi_ui::toast::Toasts;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -117,7 +119,6 @@ pub fn Empty() -> impl IntoView {
 }
 
 //TOOD:
-//  add the toasts
 //  improve the markdown render and editor
 //  add embeds
 //  add pinned messages

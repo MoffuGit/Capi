@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual", "open_graph"]
+members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual", "capi-ui"]
 
 # need to be applied only to wasm build
 [profile.release]

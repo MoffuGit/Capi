@@ -13,13 +13,12 @@ use leptos_router::hooks::use_location;
 use serde::Serialize;
 
 use crate::components::roles::*;
-use crate::components::ui::context::*;
-use crate::components::ui::dialog::*;
 use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_category::CreateCategoryDialog;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::server_settings::DialogServerSettings;
-use capi_primitives::menu::{MenuAlign, MenuSide};
+use capi_ui::context::*;
+use capi_ui::dialog::*;
 use icons::{IconBox, IconLink, IconPlus, IconSettings};
 
 use self::categories::CategoriesItems;
@@ -116,7 +115,7 @@ pub fn ServerContextMenuData(
     let invitation_open = RwSignal::new(false);
     let settings_open = RwSignal::new(false);
     view! {
-        <ContextMenuContent side=MenuSide::Right align=MenuAlign::Start>
+        <ContextMenuContent side=ContextMenuSide::Right align=ContextMenuAlign::Start>
                 {move || {
                     server.get().map(|server| view!{
                         <ContextMenuLabel class="capitalize">

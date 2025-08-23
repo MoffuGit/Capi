@@ -14,12 +14,12 @@ use web_sys::{Event, HtmlInputElement};
 
 use crate::components::auth::use_auth;
 use icons::{IconImage, IconLoader, IconX};
-use crate::components::ui::avatar::*;
-use crate::components::ui::button::*;
-use crate::components::ui::checkbox::Checkbox;
-use crate::components::ui::dialog::*;
-use crate::components::ui::input::Input;
-use crate::components::ui::label::*;
+use capi_ui::avatar::*;
+use capi_ui::button::*;
+use capi_ui::checkbox::Checkbox;
+use capi_ui::dialog::*;
+use capi_ui::input::Input;
+use capi_ui::label::*;
 use crate::components::uploadthing::{upload_file, UploadResult};
 
 #[derive(Debug, Serialize, Clone)]

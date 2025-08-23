@@ -4,7 +4,7 @@ mod header;
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 
-use crate::components::ui::tabs::*;
+use capi_ui::tabs::*;
 
 use self::content::Content;
 use self::header::Header;

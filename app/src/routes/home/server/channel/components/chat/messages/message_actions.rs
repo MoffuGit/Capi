@@ -1,5 +1,3 @@
-use capi_primitives::menu::MenuAlign;
-use capi_primitives::menu::MenuSide;
 use common::convex::ChannelMessage;
 use common::convex::Member;
 use convex_client::leptos::UseMutation;
@@ -9,10 +7,10 @@ use icons::IconSmile;
 use leptos::prelude::*;
 
 use crate::components::emojis::EmojiSelector;
-use crate::components::ui::button::*;
-use crate::components::ui::dropwdown::*;
 use crate::routes::server::channel::components::chat::messages::message_reactions::AddReaction;
 use crate::routes::server::channel::components::chat::ChatContext;
+use capi_ui::button::*;
+use capi_ui::dropwdown::*;
 
 #[component]
 pub fn MessageActions(
@@ -46,7 +44,7 @@ pub fn MessageActions(
                         <IconSmile />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side=MenuSide::Left align=MenuAlign::Start side_of_set=10.0 class="max-w-full p-0">
+                <DropdownMenuContent side=DropdownMenuSide::Left align=DropdownMenuAlign::Start side_of_set=10.0 class="max-w-full p-0">
                     <EmojiSelector history=context.reactions class="p-1" on_select_emoji=on_select_emoji/>
                 </DropdownMenuContent>
             </DropdownMenu>

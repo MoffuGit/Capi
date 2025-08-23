@@ -1,10 +1,10 @@
 use leptos::prelude::*;
 
-use crate::components::ui::button::*;
-use crate::components::ui::divider::Separator;
-use crate::components::ui::sheet::*;
 use crate::components::ui::sidebar::SidebarTrigger;
-use capi_primitives::common::{Orientation, Side};
+use capi_ui::button::*;
+use capi_ui::divider::Separator;
+use capi_ui::sheet::*;
+use capi_ui::{Orientation, Side};
 use icons::IconSearch;
 
 #[component]

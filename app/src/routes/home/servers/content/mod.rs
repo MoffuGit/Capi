@@ -3,7 +3,7 @@ mod servers;
 
 use leptos::prelude::*;
 
-use crate::components::ui::tabs::TabPanel;
+use capi_ui::tabs::TabPanel;
 
 use self::discover::Discover;
 use self::servers::Servers;

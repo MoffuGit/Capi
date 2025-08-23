@@ -5,7 +5,7 @@ use leptos::prelude::*;
 use tailwind_fuse::tw_merge;
 
 use crate::components::roles::CanManageCategories;
-use crate::components::ui::collapsible::*;
+use capi_ui::collapsible::*;
 use crate::components::ui::sidebar::*;
 use crate::routes::home::components::dialogs::create_channel::CreateChannelDialog;
 use crate::routes::home::components::variants::server::channels::ChannelsItems;

@@ -1,4 +1,4 @@
-use capi_primitives::common::status::{use_transition_status, TransitionStatus};
+use capi_ui::{use_transition_status, TransitionStatus};
 use icons::{IconCheck, IconCopy};
 use leptos::leptos_dom::helpers::set_timeout;
 use leptos::task::spawn_local;
@@ -6,7 +6,7 @@ use leptos::{logging::log, prelude::*};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::window;
 
-use crate::components::ui::button::{Button, ButtonSizes, ButtonVariants};
+use capi_ui::button::*;
 
 #[component]
 pub fn Copy(

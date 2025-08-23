@@ -5,14 +5,8 @@ use leptos_router::hooks::use_location;
 use tailwind_fuse::tw_merge;
 
 use crate::components::roles::CanManageChannels;
-use crate::components::ui::dropwdown::{
-    DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
-    DropdownMenuTrigger,
-};
-use crate::components::ui::sidebar::{
-    SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem,
-};
-use capi_primitives::menu::{MenuAlign, MenuSide};
+use crate::components::ui::sidebar::*;
+use capi_ui::dropwdown::*;
 use icons::{IconEllipsis, IconTrash};
 
 #[component]
@@ -75,7 +69,7 @@ pub fn ChannelItem(channel: Channel, current_channel: Memo<Option<String>>) -> i
                             <span class="sr-only">More</span>
                         </DropdownMenuTrigger>
                     </SidebarMenuAction>
-                <DropdownMenuContent side=MenuSide::Right align=MenuAlign::Start>
+                <DropdownMenuContent side=DropdownMenuSide::Right align=DropdownMenuAlign::Start>
                     <DropdownMenuGroup>
                         <DropdownMenuLabel>
                             {name.get_value()}

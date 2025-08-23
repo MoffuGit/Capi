@@ -1,23 +1,3 @@
-#![allow(dead_code)]
-pub mod avatar;
-pub mod badge;
-pub mod breadcrumb;
-pub mod button;
-pub mod card;
-pub mod checkbox;
-pub mod collapsible;
-pub mod context;
-pub mod dialog;
-pub mod divider;
-pub mod dropwdown;
-pub mod input;
-pub mod label;
 pub mod markdown;
-pub mod sheet;
 pub mod sidebar;
-pub mod skeleton;
-pub mod switch;
-pub mod tabs;
 pub mod theme;
-pub mod toast;
-pub mod tooltip;

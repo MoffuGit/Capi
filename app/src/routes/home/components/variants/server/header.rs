@@ -3,8 +3,8 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::roles::*;
-use crate::components::ui::avatar::*;
-use crate::components::ui::dropwdown::*;
+use capi_ui::avatar::*;
+use capi_ui::dropwdown::*;
 use crate::components::ui::sidebar::*;
 use icons::{IconBox, IconChevronDown, IconPlus, IconSettings, IconUsers};
 

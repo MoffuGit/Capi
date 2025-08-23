@@ -8,11 +8,11 @@ use leptos::prelude::*;
 use serde::Serialize;
 use tailwind_fuse::tw_merge;
 
-use icons::IconChevronDown;
-use crate::components::ui::avatar::*;
-use crate::components::ui::collapsible::*;
 use crate::components::ui::sidebar::*;
-use capi_primitives::common::Side;
+use capi_ui::avatar::*;
+use capi_ui::collapsible::*;
+use capi_ui::Side;
+use icons::IconChevronDown;
 
 use self::members::MembersItems;
 use self::roles::RolesItems;

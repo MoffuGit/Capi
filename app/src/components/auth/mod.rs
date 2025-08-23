@@ -8,9 +8,7 @@ use leptos_router::hooks::{use_navigate, use_query};
 use leptos_router::params::Params;
 use leptos_router::NavigateOptions;
 
-use crate::components::ui::button::Button;
-
-use super::ui::button::{ButtonSizes, ButtonVariants};
+use capi_ui::button::*;
 
 #[derive(Clone)]
 pub struct AuthContext {

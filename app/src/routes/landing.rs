@@ -2,7 +2,7 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::auth::{SignedIn, SignedOut};
-use crate::components::ui::button::{Button, ButtonSizes};
+use capi_ui::button::{Button, ButtonSizes};
 
 #[component]
 pub fn Landing() -> impl IntoView {

@@ -27,7 +27,7 @@ use capi_primitives::context_menu::{
     ContextSubMenuProvider as ContextSubMenuProviderPrimitive,
     ContextSubMenuTrigger as ContextSubMenuTriggerPrimitive,
 };
-use capi_primitives::menu::{MenuAlign, MenuSide};
+pub use capi_primitives::menu::{MenuAlign as ContextMenuAlign, MenuSide as ContextMenuSide};
 use leptos::{html, prelude::*};
 use tailwind_fuse::tw_merge;
 
@@ -88,10 +88,12 @@ pub fn ContextMenuTrigger(
 pub fn ContextMenuContent(
     #[prop(optional, into)] class: Signal<String>,
     children: ChildrenFn,
-    #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
+    #[prop(into, optional, default = Signal::derive(|| ContextMenuSide::Bottom))] side: Signal<
+        ContextMenuSide,
+    >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] side_of_set: Signal<f64>,
-    #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
-        MenuAlign,
+    #[prop(into, optional, default = Signal::derive(|| ContextMenuAlign::Center))] align: Signal<
+        ContextMenuAlign,
     >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
 ) -> impl IntoView {
@@ -198,10 +200,12 @@ pub fn ContextSubTrigger(
 pub fn ContextSubContent(
     #[prop(optional, into)] class: Signal<String>,
     children: ChildrenFn,
-    #[prop(into, optional, default = Signal::derive(|| MenuSide::Bottom))] side: Signal<MenuSide>,
+    #[prop(into, optional, default = Signal::derive(|| ContextMenuSide::Bottom))] side: Signal<
+        ContextMenuSide,
+    >,
     #[prop(into, optional, default = Signal::derive(|| 4.0))] side_of_set: Signal<f64>,
-    #[prop(into, optional, default = Signal::derive(|| MenuAlign::Center))] align: Signal<
-        MenuAlign,
+    #[prop(into, optional, default = Signal::derive(|| ContextMenuAlign::Center))] align: Signal<
+        ContextMenuAlign,
     >,
     #[prop(into, optional, default = Signal::derive(|| 0.0))] align_of_set: Signal<f64>,
 ) -> impl IntoView {

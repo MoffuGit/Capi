@@ -7,13 +7,12 @@ use serde::Serialize;
 use strum::IntoEnumIterator;
 
 use crate::components::auth::use_auth;
-use crate::components::ui::avatar::*;
-use crate::components::ui::badge::*;
-use crate::components::ui::button::*;
-use crate::components::ui::dropwdown::*;
 use crate::routes::home::components::user_settings::DialogUserSettings;
 use crate::routes::use_profile;
-use capi_primitives::menu::{MenuAlign, MenuSide};
+use capi_ui::avatar::*;
+use capi_ui::badge::*;
+use capi_ui::button::*;
+use capi_ui::dropwdown::*;
 use icons::{IconHeadphones, IconLogOut, IconMic, IconSettings};
 
 #[derive(Debug, Clone, Serialize)]
@@ -84,7 +83,7 @@ pub fn Profile() -> impl IntoView {
                             })}
                     </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side=MenuSide::Top align=MenuAlign::Start side_of_set=10.0>
+                <DropdownMenuContent side=DropdownMenuSide::Top align=DropdownMenuAlign::Start side_of_set=10.0>
                     <DropdownMenuGroup>
                         <DropdownMenuLabel>
                             {move || {
@@ -103,7 +102,7 @@ pub fn Profile() -> impl IntoView {
                             <DropdownMenuSubTrigger>
                                 "Status"
                             </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent side=MenuSide::Right align=MenuAlign::Center>
+                            <DropdownMenuSubContent side=DropdownMenuSide::Right align=DropdownMenuAlign::Center>
                                 {
                                     move || {
                                         status.get().and_then(|res| res.ok()).flatten().map(|status| {
