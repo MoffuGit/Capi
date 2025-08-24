@@ -155,12 +155,12 @@ pub fn Sender(
 
     view! {
         <div class="w-full absolute bottom-0 bg-transparent flex flex-col z-20 isolate" node_ref=sender_ref>
-            <div class="max-h-96 w-full px-5">
+            <div class="w-full px-5">
                 <div class="p-1 border border-input rounded-lg backdrop-blur-xs bg-muted/30">
                     <div class="flex flex-col items-center justify-center shadow-xs bg-background text-base rounded-md gap-2 p-2">
                         <MsgRefDisplay msg_ref=msg_ref on_clear_ref=on_clear_msg_ref/>
                         <AttachmentPreviewList attachments=attachments/>
-                        <div class="flex w-full justify-between bg-transparent">
+                        <div class="flex w-full justify-between bg-transparent items-end">
                             <MessageInputArea
                                 message=message
                                 content_ref=content_ref
