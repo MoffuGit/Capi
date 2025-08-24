@@ -29,7 +29,7 @@ pub fn ReferencedMessageDisplay(
                     {move || referenced_message_author.get().map(|m| view!{ <span class="text-foreground">{m.name}</span> })}
                 </span>
             </div>
-            <div class="text-xs text-muted-foreground flex items-center max-h-8 overflow-hidden line-clamp-2">
+            <div class="text-xs text-muted-foreground flex items-start max-h-8 overflow-hidden line-clamp-2">
                 <Markdown source=referenced_message.content />
                 {
                     referenced_message.attachments.is_empty().not().then(|| {
