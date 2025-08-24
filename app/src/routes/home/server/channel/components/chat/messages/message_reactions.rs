@@ -14,53 +14,55 @@ pub fn MessageReactions(
     let remove_reaction = UseMutation::new::<RemoveReaction>();
 
     view! {
-        <div class="flex w-auto h-auto items-center gap-1 pb-1">
-            <For
-                each=move || msg.get_value().reactions
-                key=|reaction| reaction.id.clone()
-                children=move |reaction| {
-                    let emoji = StoredValue::new(reaction.emoji);
-                    view!{
-                        <Button
-                            variant=Signal::derive(move || {
-                                if reaction.has_reacted {
-                                    ButtonVariants::Outline
-                                } else {
-                                    ButtonVariants::Secondary
-                                }
-                            })
-                            size=ButtonSizes::Sm
-                            on:click=move |_| {
-                                if let Some(member) = member.get() {
+        <Show when=move || !msg.get_value().reactions.is_empty()>
+            <div class="flex w-auto h-auto items-center gap-1">
+                <For
+                    each=move || msg.get_value().reactions
+                    key=|reaction| reaction.id.clone()
+                    children=move |reaction| {
+                        let emoji = StoredValue::new(reaction.emoji);
+                        view!{
+                            <Button
+                                variant=Signal::derive(move || {
                                     if reaction.has_reacted {
-                                        remove_reaction.dispatch(RemoveReaction {
-                                            message: msg.get_value().id,
-                                            member: member.id,
-                                            emoji: emoji.get_value(),
-                                        });
+                                        ButtonVariants::Secondary
                                     } else {
-                                        add_reaction.dispatch(AddReaction {
-                                            message: msg.get_value().id,
-                                            member: member.id,
-                                            emoji: emoji.get_value()
-                                        });
+                                        ButtonVariants::Ghost
                                     }
+                                })
+                                size=ButtonSizes::Sm
+                                on:click=move |_| {
+                                    if let Some(member) = member.get() {
+                                        if reaction.has_reacted {
+                                            remove_reaction.dispatch(RemoveReaction {
+                                                message: msg.get_value().id,
+                                                member: member.id,
+                                                emoji: emoji.get_value(),
+                                            });
+                                        } else {
+                                            add_reaction.dispatch(AddReaction {
+                                                message: msg.get_value().id,
+                                                member: member.id,
+                                                emoji: emoji.get_value()
+                                            });
+                                        }
 
+                                    }
                                 }
-                            }
-                        >
-                            <span>
-                                {emoji.get_value()}
-                            </span>
-                            <span class="tabular-nums">
-                                {reaction.count as u64}
-                            </span>
-                        </Button>
+                            >
+                                <span>
+                                    {emoji.get_value()}
+                                </span>
+                                <span class="tabular-nums">
+                                    {reaction.count as u64}
+                                </span>
+                            </Button>
 
+                        }
                     }
-                }
-            />
-        </div>
+                />
+            </div>
+        </Show>
     }
 }
 

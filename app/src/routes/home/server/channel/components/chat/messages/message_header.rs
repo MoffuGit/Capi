@@ -29,7 +29,7 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
     let member = StoredValue::new(member);
 
     view! {
-        <div class="pt-2 flex items-center gap-1 -translate-x-3">
+        <div class="flex items-center gap-1 -translate-x-3">
             <DropdownMenu>
                 <DropdownMenuTrigger
                     class="cursor-pointer active:scale-[.97]"

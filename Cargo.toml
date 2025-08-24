@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual", "capi-ui"]
+members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual", "capi-ui", "markdown"]
 
 # need to be applied only to wasm build
 [profile.release]
@@ -14,6 +14,7 @@ leptos_meta = { version = "0.8.2" }
 leptos_router = { version = "0.8.2", features = ["nightly"] }
 leptos_axum = { version = "0.8.2" }
 
+markdown = "1.0.0"
 tailwind_fuse = { version =  "0.3.2", features = ["variant"] }
 emojis = "0.7.2"
 axum = { version =  "0.8.4", features = ["macros"] }
@@ -82,10 +83,9 @@ maplit = "1.0.2"
 uuid = { version = "1.17.0", features = ["v4", "js"] }
 wasm-bindgen-futures = "0.4.50"
 chrono = "0.4.41"
-pulldown-cmark = "0.13.0"
 rand = "0.9.1"
 imbl = "5.0.0"
-regex = "1.11.1"
+linkify = "0.10.0"
 gloo-file = { version =  "0.3.0", features = ["futures"] }
 scraper = {version =  "0.23.1"}
 

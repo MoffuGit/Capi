@@ -2,8 +2,8 @@ use std::ops::Not;
 
 use common::convex::{ChannelMessage, Member};
 use leptos::prelude::*;
+use markdown::Markdown;
 
-use crate::components::ui::markdown::{Markdown, MarkdownParser};
 use crate::routes::server::channel::components::chat::ChatContext;
 use icons::{IconCornerUpLeft, IconImage};
 
@@ -16,11 +16,8 @@ pub fn ReferencedMessageDisplay(
         target_message_id, ..
     } = use_context::<ChatContext>().expect("should access to the chat context");
 
-    let referenced_message_content_markdown =
-        MarkdownParser::new(&referenced_message.content).parse_tree();
-
     view! {
-        <div class="flex flex-col border-l-2 border-muted-foreground/50 hover:border-muted-foreground/70 hover:bg-accent/70 w-fit px-2 my-1 pt-2 bg-accent/50 cursor-pointer transition-colors ease-in-out-quad duration-180"
+        <div class="flex flex-col border-l-2 border-muted-foreground/50 hover:border-muted-foreground/70 hover:bg-accent/70 w-fit px-2 pt-2 bg-accent/50 cursor-pointer transition-colors ease-in-out-quad duration-180"
              on:click=move |_| {
                  target_message_id.set(Some(referenced_message.id.clone()));
              }
@@ -33,7 +30,7 @@ pub fn ReferencedMessageDisplay(
                 </span>
             </div>
             <div class="text-xs text-muted-foreground flex items-center max-h-8 overflow-hidden line-clamp-2">
-                <Markdown markdown=referenced_message_content_markdown.into() />
+                <Markdown source=referenced_message.content />
                 {
                     referenced_message.attachments.is_empty().not().then(|| {
                         view!{

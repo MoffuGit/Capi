@@ -120,12 +120,12 @@ pub fn Empty() -> impl IntoView {
 
 //TOOD:
 //  improve the markdown render and editor
+//  add read and unread messages
+//  add mentions for users, roles and everyone
+//  add inbox
+//  add notifications
 //  add embeds
 //  add pinned messages
 //  add private conversations and friends
 //  download for attachments
-//  add mentions for users, roles and everyone
-//  add notifications
-//  add inbox
-//  add read and unread messages
 //  add live calls
