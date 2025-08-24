@@ -70,12 +70,19 @@ impl EmojiTrie {
     }
 }
 
-static EMOJI_TRIE: LazyLock<EmojiTrie> = LazyLock::new(|| {
-    let mut trie = EmojiTrie::new();
-    for emoji in emojis::iter() {
-        trie.insert(emoji);
+static GROUP_EMOJI_TRIES: LazyLock<HashMap<Group, EmojiTrie>> = LazyLock::new(|| {
+    let mut group_trie_map: HashMap<Group, EmojiTrie> = HashMap::new();
+
+    for group in Group::iter() {
+        group_trie_map.insert(group, EmojiTrie::new());
     }
-    trie
+
+    for emoji in emojis::iter() {
+        if let Some(trie) = group_trie_map.get_mut(&emoji.group()) {
+            trie.insert(emoji);
+        }
+    }
+    group_trie_map
 });
 
 #[derive(Debug, Clone, PartialEq)]
@@ -155,25 +162,18 @@ pub fn EmojiSelector(
                 return all_emojis_items;
             }
 
-            let matched_emojis_from_trie = EMOJI_TRIE.search_prefix(&search_term_lower);
-
             let mut filtered_items: Vec<EmojiItem> = Vec::new();
-            let mut group_to_matched_emojis: HashMap<Group, Vec<&'static Emoji>> = HashMap::new();
-
-            for emoji in matched_emojis_from_trie {
-                group_to_matched_emojis
-                    .entry(emoji.group())
-                    .or_default()
-                    .push(emoji);
-            }
 
             for group in Group::iter() {
-                if let Some(matched_emojis) = group_to_matched_emojis.remove(&group) {
-                    if !matched_emojis.is_empty() {
+                if let Some(group_trie) = GROUP_EMOJI_TRIES.get(&group) {
+                    let matched_emojis_for_group = group_trie.search_prefix(&search_term_lower);
+
+                    if !matched_emojis_for_group.is_empty() {
                         filtered_items.push(EmojiItem::from_group(group));
                         let mut current_emoji_chunk: Vec<&'static Emoji> = Vec::new();
-                        for emoji in matched_emojis {
+                        for emoji in matched_emojis_for_group {
                             current_emoji_chunk.push(emoji);
+
                             if current_emoji_chunk.len() == EMOJIS_PER_ROW {
                                 filtered_items.push(EmojiItem::from_emoji_row(current_emoji_chunk));
                                 current_emoji_chunk = Vec::new();
