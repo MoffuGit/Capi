@@ -65,7 +65,7 @@ pub fn Sender(
     sender_ref: NodeRef<Div>,
 ) -> impl IntoView {
     let send = UseMutation::new::<SendMessage>();
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
     let add_attachment = UseMutation::with_local_fn::<(Vec<File>, String), _, _, _>(
         move |((files, message), client)| {
             let auth = auth.get();

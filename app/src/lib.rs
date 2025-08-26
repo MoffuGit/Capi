@@ -74,7 +74,7 @@ pub fn App() -> impl IntoView {
                                         <Route path=StaticSegment("google")  view=GoogleAuth/>
                                     </ParentRoute>
                                     <ProtectedParentRoute
-                                        condition=move || use_auth().auth().get().and_then(|res| res.ok()).map(|res| res.is_some())
+                                        condition=move || use_auth().auth.get().and_then(|res| res.ok()).map(|res| res.is_some())
                                         path=StaticSegment("servers")
                                         redirect_path= || "/"
                                         view=Home
@@ -119,7 +119,6 @@ pub fn Empty() -> impl IntoView {
 }
 
 //TOOD:
-//  improve the markdown render and editor
 //  add read and unread messages
 //  add mentions for users, roles and everyone
 //  add inbox

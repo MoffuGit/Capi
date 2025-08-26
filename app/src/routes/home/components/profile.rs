@@ -35,7 +35,7 @@ pub fn Profile() -> impl IntoView {
 
     let status = UseQuery::new(move || user.get().map(|user| GetUserStatus { user: user.id }));
     let auth_context = use_auth();
-    let auth = auth_context.auth();
+    let auth = auth_context.auth;
     let log_out = auth_context.log_out;
 
     let set_status = UseMutation::new::<SetUserStatus>();

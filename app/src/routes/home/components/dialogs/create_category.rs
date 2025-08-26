@@ -34,7 +34,7 @@ pub fn CreateCategoryDialog(open: RwSignal<bool>, server: Signal<Option<Server>>
     let create_category = UseMutation::new::<CreateCategory>();
     let (name, set_name) = signal(String::default());
     let pending = create_category.pending();
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let (show_success_message, set_show_success_message) = signal(false);
 

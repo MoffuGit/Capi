@@ -64,7 +64,7 @@ impl Mutation for SetLastVisitedChannel {
 
 #[component]
 pub fn Channel() -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
     let location = use_location();
     let path = location.pathname;
 

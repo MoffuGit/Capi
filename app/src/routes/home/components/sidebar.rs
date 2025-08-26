@@ -22,7 +22,7 @@ pub fn SideBar(
     route: Memo<SideBarRoute>,
     option: RwSignal<Option<SideBarOption>>,
 ) -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let data = UseQuery::new(move || {
         auth.get()

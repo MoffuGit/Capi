@@ -1,10 +1,14 @@
+use common::convex::ChannelMessage;
 use leptos::prelude::*;
 
 use crate::routes::server::channel::components::chat::messages::message_item::MessageItem;
 use crate::routes::server::channel::components::chat::{ChatContext, GroupedMessage};
 
 #[component]
-pub fn MessageGroup(group: GroupedMessage) -> impl IntoView {
+pub fn MessageGroup(
+    group: GroupedMessage,
+    set_last_read: WriteSignal<Option<ChannelMessage>>,
+) -> impl IntoView {
     let context: ChatContext = use_context().expect("should return teh chat context");
     let cached_members = context.cached_members;
     let sender = StoredValue::new(group.author_id);
@@ -22,7 +26,7 @@ pub fn MessageGroup(group: GroupedMessage) -> impl IntoView {
                     key=|(_, msg)| msg.id.clone()
                     children=move |(idx, msg_ref)| {
                         view!{
-                            <MessageItem idx=idx date=group.creation_time sender=sender msg=msg_ref/>
+                            <MessageItem idx=idx date=group.creation_time sender=sender msg=msg_ref set_last_read=set_last_read/>
                         }
                     }
                 />

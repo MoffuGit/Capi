@@ -43,7 +43,7 @@ pub fn CreateChannelDialog(
     let (name, set_name) = signal(String::default());
     let selected_category = RwSignal::new(category.clone());
     let pending = create_channel.pending();
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let (show_success_message, set_show_success_message) = signal(false);
 

@@ -2,6 +2,8 @@ use common::convex::{ChannelMessage, Member};
 use convex_client::leptos::UseMutation;
 use emojis::Emoji;
 use leptos::prelude::*;
+use leptos_dom::warn;
+use leptos_use::use_intersection_observer_with_options;
 
 use super::message_content::MessageContent;
 use super::message_header::MessageHeader;
@@ -20,10 +22,33 @@ pub fn MessageItem(
     date: f64,
     msg: ChannelMessage,
     sender: Signal<Option<Member>>,
+    set_last_read: WriteSignal<Option<ChannelMessage>>,
 ) -> impl IntoView {
     let msg = StoredValue::new(msg);
 
     let context: ChatContext = use_context().expect("should return teh chat context");
+
+    let message_ref = NodeRef::<leptos::html::Div>::new();
+
+    use_intersection_observer_with_options(
+        message_ref,
+        move |entries, _observer| {
+            warn!("this part?");
+            if entries[0].is_intersecting() {
+                let current_msg_id = msg.get_value();
+                set_last_read.update(|current_last_read_id| {
+                    if let Some(prev_last_read_id) = current_last_read_id.clone() {
+                        if current_msg_id.creation_time > prev_last_read_id.creation_time {
+                            *current_last_read_id = Some(current_msg_id);
+                        }
+                    } else {
+                        *current_last_read_id = Some(current_msg_id);
+                    }
+                });
+            }
+        },
+        leptos_use::UseIntersectionObserverOptions::default(),
+    );
     let member = context.member;
     let msg_ref = context.msg_reference;
     let cached_members = context.cached_members;
@@ -80,6 +105,7 @@ pub fn MessageItem(
                         }
                     });
                 }
+                node_ref=message_ref
             >
                 <MessageActions msg=msg member=member/>
 

@@ -143,4 +143,11 @@ export default defineSchema({
     sessionId: v.string(),
     scheduledFunctionId: v.id("_scheduled_functions"),
   }).index("by_sessionId", ["sessionId"]),
+  memberChannelLastReads: defineTable({
+    member: v.id("members"),
+    channel: v.id("channels"),
+    lastReadMessageId: v.optional(v.id("messages")),
+  })
+    .index("by_member_and_channel", ["member", "channel"])
+    .index("by_member", ["member"]),
 });

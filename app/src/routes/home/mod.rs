@@ -56,7 +56,7 @@ pub fn Home() -> impl IntoView {
     let presence = UseMutation::new::<HeartBeat>();
     let auth = use_auth();
     let user = UseQuery::new(move || {
-        auth.auth()
+        auth.auth
             .get()
             .and_then(|res| res.ok())
             .flatten()

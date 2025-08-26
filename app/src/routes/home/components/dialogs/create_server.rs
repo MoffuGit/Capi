@@ -13,14 +13,14 @@ use wasm_bindgen::JsCast;
 use web_sys::{Event, HtmlInputElement};
 
 use crate::components::auth::use_auth;
-use icons::{IconImage, IconLoader, IconX};
+use crate::components::uploadthing::{upload_file, UploadResult};
 use capi_ui::avatar::*;
 use capi_ui::button::*;
 use capi_ui::checkbox::Checkbox;
 use capi_ui::dialog::*;
 use capi_ui::input::Input;
 use capi_ui::label::*;
-use crate::components::uploadthing::{upload_file, UploadResult};
+use icons::{IconImage, IconLoader, IconX};
 
 #[derive(Debug, Serialize, Clone)]
 pub struct CreateServer {
@@ -42,7 +42,7 @@ impl Mutation for CreateServer {
 
 #[component]
 pub fn CreateServerDialog(open: RwSignal<bool>) -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
     let (name, set_name) = signal(String::default());
 
     let image_file: RwSignal<Option<ClientFile>> = RwSignal::new(None);

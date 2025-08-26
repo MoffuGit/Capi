@@ -36,7 +36,7 @@ pub fn Profile(server: Signal<Option<Server>>) -> impl IntoView {
 
 #[component]
 pub fn ProfileBanner(children: Children, server: Signal<Option<Server>>) -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
     let input_ref = NodeRef::new();
 
     let set_server_banner = UseMutation::with_local_fn::<File, _, _, _>(move |(file, client)| {
@@ -157,7 +157,7 @@ pub fn ProfileBanner(children: Children, server: Signal<Option<Server>>) -> impl
 pub fn ProfileImageSetting(server: Signal<Option<Server>>) -> impl IntoView {
     let input_ref = NodeRef::new();
 
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let set_server_image = UseMutation::with_local_fn::<File, _, _, _>(move |(file, client)| {
         let auth = auth.get();

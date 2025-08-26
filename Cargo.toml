@@ -78,7 +78,7 @@ reqwest = { version = "0.12", features = ["json", "multipart"] }
 futures = "0.3.31"
 async-broadcast = "0.7.2"
 gloo-timers = { version =  "0.3.0", features = ["futures"] }
-leptos-use = { version =  "0.16.2", default-features = false, features = ["on_click_outside", "use_element_bounding", "use_window_size", "use_element_hover", "use_interval_fn"] }
+leptos-use = { version =  "0.16.2", default-features = false, features = ["on_click_outside", "use_element_bounding", "use_window_size", "use_element_hover", "use_interval_fn", "signal_debounced", "use_intersection_observer"] }
 maplit = "1.0.2"
 uuid = { version = "1.17.0", features = ["v4", "js"] }
 wasm-bindgen-futures = "0.4.50"

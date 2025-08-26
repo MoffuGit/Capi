@@ -54,7 +54,7 @@ pub fn Profiles() -> impl IntoView {
 #[component]
 pub fn Profile() -> impl IntoView {
     let user = use_profile();
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let set_user_image = UseMutation::with_local_fn::<File, _, _, _>(move |(file, client)| {
         let auth = auth.get();
@@ -117,7 +117,7 @@ pub fn ProfileBanner(
     #[prop(into)] banner_url: MaybeProp<String>,
     children: Children,
 ) -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
     let input_ref = NodeRef::new();
 
     let set_user_banner = UseMutation::with_local_fn::<File, _, _, _>(move |(file, client)| {

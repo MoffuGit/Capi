@@ -334,9 +334,13 @@ pub struct ChannelMessage {
     pub mention_everyone: bool,
     #[serde(rename = "mention_roles")]
     pub mention_roles: Vec<String>,
+    #[serde[default]]
     pub reactions: Vec<Reaction>,
+    #[serde[default]]
     pub mentions: Vec<Mention>,
+    #[serde[default]]
     #[serde(rename = "role_mentions")]
     pub role_mentions: Vec<RoleMention>,
+    #[serde[default]]
     pub attachments: Vec<Attachment>,
 }

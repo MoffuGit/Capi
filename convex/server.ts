@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { ConvexError } from "convex/values";
 import { Id } from "./_generated/dataModel";
+import { api } from "./_generated/api.js";
 
 export const create = mutation({
   args: {
@@ -36,7 +37,6 @@ export const create = mutation({
       type,
     });
 
-    // Create the owner role for the new server
     const ownerRole = await db.insert("roles", {
       server: serverId,
       name: "Owner",
@@ -53,24 +53,22 @@ export const create = mutation({
       },
     });
 
-    // Create the default 'Member' role
     const defaultMemberRole = await db.insert("roles", {
       server: serverId,
       name: "Member",
       isOwner: false,
-      canBeDeleted: false, // Should not be deleted
-      level: 100, // Lower priority than owner
+      canBeDeleted: false,
+      level: 100,
       actions: {
         canManageChannels: false,
         canManageCategories: false,
         canManageRoles: false,
         canManageMembers: false,
         canManageServerSettings: false,
-        canCreateInvitation: true, // Only this capability
+        canCreateInvitation: true,
       },
     });
 
-    // Update the server to link the default role
     await db.patch(serverId, { defaultRole: defaultMemberRole });
 
     await db.insert("members", {
@@ -78,8 +76,8 @@ export const create = mutation({
       server: serverId,
       name: user.name,
       image_url: user.image_url,
-      roles: [ownerRole, defaultMemberRole], // Owner gets both roles
-      mostImportantRole: ownerRole, // Owner role is still the most important
+      roles: [ownerRole, defaultMemberRole],
+      mostImportantRole: ownerRole,
       online: true,
     });
 
@@ -489,6 +487,22 @@ export const joinServer = mutation({
       mostImportantRole: mostImportantRoleForNewMember,
     });
 
+    const channelsInServer = await ctx.db
+      .query("channels")
+      .withIndex("by_server", (q) => q.eq("server", serverId))
+      .collect();
+
+    await Promise.all(
+      channelsInServer.map((channel) =>
+        ctx.runMutation(
+          api.unreadMessages.initializeMemberChannelLastReadOnJoin,
+          {
+            memberId: newMemberId,
+            channelId: channel._id,
+          },
+        ),
+      ),
+    );
     return newMemberId;
   },
 });

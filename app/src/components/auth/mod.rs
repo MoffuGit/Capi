@@ -20,12 +20,6 @@ pub struct AuthContext {
     expires_in: RwSignal<u64>,
 }
 
-impl AuthContext {
-    pub fn auth(&self) -> Resource<Result<Option<Auth>, ServerFnError>> {
-        self.auth
-    }
-}
-
 pub fn use_auth() -> AuthContext {
     use_context().expect("shoud acces to the auth context")
 }

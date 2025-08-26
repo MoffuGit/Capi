@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { Id, Doc } from "./_generated/dataModel.js";
 import { v } from "convex/values";
+import { api } from "./_generated/api.js";
 
 export const createMessage = mutation({
   args: {
@@ -22,11 +23,18 @@ export const createMessage = mutation({
       mention_everyone: args.mention_everyone ?? false,
       mention_roles: args.mention_roles ?? [],
     };
-    return await ctx.db.insert("messages", newMessage);
+    const messageId = await ctx.db.insert("messages", newMessage);
+
+    await ctx.runMutation(api.unreadMessages.updateMemberChannelLastRead, {
+      memberId: args.senderId,
+      channelId: args.channelId,
+      messageId: messageId,
+    });
+
+    return messageId;
   },
 });
 
-// Define the type for _storage metadata
 type StorageMetadata = {
   _id: Id<"_storage">;
   _creationTime: number;
@@ -35,7 +43,6 @@ type StorageMetadata = {
   size: number;
 };
 
-// Define the shape of the additional data fetched for a message
 type MessageRelatedData = {
   reactions: Array<
     Doc<"messageReactionCounts"> & {
@@ -52,7 +59,6 @@ type MessageRelatedData = {
   >;
 };
 
-// Define the full message type including related data
 type FullMessageType = Doc<"messages"> & MessageRelatedData;
 
 export const getMessagesInChannel = query({
@@ -92,7 +98,7 @@ export const getMessagesInChannel = query({
                     att.storageId,
                   )) as StorageMetadata | null;
                   return {
-                    ...att, // Include _id, _creationTime, message, storageId from original Doc
+                    ...att,
                     url,
                     metadata,
                   };

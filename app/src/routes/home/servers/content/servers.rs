@@ -5,13 +5,13 @@ use leptos::prelude::*;
 use leptos_router::components::A;
 
 use crate::components::auth::use_auth;
+use crate::routes::home::components::dialogs::create_server::CreateServerDialog;
 use capi_ui::avatar::*;
 use capi_ui::card::*;
-use crate::routes::home::components::dialogs::create_server::CreateServerDialog;
 
 #[component]
 pub fn Servers() -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let data = UseQuery::new(move || {
         auth.get()

@@ -7,10 +7,10 @@ use leptos::prelude::*;
 use serde::Serialize;
 
 use crate::components::auth::use_auth;
+use crate::routes::use_profile;
 use capi_ui::avatar::*;
 use capi_ui::button::*;
 use capi_ui::card::*;
-use crate::routes::use_profile;
 
 #[derive(Debug, PartialEq, Serialize, Clone)]
 pub struct GetPublicServers {
@@ -41,7 +41,7 @@ impl Mutation for JoinServer {
 
 #[component]
 pub fn Discover() -> impl IntoView {
-    let auth = use_auth().auth();
+    let auth = use_auth().auth;
 
     let auth_id_signal =
         Signal::derive(move || auth.get().and_then(|res| res.ok()).flatten().map(|a| a.id));

@@ -24,6 +24,7 @@ import type * as reaction from "../reaction.js";
 import type * as roles from "../roles.js";
 import type * as server from "../server.js";
 import type * as task from "../task.js";
+import type * as unreadMessages from "../unreadMessages.js";
 import type * as user from "../user.js";
 
 /**
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   roles: typeof roles;
   server: typeof server;
   task: typeof task;
+  unreadMessages: typeof unreadMessages;
   user: typeof user;
 }>;
 export declare const api: FilterApi<

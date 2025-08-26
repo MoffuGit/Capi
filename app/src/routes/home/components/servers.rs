@@ -8,12 +8,12 @@ use serde::Serialize;
 
 use crate::components::auth::use_auth;
 use crate::components::roles::RolesProvider;
+use crate::components::ui::sidebar::*;
+use crate::routes::home::components::variants::ServerContextMenuData;
 use capi_ui::avatar::*;
 use capi_ui::context::*;
-use crate::components::ui::sidebar::*;
 use capi_ui::skeleton::*;
 use capi_ui::tooltip::*;
-use crate::routes::home::components::variants::ServerContextMenuData;
 
 use super::sidebar::ServerData;
 
@@ -76,7 +76,7 @@ pub fn ServerItem(
         })
     });
     let last_visited_channel = UseQuery::new(move || {
-        auth.auth()
+        auth.auth
             .get()
             .and_then(|auth| auth.ok())
             .flatten()
