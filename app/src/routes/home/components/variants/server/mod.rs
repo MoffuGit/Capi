@@ -212,17 +212,17 @@ pub fn InvitationDialog(
     server: Signal<Option<Server>>,
     member: Signal<Option<Member>>,
 ) -> impl IntoView {
-    let invitation = UseMutation::new();
-
-    Effect::new(move |_| {
-        if let (Some(server), Some(member)) = (server.get(), member.get()) {
-            invitation.dispatch(CreateInvitation {
-                server: server.id,
-                member: member.id,
-                expires: 1.0 * 60.0 * 7.0,
-            });
-        }
-    });
+    // let invitation = UseMutation::new();
+    //
+    // Effect::new(move |_| {
+    //     if let (Some(server), Some(member)) = (server.get(), member.get()) {
+    //         invitation.dispatch(CreateInvitation {
+    //             server: server.id,
+    //             member: member.id,
+    //             expires: 1.0 * 60.0 * 7.0,
+    //         });
+    //     }
+    // });
 
     view! {
         <Dialog
@@ -233,17 +233,17 @@ pub fn InvitationDialog(
                     <DialogTitle>"Invitation Code"</DialogTitle>
                 </DialogHeader>
                     <div class="grid gap-2">
-                        {
-                            move || {
-                                invitation.value().get().map(|value| {
-                                    value.ok().map(|invitation| view!{
-                                        <div>
-                                            {invitation}
-                                        </div>
-                                    })
-                                })
-                            }
-                        }
+                        // {
+                        //     move || {
+                        //         invitation.value().get().map(|value| {
+                        //             value.ok().map(|invitation| view!{
+                        //                 <div>
+                        //                     {invitation}
+                        //                 </div>
+                        //             })
+                        //         })
+                        //     }
+                        // }
                     </div>
             </DialogPopup>
         </Dialog>
