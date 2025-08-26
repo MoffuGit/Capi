@@ -1,7 +1,4 @@
-use headers::{
-    authorization::Credentials,
-    HeaderValue,
-};
+use headers::{HeaderValue, authorization::Credentials};
 
 pub static DEPRECATION_STATE_HEADER_NAME: &str = "x-convex-deprecation-state";
 pub static DEPRECATION_MSG_HEADER_NAME: &str = "x-convex-deprecation-message";
@@ -21,8 +18,7 @@ impl Credentials for ConvexAdminAuthorization {
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
             value.as_bytes().starts_with(b"Convex "),
-            "HeaderValue to decode should start with \"Convex ..\", received = {:?}",
-            value,
+            "HeaderValue to decode should start with \"Convex ..\", received = {value:?}",
         );
 
         Some(Self(value.clone()))

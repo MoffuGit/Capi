@@ -379,7 +379,7 @@ impl UseQuery {
     ) -> ReadSignal<Option<Result<F, String>>>
     where
         F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static,
-        Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone,
+        Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone + std::fmt::Debug,
     {
         let source = Memo::new(move |_| query());
 
@@ -412,7 +412,9 @@ impl UseQuery {
                                 let mut sub_stream = sub.map(|result| match result {
                                     FunctionResult::Value(value) => {
                                         match serde_json::from_value::<F>(value) {
-                                            Err(err) => Err(format!("{err}")),
+                                            Err(err) => Err(format!(
+                                                "Deserialization error for {query:?} query: {err}"
+                                            )),
                                             Ok(value) => Ok(value),
                                         }
                                     }
@@ -451,7 +453,7 @@ impl UseQuery {
     ) -> Signal<Option<Result<F, String>>>
     where
         F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static,
-        Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone,
+        Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone + std::fmt::Debug,
     {
         let query_signal = Self::new(query);
 

@@ -24,7 +24,6 @@ export default defineSchema({
     sender: v.id("members"),
     reference: v.optional(v.id("messages")),
     content: v.string(),
-    pinned: v.boolean(),
     mention_everyone: v.boolean(),
     mention_roles: v.array(v.id("roles")),
   }).index("by_channel", ["channel"]),
@@ -100,6 +99,7 @@ export default defineSchema({
       canManageMembers: v.boolean(),
       canManageServerSettings: v.boolean(),
       canCreateInvitation: v.boolean(),
+      canPinMessages: v.boolean(),
     }),
   }).index("by_server", ["server"]),
   members: defineTable({
@@ -150,4 +150,11 @@ export default defineSchema({
   })
     .index("by_member_and_channel", ["member", "channel"])
     .index("by_member", ["member"]),
+  pinnedMessages: defineTable({
+    // New table for pinned messages
+    message: v.id("messages"),
+    channel: v.id("channels"),
+  })
+    .index("by_channel", ["channel"])
+    .index("by_message", ["message"]),
 });

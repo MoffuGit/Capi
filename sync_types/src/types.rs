@@ -100,7 +100,7 @@ pub struct ClientEvent {
 pub struct UserIdentifier(pub String);
 impl UserIdentifier {
     pub fn construct(issuer_name: &str, subject: &str) -> Self {
-        Self(format!("{}|{}", issuer_name, subject))
+        Self(format!("{issuer_name}|{subject}"))
     }
 }
 

@@ -3,10 +3,12 @@ mod components;
 use common::convex::{Channel, Member, Role};
 use convex_client::leptos::{Mutation, Query, UseMutation, UseQuery};
 use leptos::prelude::*;
+use leptos_dom::warn;
 use leptos_router::hooks::use_location;
 use serde::{Deserialize, Serialize};
 
 use crate::components::auth::use_auth;
+use crate::components::roles::RolesProvider;
 use crate::components::ui::sidebar::{SidebarInset, SidebarProvider};
 
 use self::components::chat::Chat;
@@ -99,6 +101,14 @@ pub fn Channel() -> impl IntoView {
             .map(|data| data.member)
     });
 
+    let roles = Signal::derive(move || {
+        member_with_role
+            .get()
+            .and_then(|res| res.ok())
+            .flatten()
+            .map(|data| data.roles)
+    });
+
     let channel_query_signal_result = UseQuery::new(move || {
         let server = server.get()?;
         let channel = channel.get()?;
@@ -137,12 +147,14 @@ pub fn Channel() -> impl IntoView {
     let open = RwSignal::new(false);
 
     view! {
-        <Header channel=current_channel members_open=open />
-        <SidebarProvider class="flex-1 min-h-0 min-w-0" open=open main=false style="--sidebar-width: 250px" shortcut="u">
-            <SidebarInset class="flex-1 max-h-screen">
-                <Chat channel=current_channel member=member/>
-            </SidebarInset>
-            <MembersSideBar server=server member=member/>
-        </SidebarProvider>
+        <RolesProvider roles=roles>
+            <Header channel=current_channel members_open=open member=member />
+            <SidebarProvider class="flex-1 min-h-0 min-w-0" open=open main=false style="--sidebar-width: 250px" shortcut="u">
+                <SidebarInset class="flex-1 max-h-screen">
+                    <Chat channel=current_channel member=member/>
+                </SidebarInset>
+                <MembersSideBar server=server member=member/>
+            </SidebarProvider>
+        </RolesProvider>
     }
 }

@@ -119,12 +119,10 @@ pub fn Empty() -> impl IntoView {
 }
 
 //TOOD:
-//  add read and unread messages
-//  add mentions for users, roles and everyone
-//  add inbox
-//  add notifications
 //  add embeds
 //  add pinned messages
 //  add private conversations and friends
+//  add inbox
+//  add mentions for users, roles and everyone
 //  download for attachments
 //  add live calls

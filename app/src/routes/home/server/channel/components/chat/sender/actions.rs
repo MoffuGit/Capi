@@ -1,14 +1,12 @@
 use common::files::read_file;
-use gloo_file::File;
 use leptos::html::Input;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_dom::warn;
 use wasm_bindgen::JsCast as _;
 use web_sys::{Event, HtmlInputElement};
 
-use capi_ui::button::*;
 use crate::routes::server::channel::components::chat::ClientFile;
+use capi_ui::button::*;
 use icons::{IconPaperClip, IconSend, IconSmile};
 
 #[component]

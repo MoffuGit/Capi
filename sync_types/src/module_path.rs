@@ -149,10 +149,10 @@ impl FromStr for ModulePath {
         if path.file_name().is_none() {
             anyhow::bail!("Module path {p} doesn't have a filename.");
         }
-        if let Some(ext) = path.extension() {
-            if ext != "js" {
-                anyhow::bail!("Module path ({}) has an extension that isn't 'js'.", p);
-            }
+        if let Some(ext) = path.extension()
+            && ext != "js"
+        {
+            anyhow::bail!("Module path ({}) has an extension that isn't 'js'.", p);
         }
 
         let components = path
@@ -301,10 +301,10 @@ impl CanonicalizedModulePath {
             is_http,
             is_cron,
         } = self;
-        if let Some(ext) = path.extension() {
-            if ext == "js" {
-                path.set_extension("");
-            }
+        if let Some(ext) = path.extension()
+            && ext == "js"
+        {
+            path.set_extension("");
         }
         ModulePath {
             path,
@@ -315,7 +315,6 @@ impl CanonicalizedModulePath {
         }
     }
 
-    #[cfg(any(test, feature = "testing"))]
     pub fn with_http(&self) -> Self {
         Self {
             path: self.path.clone(),
@@ -326,7 +325,6 @@ impl CanonicalizedModulePath {
         }
     }
 
-    #[cfg(any(test, feature = "testing"))]
     pub fn with_cron(&self) -> Self {
         Self {
             path: self.path.clone(),

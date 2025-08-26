@@ -3,6 +3,9 @@ import { Id, Doc } from "./_generated/dataModel.js";
 import { v } from "convex/values";
 import { api } from "./_generated/api.js";
 
+import { ConvexError } from "convex/values";
+import type { QueryCtx } from "./_generated/server";
+
 export const createMessage = mutation({
   args: {
     channelId: v.id("channels"),
@@ -19,7 +22,6 @@ export const createMessage = mutation({
       sender: args.senderId,
       content: args.content,
       reference: args.referenceId,
-      pinned: args.pinned ?? false,
       mention_everyone: args.mention_everyone ?? false,
       mention_roles: args.mention_roles ?? [],
     };
@@ -57,9 +59,97 @@ type MessageRelatedData = {
       metadata: StorageMetadata | null;
     }
   >;
+  pinned: boolean;
 };
 
 type FullMessageType = Doc<"messages"> & MessageRelatedData;
+
+async function getFullMessageDetails(
+  ctx: QueryCtx,
+  message: Doc<"messages">,
+  channelId: Id<"channels">,
+  memberId: Id<"members">,
+): Promise<FullMessageType> {
+  const [reactions, mentions, role_mentions, attachments, isPinnedDoc] =
+    await Promise.all([
+      ctx.db
+        .query("messageReactionCounts")
+        .withIndex("by_message_and_emoji", (q) => q.eq("message", message._id))
+        .collect()
+        .then(async (messageReactionCounts) =>
+          Promise.all(
+            messageReactionCounts.map(async (reactionCount) => {
+              const memberReaction = await ctx.db
+                .query("memberReactions")
+                .withIndex("by_message_member_emoji", (q) =>
+                  q
+                    .eq("message", message._id)
+                    .eq("member", memberId)
+                    .eq("emoji", reactionCount.emoji),
+                )
+                .first();
+              return {
+                ...reactionCount,
+                hasReacted: !!memberReaction,
+              };
+            }),
+          ),
+        ),
+      ctx.db
+        .query("mentions")
+        .withIndex("by_message", (q) => q.eq("message", message._id))
+        .collect(),
+      ctx.db
+        .query("role_mentions")
+        .withIndex("by_message", (q) => q.eq("message", message._id))
+        .collect(),
+      ctx.db
+        .query("attachments")
+        .withIndex("by_message", (q) => q.eq("message", message._id))
+        .collect()
+        .then(async (atts) =>
+          Promise.all(
+            atts.map(async (att) => {
+              const url = await ctx.storage.getUrl(att.storageId);
+              const metadata = (await ctx.db.system.get(
+                att.storageId,
+              )) as StorageMetadata | null;
+              return {
+                ...att,
+                url,
+                metadata,
+              };
+            }),
+          ),
+        ),
+      ctx.db
+        .query("pinnedMessages")
+        .withIndex("by_message", (q) => q.eq("message", message._id))
+        .unique(),
+    ]);
+
+  let referencedMessage: FullMessageType | null = null;
+  if (message.reference) {
+    const refMsg = await ctx.db.get(message.reference);
+    if (refMsg) {
+      referencedMessage = await getFullMessageDetails(
+        ctx,
+        refMsg,
+        channelId,
+        memberId,
+      );
+    }
+  }
+
+  return {
+    ...message,
+    reactions,
+    mentions,
+    role_mentions,
+    attachments,
+    pinned: !!isPinnedDoc,
+  };
+}
 
 export const getMessagesInChannel = query({
   args: {
@@ -67,102 +157,15 @@ export const getMessagesInChannel = query({
     memberId: v.id("members"),
   },
   handler: async (ctx, { channelId, memberId }) => {
-    const fetchMessageRelatedData = async (
-      messageId: Id<"messages">,
-    ): Promise<MessageRelatedData> => {
-      const [messageReactionCounts, mentions, roleMentions, attachments] =
-        await Promise.all([
-          ctx.db
-            .query("messageReactionCounts")
-            .withIndex("by_message_and_emoji", (q) =>
-              q.eq("message", messageId),
-            )
-            .collect(),
-          ctx.db
-            .query("mentions")
-            .withIndex("by_message", (q) => q.eq("message", messageId))
-            .collect(),
-          ctx.db
-            .query("role_mentions")
-            .withIndex("by_message", (q) => q.eq("message", messageId))
-            .collect(),
-          ctx.db
-            .query("attachments")
-            .withIndex("by_message", (q) => q.eq("message", messageId))
-            .collect()
-            .then(async (atts) =>
-              Promise.all(
-                atts.map(async (att) => {
-                  const url = await ctx.storage.getUrl(att.storageId);
-                  const metadata = (await ctx.db.system.get(
-                    att.storageId,
-                  )) as StorageMetadata | null;
-                  return {
-                    ...att,
-                    url,
-                    metadata,
-                  };
-                }),
-              ),
-            ),
-        ]);
-
-      const reactionsWithHasReacted = await Promise.all(
-        messageReactionCounts.map(async (reactionCount) => {
-          const memberReaction = await ctx.db
-            .query("memberReactions")
-            .withIndex("by_message_member_emoji", (q) =>
-              q
-                .eq("message", messageId)
-                .eq("member", memberId)
-                .eq("emoji", reactionCount.emoji),
-            )
-            .first();
-          return {
-            ...reactionCount,
-            hasReacted: !!memberReaction,
-          };
-        }),
-      );
-      return {
-        reactions: reactionsWithHasReacted,
-        mentions,
-        role_mentions: roleMentions,
-        attachments,
-      };
-    };
-
     const messages = await ctx.db
       .query("messages")
       .withIndex("by_channel", (q) => q.eq("channel", channelId))
       .collect();
 
     const fullMessages = await Promise.all(
-      messages.map(async (message) => {
-        const { reactions, mentions, role_mentions, attachments } =
-          await fetchMessageRelatedData(message._id);
-
-        let referencedMessage: FullMessageType | null = null;
-        if (message.reference) {
-          const refMsg = await ctx.db.get(message.reference);
-          if (refMsg) {
-            const refData = await fetchMessageRelatedData(refMsg._id);
-            referencedMessage = {
-              ...refMsg,
-              ...refData,
-            };
-          }
-        }
-
-        return {
-          ...message,
-          reactions,
-          mentions,
-          role_mentions,
-          attachments,
-          referencedMessage,
-        };
-      }),
+      messages.map((message) =>
+        getFullMessageDetails(ctx, message, channelId, memberId),
+      ),
     );
 
     return fullMessages;
@@ -336,5 +339,147 @@ export const removeReaction = mutation({
     }
 
     return { success: true };
+  },
+});
+
+export const pinMessage = mutation({
+  args: {
+    auth: v.int64(),
+    messageId: v.id("messages"),
+    channelId: v.id("channels"),
+  },
+  handler: async (ctx, { auth, messageId, channelId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const channel = await ctx.db.get(channelId);
+    if (!channel) {
+      throw new ConvexError("Channel not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", channel.server).eq("user", user._id),
+      )
+      .unique();
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+    const canManageChannels = memberRoles.some(
+      (role) => role?.actions.canManageChannels,
+    );
+    if (!canManageChannels) {
+      throw new ConvexError("You do not have permission to manage channels.");
+    }
+
+    const message = await ctx.db.get(messageId);
+    if (!message || message.channel !== channelId) {
+      throw new ConvexError("Message not found or does not belong to channel");
+    }
+
+    const existingPin = await ctx.db
+      .query("pinnedMessages")
+      .withIndex("by_message", (q) => q.eq("message", messageId))
+      .unique();
+
+    if (existingPin) {
+      return existingPin._id;
+    }
+
+    return await ctx.db.insert("pinnedMessages", {
+      message: messageId,
+      channel: channelId,
+    });
+  },
+});
+
+export const unpinMessage = mutation({
+  args: {
+    auth: v.int64(),
+    messageId: v.id("messages"),
+    channelId: v.id("channels"),
+  },
+  handler: async (ctx, { auth, messageId, channelId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth", (q) => q.eq("authId", auth))
+      .unique();
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const channel = await ctx.db.get(channelId);
+    if (!channel) {
+      throw new ConvexError("Channel not found");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_server_and_user", (q) =>
+        q.eq("server", channel.server).eq("user", user._id),
+      )
+      .unique();
+    if (!member) {
+      throw new ConvexError("Member not found in this server");
+    }
+
+    const memberRoles = await Promise.all(
+      member.roles.map((roleId) => ctx.db.get(roleId)),
+    );
+    const canManageChannels = memberRoles.some(
+      (role) => role?.actions.canManageChannels,
+    );
+    if (!canManageChannels) {
+      throw new ConvexError("You do not have permission to manage channels.");
+    }
+
+    const pinnedMessageToDelete = await ctx.db
+      .query("pinnedMessages")
+      .withIndex("by_message", (q) => q.eq("message", messageId))
+      .first();
+
+    if (pinnedMessageToDelete) {
+      await ctx.db.delete(pinnedMessageToDelete._id);
+      return true;
+    }
+
+    return false;
+  },
+});
+
+export const getPinnedMessages = query({
+  args: {
+    channelId: v.id("channels"),
+    memberId: v.id("members"),
+  },
+  handler: async (ctx, { channelId, memberId }) => {
+    const pinnedMessageEntries = await ctx.db
+      .query("pinnedMessages")
+      .withIndex("by_channel", (q) => q.eq("channel", channelId))
+      .collect();
+
+    const fullPinnedMessages = await Promise.all(
+      pinnedMessageEntries.map(async (pinnedEntry) => {
+        const message = await ctx.db.get(pinnedEntry.message);
+        if (message) {
+          return await getFullMessageDetails(ctx, message, channelId, memberId);
+        }
+        return null;
+      }),
+    );
+
+    return fullPinnedMessages.filter(
+      (message): message is FullMessageType => message !== null,
+    );
   },
 });

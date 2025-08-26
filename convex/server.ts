@@ -49,6 +49,7 @@ export const create = mutation({
         canManageRoles: true,
         canManageMembers: true,
         canManageServerSettings: true,
+        canPinMessages: true,
         canCreateInvitation: true,
       },
     });
@@ -60,6 +61,7 @@ export const create = mutation({
       canBeDeleted: false,
       level: 100,
       actions: {
+        canPinMessages: false,
         canManageChannels: false,
         canManageCategories: false,
         canManageRoles: false,

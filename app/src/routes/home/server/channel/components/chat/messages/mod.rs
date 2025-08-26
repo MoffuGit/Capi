@@ -6,6 +6,7 @@ mod message_header;
 mod message_item;
 mod message_reactions;
 mod message_reference;
+mod pin;
 mod utils;
 
 use common::convex::{Channel, ChannelMessage, Member};
@@ -14,15 +15,12 @@ use leptos::html::Div;
 use leptos::prelude::*;
 use leptos_dom::warn;
 use leptos_use::{
-    signal_debounced, signal_debounced_with_options, use_debounce_fn_with_arg,
-    use_element_bounding, DebounceOptions, UseElementBoundingReturn,
+    signal_debounced_with_options, use_element_bounding, DebounceOptions, UseElementBoundingReturn,
 };
 
 use capi_ui::divider::Separator;
 use capi_ui::label::Label;
 use serde::Serialize;
-
-use crate::routes::server::channel::components::chat::unread::UnreadMessagesButton;
 
 use self::group::MessageGroup;
 

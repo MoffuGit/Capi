@@ -1,7 +1,8 @@
-use common::convex::Channel;
+use common::convex::{Channel, Member};
 use leptos::prelude::*;
 
 use crate::components::ui::sidebar::SidebarTrigger;
+use crate::routes::server::channel::components::pin::PinnedMessages;
 use capi_ui::breadcrumb::{Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage};
 use capi_ui::button::{Button, ButtonSizes, ButtonVariants};
 use capi_ui::divider::Separator;
@@ -10,7 +11,11 @@ use capi_ui::{Orientation, Side};
 use icons::{IconSearch, IconUsers};
 
 #[component]
-pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) -> impl IntoView {
+pub fn Header(
+    channel: Signal<Option<Channel>>,
+    members_open: RwSignal<bool>,
+    member: Signal<Option<Member>>,
+) -> impl IntoView {
     view! {
         <header class="bg-background sticky top-0 flex shrink-0 items-center gap-2 p-3 border-b">
             <SidebarTrigger class="-ml-1" />
@@ -55,6 +60,7 @@ pub fn Header(channel: Signal<Option<Channel>>, members_open: RwSignal<bool>) ->
                 >
                     <IconUsers/>
                 </Button>
+                <PinnedMessages channel=channel member=member />
                 <Sheet>
                     <SheetTrigger >
                         <Button

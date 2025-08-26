@@ -15,7 +15,7 @@ pub fn MessageInputArea(
 
     view! {
         <div class="relative self-center h-fit w-full overflow-y-auto overflow-x-hidden ">
-            <div class="text-sm font-normal relative max-h-80 overflow-y-scroll scrollbar-thin scrollbar-track-background">
+            <div class="text-sm font-normal relative max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-background">
                 <Show when=move || message.get().trim().is_empty()>
                     <div class="absolute left-0 select-none text-muted-foreground">
                         {

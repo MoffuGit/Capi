@@ -8,6 +8,7 @@ use leptos::prelude::*;
 
 use crate::components::emojis::EmojiSelector;
 use crate::routes::server::channel::components::chat::messages::message_reactions::AddReaction;
+use crate::routes::server::channel::components::chat::messages::pin::PinMessageButton;
 use crate::routes::server::channel::components::chat::ChatContext;
 use capi_ui::button::*;
 use capi_ui::dropwdown::*;
@@ -48,6 +49,7 @@ pub fn MessageActions(
                     <EmojiSelector history=context.reactions class="p-1" on_select_emoji=on_select_emoji/>
                 </DropdownMenuContent>
             </DropdownMenu>
+            <PinMessageButton msg=msg/>
             <MessageReferenceButton msg=msg.get_value()/>
         </div>
     }

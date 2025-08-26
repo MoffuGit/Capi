@@ -164,6 +164,8 @@ pub struct RoleActions {
     pub can_manage_server_settings: bool,
     #[serde(rename = "canCreateInvitation")]
     pub can_create_invitation: bool,
+    #[serde(rename = "canPinMessages")]
+    pub can_pin_messages: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -329,6 +331,7 @@ pub struct ChannelMessage {
     #[serde(rename = "referencedMessage")]
     pub referenced_message: Option<Box<ChannelMessage>>,
     pub content: String,
+    #[serde[default]]
     pub pinned: bool,
     #[serde(rename = "mention_everyone")]
     pub mention_everyone: bool,

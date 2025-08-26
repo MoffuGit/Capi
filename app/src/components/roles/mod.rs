@@ -16,6 +16,10 @@ impl UserRoles {
         self.roles.iter().any(|role| action_check(&role.actions))
     }
 
+    fn can_pin_messages(&self) -> bool {
+        self.can_perform_action(|actions| actions.can_pin_messages)
+    }
+
     pub fn can_manage_channels(&self) -> bool {
         self.can_perform_action(|actions| actions.can_manage_channels)
     }
@@ -122,5 +126,15 @@ pub fn CanCreateInvitation(children: ChildrenFn) -> impl IntoView {
             <Show when=move || user_roles.get().can_create_invitation()>
                 {children()}
             </Show>
+    }
+}
+
+#[component]
+pub fn CanPinMessages(children: ChildrenFn) -> impl IntoView {
+    let user_roles = use_roles();
+    view! {
+        <Show when=move || user_roles.get().can_pin_messages()>
+            {children()}
+        </Show>
     }
 }
