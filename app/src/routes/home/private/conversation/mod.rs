@@ -1,4 +1,5 @@
 mod messages;
+mod sender;
 
 use convex_client::leptos::{Query, UseQuery};
 use leptos::prelude::*;
@@ -8,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::components::auth::use_auth;
 
 use self::messages::Messages;
+use self::sender::Sender;
 
 use super::Header;
 
@@ -71,10 +73,14 @@ pub fn Conversation() -> impl IntoView {
             conversation_id: conversation,
         })
     });
+
+    let sender_ref = NodeRef::new();
+
     view! {
         <Header/>
         <div class="flex h-full w-full flex-col relative">
-            <Messages messages=messages/>
+            <Messages messages=messages sender_ref=sender_ref/>
+            <Sender sender_ref=sender_ref/>
         </div>
     }
 }

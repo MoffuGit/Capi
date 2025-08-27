@@ -1,13 +1,21 @@
+use leptos::html::Div;
 use leptos::prelude::*;
+use leptos_use::{use_element_bounding, UseElementBoundingReturn};
 
 use super::PrivateMessageDetails;
 
 #[component]
 pub fn Messages(
+    sender_ref: NodeRef<Div>,
     messages: ReadSignal<Option<Result<Vec<PrivateMessageDetails>, String>>>,
 ) -> impl IntoView {
+    let style = RwSignal::new(String::default());
+    let UseElementBoundingReturn { height, .. } = use_element_bounding(sender_ref);
+    Effect::new(move |_| {
+        style.set(format!("--sender-height: {}px", height.get()));
+    });
     view! {
-        <div class="flex min-h-0 flex-1 flex-col overflow-auto pt-4 scrollbar-thin scrollbar-track-background pb-[var(--sender-height)]">
+        <div style=style class="flex min-h-0 flex-1 flex-col overflow-auto pt-4 scrollbar-thin scrollbar-track-background pb-[var(--sender-height)]">
             {
                 move || {
                     messages.get().and_then(|res| res.ok()).unwrap_or_default().into_iter().map(|message| {
