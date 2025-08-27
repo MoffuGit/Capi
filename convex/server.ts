@@ -80,7 +80,6 @@ export const create = mutation({
       image_url: user.image_url,
       roles: [ownerRole, defaultMemberRole],
       mostImportantRole: ownerRole,
-      online: true,
     });
 
     return serverId;
@@ -485,7 +484,6 @@ export const joinServer = mutation({
       roles: defaultRoleForNewMember,
       name: user.name,
       image_url: user.image_url,
-      online: true,
       mostImportantRole: mostImportantRoleForNewMember,
     });
 

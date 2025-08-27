@@ -2,23 +2,19 @@ import { v } from "convex/values";
 import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server.js";
 import { api } from "./_generated/api.js";
 import { Id } from "./_generated/dataModel.js";
+import { presenceStatus } from "./schema.js";
 
-const presenceStatus = v.union(
-  v.literal("Online"),
-  v.literal("Idle"),
-  v.literal("NotDisturb"),
-  v.literal("Invisible"),
-);
 type PresenceStatus = typeof presenceStatus.type;
 
 export async function getUserStatus(
   ctx: QueryCtx | MutationCtx,
   userId: Id<"users">,
 ) {
-  return await ctx.db
+  const userStatus = await ctx.db
     .query("userStatus")
     .withIndex("by_user", (q) => q.eq("user", userId))
     .unique();
+  return userStatus;
 }
 
 async function updateMembersOnlineStatus(
@@ -26,15 +22,15 @@ async function updateMembersOnlineStatus(
   userId: Id<"users">,
   onlineStatus: boolean,
 ) {
-  const membersToUpdate = await ctx.db
-    .query("members")
-    .withIndex("by_user", (q) => q.eq("user", userId))
-    .collect();
-
-  for (const member of membersToUpdate) {
-    if (member.online !== onlineStatus) {
-      await ctx.db.patch(member._id, { online: onlineStatus });
-    }
+  const userStatus = await getUserStatus(ctx, userId);
+  if (userStatus) {
+    await ctx.db.patch(userStatus._id, { online: onlineStatus });
+  } else {
+    await ctx.db.insert("userStatus", {
+      user: userId,
+      status: "Online", // Default status
+      online: onlineStatus,
+    });
   }
 }
 
@@ -55,12 +51,10 @@ export const heartbeat = mutation({
     }
 
     const userStatusDoc = await getUserStatus(ctx, user);
-    const chosenStatus: PresenceStatus = userStatusDoc
-      ? userStatusDoc.status
-      : "Online";
+    const chosenStatus: PresenceStatus = userStatusDoc?.status || "Online";
 
     const membersShouldBeOnline = chosenStatus !== "Invisible";
-    await updateMembersOnlineStatus(ctx, user, membersShouldBeOnline);
+    await updateMembersOnlineStatus(ctx, user, membersShouldBeOnline); // Update userStatus.online
 
     const existingTimeout = await ctx.db
       .query("sessionTimeouts")
@@ -112,7 +106,7 @@ export const disconnectSession = mutation({
       .collect();
 
     if (remainingSessions.length === 0) {
-      await updateMembersOnlineStatus(ctx, userId, false);
+      await updateMembersOnlineStatus(ctx, userId, false); // Set userStatus.online to false
     }
   },
 });
@@ -121,7 +115,10 @@ export const getStatus = query({
   args: { userId: v.id("users") },
   handler: async (ctx, { userId }) => {
     const userStatusDoc = await getUserStatus(ctx, userId);
-    return userStatusDoc ? userStatusDoc.status : "Invisible"; // Default to "Invisible" if no record
+                                             if (userStatusDoc?.online === false) {
+                                               return "Offline";
+                                             }
+                                             return userStatusDoc?.status || "Offline"; // Default to Offline if no status is found
   },
 });
 
@@ -140,13 +137,18 @@ export const patchUserStatus = mutation({
     }
     const userStatusDoc = await getUserStatus(ctx, user._id);
 
-    if (userStatusDoc) {
-      await ctx.db.patch(userStatusDoc._id, { status });
-    } else {
-      await ctx.db.insert("userStatus", { user: user._id, status });
-    }
-
     const membersShouldBeOnline = status !== "Invisible";
-    await updateMembersOnlineStatus(ctx, user._id, membersShouldBeOnline);
+    if (userStatusDoc) {
+      await ctx.db.patch(userStatusDoc._id, {
+        status,
+        online: membersShouldBeOnline,
+      });
+    } else {
+      await ctx.db.insert("userStatus", {
+        user: user._id,
+        status,
+        online: membersShouldBeOnline,
+      });
+    }
   },
 });

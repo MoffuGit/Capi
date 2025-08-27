@@ -111,6 +111,7 @@ export const create = mutation({
     await ctx.db.insert("userStatus", {
       user: user,
       status: "Online",
+      online: true,
     });
   },
 });

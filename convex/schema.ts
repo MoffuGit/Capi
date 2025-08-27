@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const presenceStatus = v.union(
+export const presenceStatus = v.union(
   v.literal("Online"),
   v.literal("Idle"),
   v.literal("NotDisturb"),
@@ -111,18 +111,16 @@ export default defineSchema({
     imageId: v.optional(v.id("_storage")),
     bannerUrl: v.optional(v.string()),
     bannerId: v.optional(v.id("_storage")),
-    online: v.boolean(),
     mostImportantRole: v.optional(v.id("roles")),
   })
     .index("by_user", ["user"])
     .index("by_server", ["server"])
     .index("by_server_and_user", ["server", "user"])
     .index("by_server_and_important_role", ["server", "mostImportantRole"])
-    .index("by_server_and_status", ["server", "online"])
-    .index("by_server_and_important_role_and_status", [
+    .index("by_server_and_important_role_and_user", [
       "server",
       "mostImportantRole",
-      "online",
+      "user",
     ]),
   lastVisitedChannels: defineTable({
     member: v.id("members"),
@@ -131,6 +129,7 @@ export default defineSchema({
   userStatus: defineTable({
     user: v.id("users"),
     status: presenceStatus,
+    online: v.boolean(),
   }).index("by_user", ["user"]),
   sessions: defineTable({
     userId: v.id("users"),

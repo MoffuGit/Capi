@@ -43,13 +43,13 @@ pub fn MemberCard(
     let member = StoredValue::new(member);
     let auth = use_auth().auth;
     let store = use_toast_store();
-    let on_friend_request = move |msg: String| {
+    let on_friend_request = move |description: String, _type: String| {
         store.toasts().update(move |toasts| {
             toasts.push(ToastData {
                 id: Uuid::new_v4().as_u128(),
                 title: "".into(),
-                _type: "".into(),
-                description: msg,
+                _type,
+                description,
                 removed: false,
                 timeout: 4000,
                 height: 0.0,
@@ -63,9 +63,12 @@ pub fn MemberCard(
             async move {
                 let result = mutation.run(&mut client).await;
                 if result.is_ok() {
-                    on_friend_request("Friend request sent!".into())
+                    on_friend_request("Friend request sent!".into(), "".into())
                 } else {
-                    on_friend_request("Something go wrong with your friend request".into())
+                    on_friend_request(
+                        "Something go wrong with your friend request".into(),
+                        "".into(),
+                    )
                 }
             }
         },

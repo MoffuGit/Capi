@@ -121,7 +121,6 @@ pub struct Member {
     pub image_url: Option<String>,
     #[serde(rename = "bannerUrl")]
     pub banner_url: Option<String>,
-    pub online: bool,
     #[serde(rename = "mostImportantRole")]
     pub most_important_role: Option<String>,
 }
@@ -148,6 +147,8 @@ pub enum PresenceStatus {
     NotDisturb,
     #[serde(rename = "Invisible")]
     Invisible,
+    #[serde(rename = "Offline")]
+    Offline,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

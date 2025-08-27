@@ -424,7 +424,6 @@ impl UseQuery {
                                             Err(format!("{convex_error:?}"))
                                         }
                                     };
-                                    warn!("you set this initial value: {initial:?}");
 
                                     set_query_signal(Some(initial));
                                 }

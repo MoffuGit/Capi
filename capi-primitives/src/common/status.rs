@@ -1,7 +1,6 @@
 use leptos::ev::{animationend, transitionend};
 use leptos::html::Div;
 use leptos::prelude::*;
-use leptos_dom::warn;
 use leptos_use::use_event_listener;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;

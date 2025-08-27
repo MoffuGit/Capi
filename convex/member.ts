@@ -7,13 +7,27 @@ export const getOnlineMembersByRole = query({
     role: v.optional(v.id("roles")),
     server: v.id("servers"),
   },
-  handler: async ({ db }, { role, server }) => {
-    return await db
+  handler: async ({ db }, { role, server }) => { // Changed to fetch user status
+    const members = await db
       .query("members")
-      .withIndex("by_server_and_important_role_and_status", (q) =>
-        q.eq("server", server).eq("mostImportantRole", role).eq("online", true),
+      .withIndex("by_server_and_important_role_and_user", (q) =>
+        role
+          ? q.eq("server", server).eq("mostImportantRole", role)
+          : q.eq("server", server),
       )
       .collect();
+
+    const membersWithOnlineStatus = await Promise.all(
+      members.map(async (member) => {
+        const userStatus = await db
+          .query("userStatus")
+          .withIndex("by_user", (q) => q.eq("user", member.user))
+          .unique();
+        return userStatus?.online ? member : null;
+      }),
+    );
+
+    return membersWithOnlineStatus.filter(Boolean);
   },
 });
 
@@ -22,12 +36,22 @@ export const getOfflineMembers = query({
     server: v.id("servers"),
   },
   handler: async ({ db }, { server }) => {
-    return await db
+    const members = await db
       .query("members")
-      .withIndex("by_server_and_status", (q) =>
-        q.eq("server", server).eq("online", false),
-      )
+      .withIndex("by_server", (q) => q.eq("server", server))
       .collect();
+
+    const membersWithOfflineStatus = await Promise.all(
+      members.map(async (member) => {
+        const userStatus = await db
+          .query("userStatus")
+          .withIndex("by_user", (q) => q.eq("user", member.user))
+          .unique();
+        return userStatus?.online === false ? member : null;
+      }),
+    );
+
+    return membersWithOfflineStatus.filter(Boolean);
   },
 });
 
