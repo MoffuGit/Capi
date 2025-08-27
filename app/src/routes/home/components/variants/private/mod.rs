@@ -3,6 +3,7 @@ mod conversations;
 use convex_client::leptos::{Query, UseQuery};
 use icons::IconContact;
 use leptos::prelude::*;
+use leptos_router::components::A;
 use serde::{Deserialize, Serialize};
 use tailwind_fuse::tw_merge;
 
@@ -28,7 +29,7 @@ pub struct OtherMemberDetails {
 pub struct LastMessageSummary {
     pub content: String,
     #[serde(rename = "_creationTime")]
-    pub _creation_time: i64,
+    pub _creation_time: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -39,7 +40,7 @@ pub struct ConversationDetails {
     #[serde(rename = "lastMessage")]
     pub last_message: Option<LastMessageSummary>,
     #[serde(rename = "unreadCount")]
-    pub unread_count: i64,
+    pub unread_count: f64,
 }
 
 impl Query<Vec<ConversationDetails>> for GetMyConversations {
@@ -61,19 +62,25 @@ pub fn PrivateSideBar() -> impl IntoView {
         <SidebarContent>
             <SidebarGroup>
                 <SidebarGroupContent>
-                    <SidebarMenuButton class="group">
-                        <IconContact />
-                        <span
-                            class=tw_merge!(
-                                "text-sidebar-foreground/70 inline-flex flex-col items-start font-normal",
-                                "group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground",
-                                "transition-[color,font-weight] duration-150 ease-out",
-                                "after:content-[attr(data-text)] after:h-0 after:hidden after:overflow-hidden after:select-none after:pointer-events-none after:font-bold"
-                            )
-                        >
-                            "Friends"
-                        </span>
-                    </SidebarMenuButton>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <A href="/servers/me">
+                                <SidebarMenuButton class="group">
+                                    <IconContact />
+                                    <span
+                                        class=tw_merge!(
+                                            "text-sidebar-foreground/70 inline-flex flex-col items-start font-normal",
+                                            "group-data-[active=true]/button:font-bold group-hover/button:text-sidebar-foreground",
+                                            "transition-[color,font-weight] duration-150 ease-out",
+                                            "after:content-[attr(data-text)] after:h-0 after:hidden after:overflow-hidden after:select-none after:pointer-events-none after:font-bold"
+                                        )
+                                    >
+                                        "Friends"
+                                    </span>
+                                </SidebarMenuButton>
+                            </A>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
             <SidebarGroup>

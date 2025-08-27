@@ -1,4 +1,6 @@
 use leptos::prelude::*;
+use leptos_router::components::A;
+use leptos_router::hooks::use_location;
 use tailwind_fuse::tw_merge;
 
 use crate::components::ui::sidebar::*;
@@ -9,14 +11,14 @@ use super::ConversationDetails;
 pub fn ConversationItems(
     conversations: ReadSignal<Option<Result<Vec<ConversationDetails>, String>>>,
 ) -> impl IntoView {
-    // let location = use_location();
-    // let path = location.pathname;
-    // let current_channel = Memo::new(move |_| {
-    //     path.get()
-    //         .split('/')
-    //         .nth(3)
-    //         .map(|channel| channel.to_string())
-    // });
+    let location = use_location();
+    let path = location.pathname;
+    let current_conversation = Memo::new(move |_| {
+        path.get()
+            .split('/')
+            .nth(3)
+            .map(|conversation| conversation.to_string())
+    });
     let conversations = Signal::derive(move || conversations.get().and_then(|res| res.ok()));
     view! {
         <SidebarMenu>
@@ -25,27 +27,30 @@ pub fn ConversationItems(
                 key=|conversation| conversation._id.clone()
                 let:conversation
             >
-                <ConversationItem conversation=conversation/>
+                <ConversationItem conversation=conversation current_conversation=current_conversation/>
             </For>
         </SidebarMenu>
     }
 }
 
 #[component]
-pub fn ConversationItem(conversation: ConversationDetails) -> impl IntoView {
+pub fn ConversationItem(
+    conversation: ConversationDetails,
+    current_conversation: Memo<Option<String>>,
+) -> impl IntoView {
     let receiver = StoredValue::new(conversation.other_member);
     let id = StoredValue::new(conversation._id);
     view! {
         <SidebarMenuItem>
-            // <A href=move || format!("/servers/{}/{}", )>
+            <A href=move || format!("/servers/me/{}", id.get_value())>
                 <SidebarMenuButton
-                    // is_active=Signal::derive(
-                    //     move || {
-                    //         current_channel.get().is_some_and(|curr| {
-                    //              id.get_value() == curr
-                    //         })
-                    //     }
-                    // )
+                    is_active=Signal::derive(
+                        move || {
+                            current_conversation.get().is_some_and(|curr| {
+                                 id.get_value() == curr
+                            })
+                        }
+                    )
                     class="group/button group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:h-8! group-data-[collapsible=icon]:p-2!">
                     <span
                         class=tw_merge!(
@@ -58,7 +63,7 @@ pub fn ConversationItem(conversation: ConversationDetails) -> impl IntoView {
                         {receiver.get_value().name}
                     </span>
                 </SidebarMenuButton>
-            // </A>
+            </A>
         </SidebarMenuItem>
 
     }

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { api } from "./_generated/api.js";
 
 export const sendFriendRequest = mutation({
   args: {
@@ -112,6 +113,11 @@ export const acceptFriendRequest = mutation({
       await ctx.db.patch(existingReverseFriendship._id, { status: "accepted" });
     }
 
+    await ctx.runMutation(api.privateConversations.createOrGetConversation, {
+      member2Id: request.sender,
+      auth: args.auth,
+    });
+
     return { success: true };
   },
 });
@@ -190,7 +196,12 @@ export const getFriends = query({
       friendUserIds.map(async (userId) => {
         const user = await ctx.db.get(userId);
         return user
-          ? { _id: user._id, name: user.name, imageUrl: user.image_url }
+          ? {
+              _id: user._id,
+              name: user.name,
+              imageUrl: user.image_url,
+              bannerUrl: user.bannerUrl,
+            }
           : null;
       }),
     );

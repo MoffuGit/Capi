@@ -17,6 +17,7 @@ use self::{
         ui::theme::ThemeProvider,
     },
     routes::{
+        private::Friends,
         server::{channel::Channel, Server},
         servers::Servers,
         GoogleAuth, Home, Login, SignUp,
@@ -89,7 +90,7 @@ pub fn App() -> impl IntoView {
                                         >
                                             <Route
                                                 path=StaticSegment("")
-                                                view=move || view!{<div>"private"</div>}
+                                                view=Friends
                                             />
                                             <Route
                                                 path=ParamSegment("conversation")
