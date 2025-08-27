@@ -16,10 +16,12 @@ import type {
 import type * as category from "../category.js";
 import type * as channel from "../channel.js";
 import type * as files from "../files.js";
+import type * as friends from "../friends.js";
 import type * as invitations from "../invitations.js";
 import type * as member from "../member.js";
 import type * as messages from "../messages.js";
 import type * as presence from "../presence.js";
+import type * as privateConversations from "../privateConversations.js";
 import type * as reaction from "../reaction.js";
 import type * as roles from "../roles.js";
 import type * as server from "../server.js";
@@ -39,10 +41,12 @@ declare const fullApi: ApiFromModules<{
   category: typeof category;
   channel: typeof channel;
   files: typeof files;
+  friends: typeof friends;
   invitations: typeof invitations;
   member: typeof member;
   messages: typeof messages;
   presence: typeof presence;
+  privateConversations: typeof privateConversations;
   reaction: typeof reaction;
   roles: typeof roles;
   server: typeof server;

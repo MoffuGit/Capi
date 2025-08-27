@@ -151,10 +151,40 @@ export default defineSchema({
     .index("by_member_and_channel", ["member", "channel"])
     .index("by_member", ["member"]),
   pinnedMessages: defineTable({
-    // New table for pinned messages
     message: v.id("messages"),
     channel: v.id("channels"),
   })
     .index("by_channel", ["channel"])
     .index("by_message", ["message"]),
+  friends: defineTable({
+    sender: v.id("users"),
+    receiver: v.id("users"),
+    status: v.union(v.literal("pending"), v.literal("accepted")),
+  })
+    .index("by_sender", ["sender"])
+    .index("by_receiver", ["receiver"])
+    .index("by_sender_receiver", ["sender", "receiver"])
+    .index("by_receiver_sender", ["receiver", "sender"]),
+
+  conversations: defineTable({
+    memberOne: v.id("users"),
+    memberTwo: v.id("users"),
+  })
+    .index("by_memberOne", ["memberOne"])
+    .index("by_memberTwo", ["memberTwo"])
+    .index("by_memberOne_memberTwo", ["memberOne", "memberTwo"])
+    .index("by_memberTwo_memberOne", ["memberTwo", "memberOne"]),
+
+  privateMessages: defineTable({
+    conversation: v.id("conversations"),
+    sender: v.id("users"),
+    content: v.string(),
+    reference: v.optional(v.id("privateMessages")),
+  }).index("by_conversation", ["conversation"]),
+
+  privateMessageReads: defineTable({
+    member: v.id("users"),
+    conversation: v.id("conversations"),
+    lastReadMessage: v.optional(v.id("privateMessages")),
+  }).index("by_member_and_conversation", ["member", "conversation"]),
 });

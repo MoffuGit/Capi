@@ -83,10 +83,19 @@ pub fn App() -> impl IntoView {
                                             path=StaticSegment("")
                                             view=Servers
                                         />
-                                        <Route
+                                        <ParentRoute
                                             path=StaticSegment("me")
-                                            view=move || view!{<div>"private"</div>}
-                                        />
+                                            view=Empty
+                                        >
+                                            <Route
+                                                path=StaticSegment("")
+                                                view=move || view!{<div>"private"</div>}
+                                            />
+                                            <Route
+                                                path=ParamSegment("conversation")
+                                                view=move || view!{<div>"conversation"</div>}
+                                            />
+                                        </ParentRoute>
                                         <ParentRoute
                                             path=ParamSegment("server")
                                             view=Empty
@@ -120,7 +129,6 @@ pub fn Empty() -> impl IntoView {
 
 //TOOD:
 //  add embeds
-//  add pinned messages
 //  add private conversations and friends
 //  add inbox
 //  add mentions for users, roles and everyone

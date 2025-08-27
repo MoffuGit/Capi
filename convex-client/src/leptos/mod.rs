@@ -5,7 +5,7 @@ mod worker;
 
 use crate::leptos::worker::worker;
 use async_trait::async_trait;
-use leptos::logging::error;
+use leptos::logging::{error, warn};
 use leptos::prelude::*;
 use leptos::task::spawn_local_scoped_with_cancellation;
 use std::sync::Arc;
@@ -378,7 +378,7 @@ impl UseQuery {
         query: impl Fn() -> Option<Q> + Send + Sync + 'static,
     ) -> ReadSignal<Option<Result<F, String>>>
     where
-        F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static,
+        F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static + std::fmt::Debug,
         Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone + std::fmt::Debug,
     {
         let source = Memo::new(move |_| query());
@@ -409,6 +409,25 @@ impl UseQuery {
                     spawn_local_scoped_with_cancellation(async move {
                         match client.subscribe(&name_clone, args_value).await {
                             Ok(sub) => {
+                                if let Some(initial) = sub.initial.clone() {
+                                    let initial = match initial {
+                                        FunctionResult::Value(value) => {
+                                            match serde_json::from_value::<F>(value) {
+                                                Err(err) => Err(format!(
+                                                    "Deserialization error for {query:?} query: {err}"
+                                                )),
+                                                Ok(value) => Ok(value),
+                                            }
+                                        }
+                                        FunctionResult::ErrorMessage(err) => Err(err),
+                                        FunctionResult::ConvexError(convex_error) => {
+                                            Err(format!("{convex_error:?}"))
+                                        }
+                                    };
+                                    warn!("you set this initial value: {initial:?}");
+
+                                    set_query_signal(Some(initial));
+                                }
                                 let mut sub_stream = sub.map(|result| match result {
                                     FunctionResult::Value(value) => {
                                         match serde_json::from_value::<F>(value) {
@@ -452,7 +471,7 @@ impl UseQuery {
         preloaded: F,
     ) -> Signal<Option<Result<F, String>>>
     where
-        F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static,
+        F: DeserializeOwned + PartialEq + Clone + Send + Sync + 'static + std::fmt::Debug,
         Q: Query<F> + Serialize + Send + Sync + 'static + PartialEq + Clone + std::fmt::Debug,
     {
         let query_signal = Self::new(query);

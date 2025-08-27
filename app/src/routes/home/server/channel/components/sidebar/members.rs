@@ -1,4 +1,6 @@
+use api::presence::GetUserStatus;
 use common::convex::Member;
+use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 
 use super::card::MemberCard;
@@ -16,6 +18,11 @@ pub fn MembersItems(members: ReadSignal<Option<Result<Vec<Member>, String>>>) ->
                 let(member)
                 children=move |member| {
                     let member = StoredValue::new(member);
+                    let status = UseQuery::new(move || {
+                        Some(GetUserStatus {
+                            user: member.get_value().user
+                        })
+                    });
                     view!{
                         <DropdownMenu>
                             <DropdownMenuTrigger>
@@ -36,7 +43,7 @@ pub fn MembersItems(members: ReadSignal<Option<Result<Vec<Member>, String>>>) ->
                                 </SidebarMenuItem>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent side=DropdownMenuSide::Left align=DropdownMenuAlign::Start>
-                                <MemberCard member=member.get_value()/>
+                                <MemberCard member=member.get_value() status=Signal::derive(move || status.get().and_then(|status| status.ok()).flatten())/>
                             </DropdownMenuContent>
                         </DropdownMenu>
 

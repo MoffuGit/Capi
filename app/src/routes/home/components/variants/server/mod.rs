@@ -6,7 +6,7 @@ use api::category::GetCategories;
 use api::channel::GetChannels;
 use api::server::ServerData;
 use common::convex::{Category, Member, Server};
-use convex_client::leptos::{Mutation, UseMutation, UseQuery};
+use convex_client::leptos::{Mutation, UseQuery};
 use leptos::prelude::*;
 use leptos_dom::log;
 use leptos_router::hooks::use_location;

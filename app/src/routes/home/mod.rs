@@ -1,4 +1,5 @@
 mod components;
+pub mod private;
 pub mod server;
 pub mod servers;
 

@@ -1,4 +1,6 @@
+use api::presence::GetUserStatus;
 use chrono::{Duration, Local};
+use convex_client::leptos::UseQuery;
 use leptos::prelude::*;
 
 use common::convex::Member;
@@ -28,6 +30,12 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
 
     let member = StoredValue::new(member);
 
+    let status = UseQuery::new(move || {
+        Some(GetUserStatus {
+            user: member.get_value().user,
+        })
+    });
+
     view! {
         <div class="flex items-center gap-1 -translate-x-3">
             <DropdownMenu>
@@ -49,7 +57,7 @@ pub fn MessageHeader(member: Member, date: f64) -> impl IntoView {
                     side=DropdownMenuSide::Right
                     align=DropdownMenuAlign::Start
                 >
-                    <MemberCard member=member.get_value() />
+                    <MemberCard member=member.get_value() status=Signal::derive(move || status.get().and_then(|status| status.ok()).flatten())/>
                 </DropdownMenuContent>
             </DropdownMenu>
             <div>
