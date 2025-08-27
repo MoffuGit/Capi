@@ -1,3 +1,5 @@
+pub mod conversation;
+
 use capi_ui::avatar::*;
 use capi_ui::card::*;
 use capi_ui::divider::Separator;
@@ -86,47 +88,6 @@ pub struct GetFriendshipStatus {
 impl Query<String> for GetFriendshipStatus {
     fn name(&self) -> String {
         "friends:getFriendshipStatus".to_string()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PrivateMessageDetails {
-    pub _id: String,
-    pub conversation: String,
-    pub sender: String,
-    pub content: String,
-    pub reference: Option<String>,
-    #[serde(rename = "_creationTime")]
-    pub _creation_time: i64,
-    #[serde(rename = "senderName")]
-    pub sender_name: String,
-    #[serde(rename = "senderImageUrl")]
-    pub sender_image_url: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, PartialEq)]
-pub struct GetPrivateMessages {
-    #[serde(rename = "conversationId")]
-    pub conversation_id: String,
-    pub auth: i64,
-}
-
-impl Query<Vec<PrivateMessageDetails>> for GetPrivateMessages {
-    fn name(&self) -> String {
-        "privateConversations:getPrivateMessages".to_string()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, PartialEq)]
-pub struct GetLastReadMessage {
-    #[serde(rename = "conversationId")]
-    pub conversation_id: String,
-    pub auth: i64,
-}
-
-impl Query<Option<String>> for GetLastReadMessage {
-    fn name(&self) -> String {
-        "privateConversations:getLastReadMessage".to_string()
     }
 }
 

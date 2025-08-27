@@ -17,7 +17,7 @@ use self::{
         ui::theme::ThemeProvider,
     },
     routes::{
-        private::Friends,
+        private::{conversation::Conversation, Friends},
         server::{channel::Channel, Server},
         servers::Servers,
         GoogleAuth, Home, Login, SignUp,
@@ -94,7 +94,7 @@ pub fn App() -> impl IntoView {
                                             />
                                             <Route
                                                 path=ParamSegment("conversation")
-                                                view=move || view!{<div>"conversation"</div>}
+                                                view=Conversation
                                             />
                                         </ParentRoute>
                                         <ParentRoute

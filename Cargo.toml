@@ -2,7 +2,6 @@
 resolver = "2"
 members = [ "api", "sync_types","app", "common", "frontend", "server", "api", "auth", "convex-client", "capi-primitives", "icons", "capi-virtual", "capi-ui", "markdown"]
 
-# need to be applied only to wasm build
 [profile.release]
 codegen-units = 1
 lto = true
