@@ -14,7 +14,7 @@ use capi_ui::card::*;
 
 #[derive(Debug, PartialEq, Serialize, Clone)]
 pub struct GetPublicServers {
-    auth: i64,
+    pub auth: i64,
 }
 
 impl Query<Vec<Server>> for GetPublicServers {
@@ -40,22 +40,13 @@ impl Mutation for JoinServer {
 }
 
 #[component]
-pub fn Discover() -> impl IntoView {
+pub fn Discover(data: Signal<Option<Vec<Server>>>) -> impl IntoView {
+    let join_server_action = UseMutation::new::<JoinServer>();
+
     let auth = use_auth().auth;
 
     let auth_id_signal =
         Signal::derive(move || auth.get().and_then(|res| res.ok()).flatten().map(|a| a.id));
-
-    let data = UseQuery::new(move || {
-        auth.get()
-            .and_then(|res| res.ok())
-            .flatten()
-            .map(|auth| GetPublicServers { auth: auth.id })
-    });
-
-    let data = Signal::derive(move || data.get().and_then(|res| res.ok()));
-
-    let join_server_action = UseMutation::new::<JoinServer>();
 
     view! {
         <div class="grid gap-4 grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))]">
